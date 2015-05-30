@@ -1,0 +1,4 @@
+[Project]
+Name=GraphMatching
+Manager=KDevCMakeManager
+VersionControl=kdevgit
