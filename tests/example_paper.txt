@@ -1,0 +1,13 @@
+# this is the example from the paper itself
+@BipartitionA
+a1, a2
+
+@BipartitionB
+b1, b2
+
+@PreferenceLists
+a1: b1, b2
+a2: b1
+b1: a1, a2
+b2: a1
+@End

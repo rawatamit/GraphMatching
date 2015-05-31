@@ -10,4 +10,5 @@ add_subdirectory(lib)
 
 # build and install
 add_executable(graphmatching main.cc)
+target_link_libraries(graphmatching graph)
 install(TARGETS graphmatching RUNTIME DESTINATION bin)
