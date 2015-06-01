@@ -11,11 +11,11 @@ BipartiteGraph::~BipartiteGraph() {
     B_.clear();
 }
 
-BipartiteGraph::VertexSetType const& BipartiteGraph::get_set_A() {
+BipartiteGraph::VertexSetType const& BipartiteGraph::get_A_partition() {
     return A_;
 }
 
-BipartiteGraph::VertexSetType const& BipartiteGraph::get_set_B() {
+BipartiteGraph::VertexSetType const& BipartiteGraph::get_B_partition() {
     return B_;
 }
 
@@ -31,12 +31,12 @@ Vertex* BipartiteGraph::get_vertex_from_B(Vertex* v) {
 
 std::ostream& operator<<(std::ostream& out, BipartiteGraph* G) {
     out << "A:\n";
-    for (Vertex* v : G->get_set_A()) {
+    for (Vertex* v : G->get_A_partition()) {
         out << "    " << v;
     }
     
     out << "B:\n";
-    for (Vertex* v : G->get_set_B()) {
+    for (Vertex* v : G->get_B_partition()) {
         out << "    " << v;
     }
     

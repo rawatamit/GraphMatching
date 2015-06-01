@@ -19,8 +19,8 @@ public:
     BipartiteGraph(VertexSetType const& A, VertexSetType const& B);
     virtual ~BipartiteGraph();
     
-    VertexSetType const& get_set_A();
-    VertexSetType const& get_set_B();
+    VertexSetType const& get_A_partition();
+    VertexSetType const& get_B_partition();
     
     Vertex* get_vertex_from_A(Vertex* v);
     Vertex* get_vertex_from_B(Vertex* v);

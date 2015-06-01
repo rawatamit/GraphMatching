@@ -1,13 +1,20 @@
 # this is the example from the paper itself
-@BipartitionA
-a1, a2
+@PartitionA
+a1, a2 ;
+@End
 
-@BipartitionB
-b1, b2
+@PartitionB
+b1, b2 ;
+@End
 
-@PreferenceLists
-a1: b1, b2
-a2: b1
-b1: a1, a2
-b2: a1
+# preference lists for vertices in partition A
+@PreferenceListsA
+a1: b1, b2 ;
+a2: b1 ;
+@End
+
+# preference lists for vertices in partition B
+@PreferenceListsB
+b1: a1, a2 ;
+b2: a1 ;
 @End

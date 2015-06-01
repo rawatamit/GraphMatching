@@ -14,7 +14,7 @@ PopularMatching2Sided::~PopularMatching2Sided() {
 void PopularMatching2Sided::modify_graph() {
     // for each vertex in set A, add a copy with
     // level 1 and the same preference list
-    for (Vertex* a : G_->get_set_A()) {
+    for (Vertex* a : G_->get_A_partition()) {
         map_a1_[a->get_id()] = new Vertex(a->get_id(),
                                           a->get_level() + 1,
                                           a->get_preference_list());
@@ -22,7 +22,7 @@ void PopularMatching2Sided::modify_graph() {
     
     // for every vertex in set B, add a copy of vertices
     // of level 1 in the same order
-    for (Vertex* b : G_->get_set_B()) {
+    for (Vertex* b : G_->get_B_partition()) {
         Vertex:: PreferenceListType& pref_list = b->get_preference_list();
         for (Vertex::PreferenceListReverseIterator
                 i = b->preference_list_rbegin(),
@@ -39,7 +39,7 @@ void PopularMatching2Sided::find_matching() {
    std::queue<Vertex*> Q;
    
    // insert level 0 vertices from set A in the queue
-   std::for_each(G_->get_set_A().begin(), G_->get_set_A().end(),
+   std::for_each(G_->get_A_partition().begin(), G_->get_A_partition().end(),
                  [&Q] (Vertex* v) { Q.push(v); });
    modify_graph(); // update the graph with new vertices
    
@@ -72,7 +72,7 @@ void PopularMatching2Sided::find_matching() {
    }
    
    // find the matched pairs
-   for (Vertex* b : G_->get_set_B()) {
+   for (Vertex* b : G_->get_B_partition()) {
        if (b->is_matched()) {
            matched_pair_list_.emplace_back(std::make_pair(b->get_partner()->get_id(), b->get_id()));
        }
