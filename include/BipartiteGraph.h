@@ -1,13 +1,16 @@
 #ifndef BIPARTITE_GRAPH_H
 #define BIPARTITE_GRAPH_H
 
-#include "Vertex.h"
-#include <set>
+#include <memory>
 #include <ostream>
+#include <set>
+
+class Vertex;  // forward definition for Vertex
 
 class BipartiteGraph {
 public:
-    typedef std::set<Vertex*> VertexSetType;
+    typedef std::shared_ptr<Vertex> VertexType;
+    typedef std::set<VertexType> VertexSetType;
     typedef VertexSetType::iterator VertexSetIterator;
 
 private:
@@ -16,16 +19,17 @@ private:
     VertexSetType B_;
 
 public:
-    BipartiteGraph(VertexSetType const& A, VertexSetType const& B);
+    BipartiteGraph(const VertexSetType& A, const VertexSetType& B);
     virtual ~BipartiteGraph();
-    
-    VertexSetType const& get_A_partition();
-    VertexSetType const& get_B_partition();
-    
-    Vertex* get_vertex_from_A(Vertex* v);
-    Vertex* get_vertex_from_B(Vertex* v);
-    
-    friend std::ostream& operator<<(std::ostream& out, BipartiteGraph* G);
+
+    const VertexSetType& get_A_partition();
+    const VertexSetType& get_B_partition();
+
+    VertexType get_vertex_from_A(const VertexType& v);
+    VertexType get_vertex_from_B(const VertexType& v);
+
+    friend std::ostream& operator<<(std::ostream& out,
+                                    const std::unique_ptr<BipartiteGraph>& G);
 };
 
 #endif

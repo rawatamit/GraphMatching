@@ -1,7 +1,6 @@
 #include "GraphReader.h"
+#include "PreferenceList.h"
 #include <stdexcept>
-
-#include <iostream>
 
 /// Lexer class defined here
 
@@ -23,14 +22,14 @@ Token Lexer::next_token() {
     while (isspace(ch_)) {
         ch_ = in_.get();
     }
-    
+
     // skip comments
     if (ch_ == '#') {
         while (ch_ != '\n' and ch_ != EOF) {
             ch_ = in_.get();
         }
     }
-    
+
     // skip newline and spaces
     if (isspace(ch_)) { ch_ = in_.get(); return next_token(); }
     if (ch_ == EOF)   { return TOK_EOF; }
@@ -38,16 +37,16 @@ Token Lexer::next_token() {
     if (ch_ == '@')   { ch_ = in_.get(); return TOK_AT; }
     if (ch_ == ',')   { ch_ = in_.get(); return TOK_COMMA; }
     if (ch_ == ';')   { ch_ = in_.get(); return TOK_SEMICOLON; }
-    
+
     // a directive or a string
     if (isalnum(ch_)) {
         lexeme_.clear();
-        
+
         while (isalnum(ch_)) {
             lexeme_.push_back(ch_);
             ch_ = in_.get();
         }
-        
+
         if (lexeme_ == "End") return TOK_END;
         if (lexeme_ == "PartitionA") return TOK_PARTITION_A;
         if (lexeme_ == "PartitionB") return TOK_PARTITION_B;
@@ -55,7 +54,7 @@ Token Lexer::next_token() {
         if (lexeme_ == "PreferenceListsB") return TOK_PREF_LISTS_B;
         return TOK_STRING;
     }
-    
+
     // flag error, return the erraneous character
     lexeme_.clear();
     lexeme_.push_back(ch_);
@@ -70,13 +69,12 @@ std::string const& Lexer::get_lexeme() const {
 /// GraphReader class defined here
 
 GraphReader::GraphReader(const char* file_name) {
-    lexer_ = new Lexer(file_name);
+    lexer_ = std::make_unique<Lexer>(file_name);
     consume(); // read first token
 }
 
-GraphReader::~GraphReader() {
-    delete lexer_;
-}
+GraphReader::~GraphReader()
+{}
 
 void GraphReader::consume() {
     curtok_ = lexer_->next_token();
@@ -97,23 +95,23 @@ void GraphReader::match(Token expected) {
 /// @End
 void GraphReader::read_partition(VertexMap& vmap) {
     consume(); // assume that the call to this function was sane
-    
+
     // read the vertices in the partion
     while (curtok_ != TOK_SEMICOLON) {
         std::string v = lexer_->get_lexeme();
         match(TOK_STRING);
-        vmap[v] = new Vertex(v);
-        
+        vmap.emplace(v, std::make_shared<Vertex>(v));
+
         // if there are more vertices, they must
         // be delimited using commas
         if (curtok_ != TOK_SEMICOLON) {
             match(TOK_COMMA);
         }
     }
-    
+
     // list should be delimited by a semicolon
     match(TOK_SEMICOLON);
-    
+
     // end of this directive
     match(TOK_AT);
     match(TOK_END);
@@ -127,29 +125,29 @@ void GraphReader::read_preference_list(VertexMap& vmapA, VertexMap& vmapB, bool 
     std::string a = lexer_->get_lexeme();
     match(TOK_STRING);
     match(TOK_COLON); // skip the colon
-    
-    Vertex* v = partitionA ? vmapA[a] : vmapB[a];
+
+    BipartiteGraph::VertexType v = partitionA ? vmapA[a] : vmapB[a];
     // if the vertex is in partition A, it gives preferences
     // for vertices in partition B and vice versa
     VertexMap& partners = partitionA ? vmapB : vmapA;
 
     // read and store the preference list
-    Vertex::PreferenceListType pref_list;
+    PreferenceList& pref_list = v->get_preference_list();
     while (curtok_ != TOK_SEMICOLON) {
         std::string b = lexer_->get_lexeme();
         match(TOK_STRING);
         pref_list.emplace_back(partners[b]);
-        
+
         // if there are more vertices, they must
         // be delimited using commas
         if (curtok_ != TOK_SEMICOLON) {
             match(TOK_COMMA);
         }
     }
-    
+
     // preference list should be delimited by a semicolon
     match(TOK_SEMICOLON);
-    v->set_preference_list(pref_list);
+    //v->set_preference_list(pref_list);
 }
 
 /// @PreferenceLists (A|B)
@@ -163,7 +161,7 @@ void GraphReader::read_preference_lists(VertexMap& vmapA, VertexMap& vmapB, bool
     while (curtok_ != TOK_AT) {
         read_preference_list(vmapA, vmapB, partitionA);
     }
-    
+
     // directive should be properly terminated
     match(TOK_AT);
     match(TOK_END);
@@ -173,7 +171,7 @@ void GraphReader::read_preference_lists(VertexMap& vmapA, VertexMap& vmapB, bool
 /// FIXME: what if a directive is specified twice? handle that case
 void GraphReader::handle_directive(VertexMap& vmapA, VertexMap& vmapB) {
     match(TOK_AT);
-    
+
     switch (curtok_) {
         case TOK_PARTITION_A:
             read_partition(vmapA);
@@ -192,24 +190,24 @@ void GraphReader::handle_directive(VertexMap& vmapA, VertexMap& vmapB) {
     }
 }
 
-BipartiteGraph* GraphReader::read_graph() {
+std::unique_ptr<BipartiteGraph> GraphReader::read_graph() {
     VertexMap vmapA, vmapB;
-    
+
     // parse the file
     while (curtok_ != TOK_EOF) {
         handle_directive(vmapA, vmapB);
     }
-    
+
     // build the graph
     BipartiteGraph::VertexSetType A;
     BipartiteGraph::VertexSetType B;
     for (auto& it : vmapA) {
         A.insert(it.second);
     }
-    
+
     for (auto& it : vmapB) {
         B.insert(it.second);
     }
-    
-    return new BipartiteGraph(A, B);
+
+    return std::make_unique<BipartiteGraph>(A, B);
 }

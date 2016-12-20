@@ -1,6 +1,7 @@
 #ifndef POPULAR_MATCHING_2_SIDED_H
 #define POPULAR_MATCHING_2_SIDED_H
 
+#include "Vertex.h"
 #include "BipartiteGraph.h"
 #include <map>
 #include <vector>
@@ -16,7 +17,7 @@ public:
     typedef std::vector<MatchedPairType> MatchedPairListType;
 private:
     BipartiteGraph* G_; // the original bipartite graph
-    std::map<Vertex::IdType, Vertex*> map_a1_; // vertices of set A with level 1
+    std::map<Vertex::IdType, BipartiteGraph::VertexType> map_a1_; // vertices of set A with level 1
     MatchedPairListType matched_pair_list_; // to store the matched pairs
     
     /// modifies the graph according to the algorithm
