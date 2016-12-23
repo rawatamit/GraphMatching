@@ -5,7 +5,7 @@
 #include <map>
 #include <string>
 #include "BipartiteGraph.h"
-#include "Vertex.h"
+#include "TDefs.h"
 
 enum Token {
     TOK_AT = 0, /* 0 */
@@ -18,7 +18,9 @@ enum Token {
     TOK_COLON,
     TOK_COMMA,
     TOK_SEMICOLON,
-    TOK_NEWLINE, /* 10 */
+    TOK_LEFT_BRACE, /* 10 */
+    TOK_RIGHT_BRACE,
+    TOK_NEWLINE,
     TOK_EOF,
     TOK_ERROR,
 };
@@ -37,7 +39,7 @@ public:
 
 class GraphReader {
 public:
-    typedef std::map<Vertex::IdType, BipartiteGraph::VertexType> VertexMap;
+    typedef std::map<IdType, VertexPtr> VertexMap;
 
 private:
     std::unique_ptr<Lexer> lexer_;

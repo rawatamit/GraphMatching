@@ -1,39 +1,46 @@
 #ifndef VERTEX_H
 #define VERTEX_H
 
+#include <memory>
 #include <ostream>
 #include <string>
+#include <vector>
+#include "PartnerList.h"
 #include "PreferenceList.h"
+#include "TDefs.h"
 
 class Vertex {
-public:
-    typedef std::string IdType;
-    typedef std::shared_ptr<Vertex> VertexType;
-
-protected:
-    IdType id_;  // id of this vertex
-    VertexType
-        partner_;  // current partner of this vertex, nullptr if not matched
+private:
+    IdType id_;                 // id of this vertex
+    int lower_quota_;           // least number of partners to this vertex
+    int upper_quota_;           // maximum number of partners to this vertex
+    bool dummy_;                // is this a dummy vertex
+    PartnerList partners_;      // partners of this vertex, empty if not matched
     PreferenceList pref_list_;  // preference list according to priority
 
 public:
-    Vertex(IdType const& id);
-    Vertex(IdType const& id, PreferenceList const& pref_list);
+    Vertex(const IdType& id);
+    Vertex(const IdType& id, int upper_quota);
+    Vertex(const IdType& id, int lower_quota, int upper_quota);
+    Vertex(const IdType& id, int lower_quota, int upper_quota, bool dummy);
     virtual ~Vertex();
 
-    IdType const& get_id() const;
-    const VertexType& get_partner() const;
-    void set_partner(const VertexType& partner);
-    // void set_preference_list(PreferenceList const& preference_list);
+    const IdType& get_id() const;
+    int get_lower_quota() const;
+    int get_upper_quota() const;
+    bool is_dummy() const;
+    const PartnerList& get_partners() const;
+    PartnerList& get_partners();
+    void add_partner(const PartnerList::PartnerType& partner);
 
     PreferenceList& get_preference_list();
     PreferenceList const& get_preference_list() const;
 
-    /// is this vertex matched to someone else
-    bool is_matched();
-
-    /// print this vertex in the format v: p1, p2
-    friend std::ostream& operator<<(std::ostream& out, Vertex* v);
+    /// does this vertex have at least a partner
+    bool has_partner();
 };
+
+/// print this vertex in the format v: p1, ..., pk
+std::ostream& operator<<(std::ostream& out, VertexPtr v);
 
 #endif

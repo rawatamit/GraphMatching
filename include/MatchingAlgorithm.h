@@ -1,6 +1,7 @@
 #ifndef MATCHING_ALGORITHM_H
 #define MATCHING_ALGORITHM_H
 
+#include <ostream>
 #include <vector>
 #include "BipartiteGraph.h"
 
@@ -10,16 +11,21 @@ public:
         MatchedPair;
     typedef std::vector<MatchedPair> MatchedPairListType;
 
-private:
+protected:
     MatchedPairListType matched_pairs_;
+
+private:
     const std::unique_ptr<BipartiteGraph>& G_;
 
 public:
     MatchingAlgorithm(const std::unique_ptr<BipartiteGraph>& G);
     virtual ~MatchingAlgorithm();
-    virtual void compute_matching();
+    virtual void compute_matching() = 0;
+    virtual MatchedPairListType& get_matched_pairs();
     const std::unique_ptr<BipartiteGraph>& get_graph() const;
-    MatchedPairListType const& get_matched_pairs() const;
 };
+
+std::ostream& operator<<(std::ostream& out,
+                         MatchingAlgorithm::MatchedPairListType& matched_pairs);
 
 #endif

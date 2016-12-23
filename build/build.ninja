@@ -84,7 +84,7 @@ build install/local: phony CMakeFiles/install/local.util
 build cmake_order_depends_target_graphmatching: phony || lib/libgraph.a
 build CMakeFiles/graphmatching.dir/main.cc.o: CXX_COMPILER__graphmatching ../main.cc || cmake_order_depends_target_graphmatching
   DEP_FILE = CMakeFiles/graphmatching.dir/main.cc.o.d
-  FLAGS = -std=c++14 -Wall -g -O0
+  FLAGS = -std=c++14 -Wall -g -O0 -fno-limit-debug-info
   INCLUDES = -I../include
   OBJECT_DIR = CMakeFiles/graphmatching.dir
   OBJECT_FILE_DIR = CMakeFiles/graphmatching.dir
@@ -122,37 +122,61 @@ build edit_cache: phony CMakeFiles/edit_cache.util
 
 build lib/CMakeFiles/graph.dir/MatchingAlgorithm.cc.o: CXX_COMPILER__graph ../lib/MatchingAlgorithm.cc
   DEP_FILE = lib/CMakeFiles/graph.dir/MatchingAlgorithm.cc.o.d
-  FLAGS = -std=c++14 -Wall -g -O0
+  FLAGS = -std=c++14 -Wall -g -O0 -fno-limit-debug-info
   INCLUDES = -I../include -I../lib/include
   OBJECT_DIR = lib/CMakeFiles/graph.dir
   OBJECT_FILE_DIR = lib/CMakeFiles/graph.dir
 build lib/CMakeFiles/graph.dir/StableMarriage.cc.o: CXX_COMPILER__graph ../lib/StableMarriage.cc
   DEP_FILE = lib/CMakeFiles/graph.dir/StableMarriage.cc.o.d
-  FLAGS = -std=c++14 -Wall -g -O0
+  FLAGS = -std=c++14 -Wall -g -O0 -fno-limit-debug-info
+  INCLUDES = -I../include -I../lib/include
+  OBJECT_DIR = lib/CMakeFiles/graph.dir
+  OBJECT_FILE_DIR = lib/CMakeFiles/graph.dir
+build lib/CMakeFiles/graph.dir/PopularMatching.cc.o: CXX_COMPILER__graph ../lib/PopularMatching.cc
+  DEP_FILE = lib/CMakeFiles/graph.dir/PopularMatching.cc.o.d
+  FLAGS = -std=c++14 -Wall -g -O0 -fno-limit-debug-info
+  INCLUDES = -I../include -I../lib/include
+  OBJECT_DIR = lib/CMakeFiles/graph.dir
+  OBJECT_FILE_DIR = lib/CMakeFiles/graph.dir
+build lib/CMakeFiles/graph.dir/SReduction.cc.o: CXX_COMPILER__graph ../lib/SReduction.cc
+  DEP_FILE = lib/CMakeFiles/graph.dir/SReduction.cc.o.d
+  FLAGS = -std=c++14 -Wall -g -O0 -fno-limit-debug-info
   INCLUDES = -I../include -I../lib/include
   OBJECT_DIR = lib/CMakeFiles/graph.dir
   OBJECT_FILE_DIR = lib/CMakeFiles/graph.dir
 build lib/CMakeFiles/graph.dir/BipartiteGraph.cc.o: CXX_COMPILER__graph ../lib/BipartiteGraph.cc
   DEP_FILE = lib/CMakeFiles/graph.dir/BipartiteGraph.cc.o.d
-  FLAGS = -std=c++14 -Wall -g -O0
+  FLAGS = -std=c++14 -Wall -g -O0 -fno-limit-debug-info
+  INCLUDES = -I../include -I../lib/include
+  OBJECT_DIR = lib/CMakeFiles/graph.dir
+  OBJECT_FILE_DIR = lib/CMakeFiles/graph.dir
+build lib/CMakeFiles/graph.dir/PartnerList.cc.o: CXX_COMPILER__graph ../lib/PartnerList.cc
+  DEP_FILE = lib/CMakeFiles/graph.dir/PartnerList.cc.o.d
+  FLAGS = -std=c++14 -Wall -g -O0 -fno-limit-debug-info
   INCLUDES = -I../include -I../lib/include
   OBJECT_DIR = lib/CMakeFiles/graph.dir
   OBJECT_FILE_DIR = lib/CMakeFiles/graph.dir
 build lib/CMakeFiles/graph.dir/PreferenceList.cc.o: CXX_COMPILER__graph ../lib/PreferenceList.cc
   DEP_FILE = lib/CMakeFiles/graph.dir/PreferenceList.cc.o.d
-  FLAGS = -std=c++14 -Wall -g -O0
+  FLAGS = -std=c++14 -Wall -g -O0 -fno-limit-debug-info
   INCLUDES = -I../include -I../lib/include
   OBJECT_DIR = lib/CMakeFiles/graph.dir
   OBJECT_FILE_DIR = lib/CMakeFiles/graph.dir
 build lib/CMakeFiles/graph.dir/Vertex.cc.o: CXX_COMPILER__graph ../lib/Vertex.cc
   DEP_FILE = lib/CMakeFiles/graph.dir/Vertex.cc.o.d
-  FLAGS = -std=c++14 -Wall -g -O0
+  FLAGS = -std=c++14 -Wall -g -O0 -fno-limit-debug-info
   INCLUDES = -I../include -I../lib/include
   OBJECT_DIR = lib/CMakeFiles/graph.dir
   OBJECT_FILE_DIR = lib/CMakeFiles/graph.dir
 build lib/CMakeFiles/graph.dir/GraphReader.cc.o: CXX_COMPILER__graph ../lib/GraphReader.cc
   DEP_FILE = lib/CMakeFiles/graph.dir/GraphReader.cc.o.d
-  FLAGS = -std=c++14 -Wall -g -O0
+  FLAGS = -std=c++14 -Wall -g -O0 -fno-limit-debug-info
+  INCLUDES = -I../include -I../lib/include
+  OBJECT_DIR = lib/CMakeFiles/graph.dir
+  OBJECT_FILE_DIR = lib/CMakeFiles/graph.dir
+build lib/CMakeFiles/graph.dir/Utils.cc.o: CXX_COMPILER__graph ../lib/Utils.cc
+  DEP_FILE = lib/CMakeFiles/graph.dir/Utils.cc.o.d
+  FLAGS = -std=c++14 -Wall -g -O0 -fno-limit-debug-info
   INCLUDES = -I../include -I../lib/include
   OBJECT_DIR = lib/CMakeFiles/graph.dir
   OBJECT_FILE_DIR = lib/CMakeFiles/graph.dir
@@ -164,7 +188,7 @@ build lib/CMakeFiles/graph.dir/GraphReader.cc.o: CXX_COMPILER__graph ../lib/Grap
 #############################################
 # Link the static library lib/libgraph.a
 
-build lib/libgraph.a: CXX_STATIC_LIBRARY_LINKER__graph lib/CMakeFiles/graph.dir/MatchingAlgorithm.cc.o lib/CMakeFiles/graph.dir/StableMarriage.cc.o lib/CMakeFiles/graph.dir/BipartiteGraph.cc.o lib/CMakeFiles/graph.dir/PreferenceList.cc.o lib/CMakeFiles/graph.dir/Vertex.cc.o lib/CMakeFiles/graph.dir/GraphReader.cc.o
+build lib/libgraph.a: CXX_STATIC_LIBRARY_LINKER__graph lib/CMakeFiles/graph.dir/MatchingAlgorithm.cc.o lib/CMakeFiles/graph.dir/StableMarriage.cc.o lib/CMakeFiles/graph.dir/PopularMatching.cc.o lib/CMakeFiles/graph.dir/SReduction.cc.o lib/CMakeFiles/graph.dir/BipartiteGraph.cc.o lib/CMakeFiles/graph.dir/PartnerList.cc.o lib/CMakeFiles/graph.dir/PreferenceList.cc.o lib/CMakeFiles/graph.dir/Vertex.cc.o lib/CMakeFiles/graph.dir/GraphReader.cc.o lib/CMakeFiles/graph.dir/Utils.cc.o
   OBJECT_DIR = lib/CMakeFiles/graph.dir
   POST_BUILD = :
   PRE_LINK = :

@@ -30,17 +30,6 @@ PreferenceList::~PreferenceList() {
     clear();
 }
 
-/// find the vertex in the container
-PreferenceList::SizeType PreferenceList::find(const VertexType& v) {
-    for (SizeType i = begin(), e = end(); i != e; ++i) {
-        if (get_vertex(pref_list_.at(i)) == v) {
-            return i;
-        }
-    }
-
-    return end();
-}
-
 PreferenceList::SizeType PreferenceList::begin() {
     return start_iter_;
 }
@@ -67,41 +56,52 @@ PreferenceList::SizeType PreferenceList::size() {
 }
 
 /// insert element at end
-void PreferenceList::emplace_back(const VertexType& v) {
+void PreferenceList::emplace_back(const VertexPtr& v) {
     pref_list_.emplace_back(++cur_rank_, v);
 
     // end_iter_ always points one past the end of preference list
     ++end_iter_;
 }
 
-PreferenceList::VertexType PreferenceList::get_vertex(const ElementType& e) {
+/// find the vertex in the container
+PreferenceList::SizeType PreferenceList::find(const VertexPtr& v) {
+    for (SizeType i = begin(), e = end(); i != e; ++i) {
+        if (get_vertex(pref_list_.at(i)) == v) {
+            return i;
+        }
+    }
+
+    return end();
+}
+
+VertexPtr PreferenceList::get_vertex(const ElementType& e) {
     return e.second;
 }
 
-PreferenceList::RankType PreferenceList::get_rank(const ElementType& e) {
+RankType PreferenceList::get_rank(const ElementType& e) {
     return e.first;
 }
 
-PreferenceList::VertexType PreferenceList::get_vertex(SizeType index) {
+VertexPtr PreferenceList::get_vertex(SizeType index) {
     return pref_list_.at(index).second;
 }
 
-PreferenceList::RankType PreferenceList::get_rank(SizeType index) {
+RankType PreferenceList::get_rank(SizeType index) {
     return (index >= end()) ? RANK_INFINITY : pref_list_.at(index).first;
 }
 
-/// return the vertex this vertex will now propose to
-PreferenceList::VertexType PreferenceList::get_proposal_partner() {
-    return get_vertex(begin());
+/// return the index of the vertex that this vertex will now propose to
+PreferenceList::SizeType PreferenceList::get_proposal_index() {
+    return begin();
 }
 
 /// does this vertex prefer a to b
-bool PreferenceList::is_ranked_better(const VertexType& a, const VertexType& b) {
+bool PreferenceList::is_ranked_better(const VertexPtr& a, const VertexPtr& b) {
     return get_rank(find(a)) < get_rank(find(b));
 }
 
 /// restrict the preference list [begin(), pref_list_[v]]
-void PreferenceList::restrict_preferences(const VertexType& v) {
+void PreferenceList::restrict_preferences(const VertexPtr& v) {
     auto index = find(v);
     end_iter_ = (index != end()) ? (index + 1) : end();
 }
@@ -121,7 +121,13 @@ std::ostream& operator<<(std::ostream& out, PreferenceList* pl) {
     for (PreferenceList::SizeType i = pl->begin(), e = pl->end();
          i != e; ++i)
     {
-        stmp << pl->get_vertex(pl->pref_list_.at(i))->get_id() << ' ';
+        stmp << pl->get_vertex(pl->pref_list_.at(i))->get_id();
+
+        if (i+1 == e) {
+           stmp << ';';
+        } else {
+            stmp << ", ";
+        }
     }
 
     return out << stmp.str();

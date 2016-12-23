@@ -1,5 +1,6 @@
 #include "GraphReader.h"
 #include "PreferenceList.h"
+#include <cstdlib>
 #include <stdexcept>
 
 /// Lexer class defined here
@@ -37,6 +38,8 @@ Token Lexer::next_token() {
     if (ch_ == '@')   { ch_ = in_.get(); return TOK_AT; }
     if (ch_ == ',')   { ch_ = in_.get(); return TOK_COMMA; }
     if (ch_ == ';')   { ch_ = in_.get(); return TOK_SEMICOLON; }
+    if (ch_ == '(')   { ch_ = in_.get(); return TOK_LEFT_BRACE; }
+    if (ch_ == ')')   { ch_ = in_.get(); return TOK_RIGHT_BRACE; }
 
     // a directive or a string
     if (isalnum(ch_)) {
@@ -99,8 +102,35 @@ void GraphReader::read_partition(VertexMap& vmap) {
     // read the vertices in the partion
     while (curtok_ != TOK_SEMICOLON) {
         std::string v = lexer_->get_lexeme();
+        int lower_quota = 0, upper_quota = 1;
         match(TOK_STRING);
-        vmap.emplace(v, std::make_shared<Vertex>(v));
+
+        // does this vertex specify quota(s)
+        // (upper), (lower, upper)
+        if (curtok_ == TOK_LEFT_BRACE) {
+            // eat '('
+            match(TOK_LEFT_BRACE);
+
+            // read the upper quota
+            upper_quota = std::atoi(lexer_->get_lexeme().c_str());
+            match(TOK_STRING);
+
+            // check if this vertex has a lower quota as well
+            if (curtok_ == TOK_COMMA) {
+                match(TOK_COMMA);
+
+                // the quota read first was the lower quota
+                lower_quota = upper_quota;
+                upper_quota = std::atoi(lexer_->get_lexeme().c_str());
+                match(TOK_STRING);
+            }
+
+            // eat ')'
+            match(TOK_RIGHT_BRACE);
+        }
+
+        // add this vertex with the required quotas
+        vmap.emplace(v, std::make_shared<Vertex>(v, lower_quota, upper_quota));
 
         // if there are more vertices, they must
         // be delimited using commas
@@ -126,7 +156,7 @@ void GraphReader::read_preference_list(VertexMap& vmapA, VertexMap& vmapB, bool 
     match(TOK_STRING);
     match(TOK_COLON); // skip the colon
 
-    BipartiteGraph::VertexType v = partitionA ? vmapA[a] : vmapB[a];
+    VertexPtr v = partitionA ? vmapA[a] : vmapB[a];
     // if the vertex is in partition A, it gives preferences
     // for vertices in partition B and vice versa
     VertexMap& partners = partitionA ? vmapB : vmapA;
@@ -202,11 +232,11 @@ std::unique_ptr<BipartiteGraph> GraphReader::read_graph() {
     BipartiteGraph::VertexSetType A;
     BipartiteGraph::VertexSetType B;
     for (auto& it : vmapA) {
-        A.insert(it.second);
+        A.emplace_back(it.second);
     }
 
     for (auto& it : vmapB) {
-        B.insert(it.second);
+        B.emplace_back(it.second);
     }
 
     return std::make_unique<BipartiteGraph>(A, B);

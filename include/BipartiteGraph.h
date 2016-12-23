@@ -3,14 +3,14 @@
 
 #include <memory>
 #include <ostream>
-#include <set>
+#include <vector>
+#include "Vertex.h"
 
 class Vertex;  // forward definition for Vertex
 
 class BipartiteGraph {
 public:
-    typedef std::shared_ptr<Vertex> VertexType;
-    typedef std::set<VertexType> VertexSetType;
+    typedef std::vector<VertexPtr> VertexSetType;
     typedef VertexSetType::iterator VertexSetIterator;
 
 private:
@@ -24,9 +24,6 @@ public:
 
     const VertexSetType& get_A_partition();
     const VertexSetType& get_B_partition();
-
-    VertexType get_vertex_from_A(const VertexType& v);
-    VertexType get_vertex_from_B(const VertexType& v);
 
     friend std::ostream& operator<<(std::ostream& out,
                                     const std::unique_ptr<BipartiteGraph>& G);
