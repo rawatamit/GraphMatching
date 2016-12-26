@@ -38,21 +38,21 @@ public:
 };
 
 class GraphReader {
-public:
-    typedef std::map<IdType, VertexPtr> VertexMap;
-
 private:
     std::unique_ptr<Lexer> lexer_;
     Token curtok_;
 
     void consume();
     void match(Token expected);
-    void read_partition(VertexMap& vmap);
-    void read_preference_list(VertexMap& vmapA, VertexMap& vmapB,
+    void read_partition(BipartiteGraph::ContainerType& vmap);
+    void read_preference_list(BipartiteGraph::ContainerType& A,
+                              BipartiteGraph::ContainerType& B,
                               bool partitionA);
-    void read_preference_lists(VertexMap& vmapA, VertexMap& vmapB,
+    void read_preference_lists(BipartiteGraph::ContainerType& A,
+                               BipartiteGraph::ContainerType& B,
                                bool partitionA);
-    void handle_directive(VertexMap& vmapA, VertexMap& vmapB);
+    void handle_directive(BipartiteGraph::ContainerType& A,
+                          BipartiteGraph::ContainerType& B);
 
 public:
     GraphReader(const char* file_name);

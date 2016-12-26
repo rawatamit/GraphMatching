@@ -15,7 +15,8 @@ MatchingAlgorithm::MatchedPairListType& MatchingAlgorithm::get_matched_pairs() {
         return matched_pairs_;
     }
 
-    for (auto m : G_->get_A_partition()) {
+    for (auto it : G_->get_A_partition()) {
+        auto& m = it.second;
         auto& partner_list = m->get_partners();
         for (auto i = partner_list.begin(), e = partner_list.end(); i != e; ++i) {
             matched_pairs_.emplace_back(m, partner_list.get_vertex(i));

@@ -14,8 +14,8 @@ void StableMarriage::compute_matching() {
     const std::unique_ptr<BipartiteGraph>& G = get_graph();
 
     // mark all men (by pushing into the free_list) and women (implicitly) free
-    for (auto m : G->get_A_partition()) {
-        free_list.push(m);
+    for (auto it : G->get_A_partition()) {
+        free_list.push(it.second);
     }
 
     while (not free_list.empty()) {

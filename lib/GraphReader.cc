@@ -10,7 +10,7 @@ Lexer::Lexer(const char* file_name)
 {
     in_.open(file_name);
     if (not in_) {
-        throw new std::runtime_error("error reading file");
+        throw std::runtime_error("error reading file");
     }
 }
 
@@ -86,7 +86,7 @@ void GraphReader::consume() {
 /// TODO: handle errors more gracefully
 void GraphReader::match(Token expected) {
     if (curtok_ != expected) {
-        throw new std::runtime_error("invalid data in file");
+        throw std::runtime_error("invalid data in file");
     } else {
         consume(); // skip the token
     }
@@ -96,7 +96,7 @@ void GraphReader::match(Token expected) {
 /// @Partition (A|B)
 /// a, b, c ;
 /// @End
-void GraphReader::read_partition(VertexMap& vmap) {
+void GraphReader::read_partition(BipartiteGraph::ContainerType& vmap) {
     consume(); // assume that the call to this function was sane
 
     // read the vertices in the partion
@@ -150,16 +150,19 @@ void GraphReader::read_partition(VertexMap& vmap) {
 /// preference lists for a vertex are given in this format
 /// the v: part has already been parsed by read_preference_lists()
 /// v: a, b, c ;
-void GraphReader::read_preference_list(VertexMap& vmapA, VertexMap& vmapB, bool partitionA) {
+void GraphReader::read_preference_list(BipartiteGraph::ContainerType& A,
+                                       BipartiteGraph::ContainerType& B,
+                                       bool partitionA)
+{
     // read the vertex for which the preference list is given
     std::string a = lexer_->get_lexeme();
     match(TOK_STRING);
     match(TOK_COLON); // skip the colon
 
-    VertexPtr v = partitionA ? vmapA[a] : vmapB[a];
+    VertexPtr v = partitionA ? A[a] : B[a];
     // if the vertex is in partition A, it gives preferences
     // for vertices in partition B and vice versa
-    VertexMap& partners = partitionA ? vmapB : vmapA;
+    BipartiteGraph::ContainerType& partners = partitionA ? B : A;
 
     // read and store the preference list
     PreferenceList& pref_list = v->get_preference_list();
@@ -183,13 +186,16 @@ void GraphReader::read_preference_list(VertexMap& vmapA, VertexMap& vmapB, bool 
 /// @PreferenceLists (A|B)
 /// for preference list format, see read_preference_list()
 /// @End
-void GraphReader::read_preference_lists(VertexMap& vmapA, VertexMap& vmapB, bool partitionA) {
+void GraphReader::read_preference_lists(BipartiteGraph::ContainerType& A,
+                                        BipartiteGraph::ContainerType& B,
+                                        bool partitionA)
+{
     // skip the directive, we assume the call is correct
     consume();
 
     // read the lists
     while (curtok_ != TOK_AT) {
-        read_preference_list(vmapA, vmapB, partitionA);
+        read_preference_list(A, B, partitionA);
     }
 
     // directive should be properly terminated
@@ -199,44 +205,35 @@ void GraphReader::read_preference_lists(VertexMap& vmapA, VertexMap& vmapB, bool
 
 /// TODO: handle error more gracefully
 /// FIXME: what if a directive is specified twice? handle that case
-void GraphReader::handle_directive(VertexMap& vmapA, VertexMap& vmapB) {
+void GraphReader::handle_directive(BipartiteGraph::ContainerType& A,
+                                   BipartiteGraph::ContainerType& B)
+{
     match(TOK_AT);
 
     switch (curtok_) {
         case TOK_PARTITION_A:
-            read_partition(vmapA);
+            read_partition(A);
             break;
         case TOK_PARTITION_B:
-            read_partition(vmapB);
+            read_partition(B);
             break;
         case TOK_PREF_LISTS_A:
-            read_preference_lists(vmapA, vmapB, true);
+            read_preference_lists(A, B, true);
             break;
         case TOK_PREF_LISTS_B:
-            read_preference_lists(vmapA, vmapB, false);
+            read_preference_lists(A, B, false);
             break;
         default:
-            throw new std::runtime_error("error in read_graph()");
+            throw std::runtime_error("error in read_graph()");
     }
 }
 
 std::unique_ptr<BipartiteGraph> GraphReader::read_graph() {
-    VertexMap vmapA, vmapB;
+    BipartiteGraph::ContainerType A, B;
 
     // parse the file
     while (curtok_ != TOK_EOF) {
-        handle_directive(vmapA, vmapB);
-    }
-
-    // build the graph
-    BipartiteGraph::VertexSetType A;
-    BipartiteGraph::VertexSetType B;
-    for (auto& it : vmapA) {
-        A.emplace_back(it.second);
-    }
-
-    for (auto& it : vmapB) {
-        B.emplace_back(it.second);
+        handle_directive(A, B);
     }
 
     return std::make_unique<BipartiteGraph>(A, B);

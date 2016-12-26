@@ -2,18 +2,18 @@
 #include "Vertex.h"
 #include <sstream>
 
-BipartiteGraph::BipartiteGraph(const VertexSetType& A, const VertexSetType& B)
+BipartiteGraph::BipartiteGraph(const ContainerType& A, const ContainerType& B)
     : A_(A), B_(B)
 {}
 
 BipartiteGraph::~BipartiteGraph()
 {}
 
-const BipartiteGraph::VertexSetType& BipartiteGraph::get_A_partition() {
+const BipartiteGraph::ContainerType& BipartiteGraph::get_A_partition() {
     return A_;
 }
 
-const BipartiteGraph::VertexSetType& BipartiteGraph::get_B_partition() {
+const BipartiteGraph::ContainerType& BipartiteGraph::get_B_partition() {
     return B_;
 }
 
@@ -34,16 +34,16 @@ std::ostream& operator<<(std::ostream& out, const std::unique_ptr<BipartiteGraph
 
     // print the partitions first
     stmp << "@PartitionA\n";
-    for (const VertexPtr& v : G->get_A_partition()) {
-        print_vertex(v, stmp);
+    for (const auto& it : G->get_A_partition()) {
+        print_vertex(it.second, stmp);
         stmp << ", ";
     }
     stmp.seekp(-2, stmp.cur);
     stmp << ";\n@End\n";
 
     stmp << "\n@PartitionB\n";
-    for (const VertexPtr& v : G->get_B_partition()) {
-        print_vertex(v, stmp);
+    for (const auto& it : G->get_B_partition()) {
+        print_vertex(it.second, stmp);
         stmp << ", ";
     }
     stmp.seekp(-2, stmp.cur);
@@ -51,14 +51,14 @@ std::ostream& operator<<(std::ostream& out, const std::unique_ptr<BipartiteGraph
 
     // and then the preference lists
     stmp << "\n@PreferenceListsA\n";
-    for (const VertexPtr& v : G->get_A_partition()) {
-        stmp << v->get_id() << ": " << v->get_preference_list() << '\n';
+    for (const auto& it : G->get_A_partition()) {
+        stmp << it.first << ": " << it.second->get_preference_list() << '\n';
     }
     stmp << "@End\n";
 
     stmp << "\n@PreferenceListsB\n";
-    for (const VertexPtr& v: G->get_B_partition()) {
-        stmp << v->get_id() << ": " << v->get_preference_list() << '\n';
+    for (const auto& it : G->get_B_partition()) {
+        stmp << it.first << ": " << it.second->get_preference_list() << '\n';
     }
     stmp << "@End";
 

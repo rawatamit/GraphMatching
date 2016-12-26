@@ -2,6 +2,7 @@
 #include "BipartiteGraph.h"
 #include "MatchingAlgorithm.h"
 #include "StableMarriage.h"
+#include "PopularMatching.h"
 #include "SReduction.h"
 #include <map>
 #include <string>
@@ -38,14 +39,19 @@ void test_stable_matching(const char* file_name) {
     // create the bipartite graph
     GraphReader reader(file_name);
     std::unique_ptr<BipartiteGraph> G = reader.read_graph();
-    auto G_ = augment_graph(G, 2);
-    //std::cout /*<< G << '\n'*/ << G_ << '\n';
+
+#if 0
+    StableMarriage sm(G);
+    sm.compute_matching();
+    MatchingAlgorithm::MatchedPairListType matched_pairs = sm.get_matched_pairs();
+    std::cout << matched_pairs << '\n';
+#endif
 
 #if 1
     // find the largest popular matching
-    StableMarriage sm(G_);
-    sm.compute_matching();
-    MatchingAlgorithm::MatchedPairListType matched_pairs = sm.get_matched_pairs();
+    PopularMatching pm(G);
+    pm.compute_matching();
+    MatchingAlgorithm::MatchedPairListType matched_pairs = pm.get_matched_pairs();
     std::cout << matched_pairs << '\n';
 #endif
 }

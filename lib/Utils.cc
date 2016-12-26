@@ -8,21 +8,11 @@ IdType get_vertex_id(const IdType& id, int k) {
     return stmp.str();
 }
 
-// get the original vertex id given an id
-IdType get_original_id(const IdType& id) {
-    return id.substr(0, id.find('^'));
-}
-
 // a dummy id is of the form d^k_id
 IdType get_dummy_id(const IdType& id, int k) {
     std::stringstream stmp;
     stmp << "d^" << k << '_' << id;
     return stmp.str();
-}
-
-// get the id of the vertex from the given dummy id
-IdType get_vertex_id_from_dummy(const IdType& id) {
-    return id.substr(id.find('_')+1);
 }
 
 // return the dummy level from the given id

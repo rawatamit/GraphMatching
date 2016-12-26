@@ -1,3 +1,3 @@
-A graph matching library
-currently supports popular 2-sided strict incomplete matching
+A graph matching library which provides stable and popular matching algorithms
+for the HR and LCSM+ problems.
 
