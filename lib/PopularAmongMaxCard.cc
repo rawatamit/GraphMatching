@@ -1,25 +1,31 @@
-#include "PopularMatching.h"
+#include "PopularAmongMaxCard.h"
 #include "SReduction.h"
 #include "StableMarriage.h"
-#include "Utils.h"
-#include <stack>
 
-PopularMatching::PopularMatching(const std::unique_ptr<BipartiteGraph>& G,
-                                 int s, bool A_proposing)
-    : MatchingAlgorithm(G), s_(s), A_proposing_(A_proposing)
+PopularAmongMaxCard::PopularAmongMaxCard(const std::unique_ptr<BipartiteGraph>& G,
+                                         bool A_proposing)
+    : MatchingAlgorithm(G), A_proposing_(A_proposing)
 {}
 
-PopularMatching::~PopularMatching()
-{}
-
-void PopularMatching::compute_matching() {
-    const std::unique_ptr<BipartiteGraph>& G = get_graph();
-    G_ = augment_graph(G, s_);
-    StableMarriage sm(G_, A_proposing_);
-    sm.compute_matching();
+PopularAmongMaxCard::~PopularAmongMaxCard() {
 }
 
-MatchingAlgorithm::MatchedPairListType& PopularMatching::get_matched_pairs() {
+#include <iostream>
+void PopularAmongMaxCard::compute_matching() {
+    const std::unique_ptr<BipartiteGraph>& G = get_graph();
+    for (int s = 4; s <= 8; s += 2) {
+        G_ = augment_graph(G, s);
+        StableMarriage sm(G_, A_proposing_);
+        sm.compute_matching();
+
+        if (not G_->has_augmenting_path()) {
+            std::cerr << "finished at: " << s << '\n';
+            return;
+        }
+    }
+}
+
+MatchingAlgorithm::MatchedPairListType& PopularAmongMaxCard::get_matched_pairs() {
     const std::unique_ptr<BipartiteGraph>& G = get_graph();
 
     for (auto it : G_->get_A_partition()) {

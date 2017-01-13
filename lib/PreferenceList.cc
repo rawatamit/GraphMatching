@@ -38,6 +38,14 @@ PreferenceList::SizeType PreferenceList::end() {
     return end_iter_;
 }
 
+PreferenceList::Iterator PreferenceList::all_begin() {
+    return pref_list_.begin();
+}
+
+PreferenceList::Iterator PreferenceList::all_end() {
+    return pref_list_.end();
+}
+
 /// clear the list
 void PreferenceList::clear() {
     pref_list_.clear();
@@ -66,7 +74,7 @@ void PreferenceList::emplace_back(const VertexPtr& v) {
 /// find the vertex in the container
 PreferenceList::SizeType PreferenceList::find(const VertexPtr& v) {
     for (SizeType i = begin(), e = end(); i != e; ++i) {
-        if (get_vertex(pref_list_.at(i)) == v) {
+        if (get_vertex(i) == v) {
             return i;
         }
     }
@@ -83,11 +91,11 @@ RankType PreferenceList::get_rank(const ElementType& e) {
 }
 
 VertexPtr PreferenceList::get_vertex(SizeType index) {
-    return pref_list_.at(index).second;
+    return get_vertex(pref_list_.at(index));
 }
 
 RankType PreferenceList::get_rank(SizeType index) {
-    return (index >= end()) ? RANK_INFINITY : pref_list_.at(index).first;
+    return (index < end()) ? get_rank(pref_list_.at(index)) : RANK_INFINITY ;
 }
 
 /// return the index of the vertex that this vertex will now propose to
@@ -100,10 +108,12 @@ bool PreferenceList::is_ranked_better(const VertexPtr& a, const VertexPtr& b) {
     return get_rank(find(a)) < get_rank(find(b));
 }
 
+#include <iostream>
 /// restrict the preference list [begin(), pref_list_[v]]
 void PreferenceList::restrict_preferences(const VertexPtr& v) {
+  if (v->get_id( ) == "r106") { std::cerr << "r106 index: " << find(v) << '\n';}
     auto index = find(v);
-    end_iter_ = (index != end()) ? (index + 1) : end();
+    end_iter_ = (index == end()) ? index : (index + 1);
 }
 
 /// remove the first vertex from the preference list

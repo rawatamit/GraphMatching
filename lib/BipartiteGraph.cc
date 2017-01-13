@@ -1,5 +1,7 @@
 #include "BipartiteGraph.h"
 #include "Vertex.h"
+#include <set>
+#include <queue>
 #include <sstream>
 
 BipartiteGraph::BipartiteGraph(const ContainerType& A, const ContainerType& B)
@@ -9,16 +11,91 @@ BipartiteGraph::BipartiteGraph(const ContainerType& A, const ContainerType& B)
 BipartiteGraph::~BipartiteGraph()
 {}
 
-const BipartiteGraph::ContainerType& BipartiteGraph::get_A_partition() {
+const BipartiteGraph::ContainerType& BipartiteGraph::get_A_partition() const {
     return A_;
 }
 
-const BipartiteGraph::ContainerType& BipartiteGraph::get_B_partition() {
+const BipartiteGraph::ContainerType& BipartiteGraph::get_B_partition() const {
     return B_;
 }
 
+bool BipartiteGraph::has_augmenting_path() const {
+    std::queue<std::pair<VertexPtr, bool>> Q;
+    std::set<VertexPtr> visited;
+
+    // populate the queue with vertices from A
+    // which can participate in an augmenting path
+    // these are precisely the vertices that are unmatched
+    for (auto it : get_A_partition()) {
+        VertexPtr v = it.second;
+
+        if (v->get_partners().empty()) {
+            // true as this is a vertex from partition A
+            Q.emplace(std::make_pair(v, true));
+
+            // we have seen this vertex
+            visited.emplace(v);
+        }
+    }
+
+    while (not Q.empty()) {
+        // remove a vertex from the queue
+        auto it = Q.front();
+        Q.pop();
+
+        // get the preference list and the matched partners
+        auto& pl = it.first->get_preference_list();
+        auto& partners = it.first->get_partners();
+
+        // if this is a vertex from partition A
+        // then the augmenting path cannot end here, otherwise yes
+        bool aug = it.second ? false : true;
+
+        // go through the neigbours of this vertex
+        for (auto i = pl.all_begin(), e = pl.all_end(); i != e; ++i) {
+            auto v = pl.get_vertex(*i);
+
+            // if this vertex has already been visited
+            // do not add to the queue
+            if (visited.find(v) != visited.end()) {
+            } else if (it.second) {
+                // this is a vertex from partition A
+                // insert outgoing edges which are not matched
+                if (partners.find(v) == partners.end()) {
+                    // this is a vertex from partition B
+                    Q.emplace(std::make_pair(v, false));
+
+                    // we have seen this vertex
+                    visited.emplace(v);
+                }
+            } else {
+                // this is a vertex from partition B
+                // insert outgoing edges which are matched
+                if (partners.find(v) != partners.end()) {
+                    // this is a vertex from partition A
+                    Q.emplace(std::make_pair(v, true));
+
+                    // we have seen this vertex
+                    visited.emplace(v);
+
+                    // we added at least one vertex
+                    // so the augmenting path cannot end here
+                    aug = false;
+                }
+            }
+        }
+
+        // did we find any augmenting path
+        if (aug) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 std::ostream& operator<<(std::ostream& out, const std::unique_ptr<BipartiteGraph>& G) {
-    auto print_vertex = [](const std::shared_ptr<Vertex>& v, std::stringstream& stmp) {
+    auto print_vertex = [](const VertexPtr& v, std::stringstream& stmp) {
         int lq = v->get_lower_quota();
         int uq = v->get_upper_quota();
 

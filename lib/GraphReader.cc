@@ -45,7 +45,7 @@ Token Lexer::next_token() {
     if (isalnum(ch_)) {
         lexeme_.clear();
 
-        while (isalnum(ch_)) {
+        while (isalnum(ch_) or ch_ == '+') {
             lexeme_.push_back(ch_);
             ch_ = in_.get();
         }

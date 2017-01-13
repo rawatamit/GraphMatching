@@ -31,6 +31,11 @@ public:
     SizeType begin();
     SizeType end();
 
+    // these provide the end and beginning
+    // of the whole preference list, and not [start_iter_, end_iter_)
+    Iterator all_begin();
+    Iterator all_end();
+
     /// clear the list
     void clear();
 

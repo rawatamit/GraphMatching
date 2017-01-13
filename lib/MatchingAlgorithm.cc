@@ -42,7 +42,7 @@ std::ostream& operator<<(std::ostream& out,
     {
         auto mpair = *i;
         stmp << "(" << mpair.first->get_id() << ", "
-             << mpair.second->get_id() << ")";
+             << mpair.second->get_id() << "}";
         if (i + 1 != e) {
             stmp << ",";
         } else {

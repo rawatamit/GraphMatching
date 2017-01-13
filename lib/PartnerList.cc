@@ -1,6 +1,7 @@
 #include "PartnerList.h"
 #include "Vertex.h"
 #include <algorithm>
+#include <sstream>
 
 PartnerList::PartnerList()
 {}
@@ -9,8 +10,20 @@ PartnerList::~PartnerList() {
     partners_.clear();
 }
 
+bool PartnerList::empty() const {
+    return size() == 0;
+}
+
 PartnerList::SizeType PartnerList::size() const {
     return partners_.size();
+}
+
+PartnerList::ConstIterator PartnerList::cbegin() const {
+    return partners_.cbegin();
+}
+
+PartnerList::ConstIterator PartnerList::cend() const {
+    return partners_.cend();
 }
 
 PartnerList::Iterator PartnerList::begin() {
@@ -19,6 +32,16 @@ PartnerList::Iterator PartnerList::begin() {
 
 PartnerList::Iterator PartnerList::end() {
     return partners_.end();
+}
+
+PartnerList::ConstIterator PartnerList::find(VertexPtr v) const {
+    for (auto i = cbegin(), e = cend(); i != e; ++i) {
+        if (get_vertex(i) == v) {
+            return i;
+        }
+    }
+
+    return cend();
 }
 
 /// add a vertex to the list of matched partners
@@ -38,10 +61,40 @@ void PartnerList::remove_least_preferred() {
     partners_.pop_back();
 }
 
+RankType PartnerList::get_rank(const PartnerList::ConstIterator& it) const {
+    return it->first;
+}
+
+VertexPtr PartnerList::get_vertex(const PartnerList::ConstIterator& it) const {
+    return it->second;
+}
+
 RankType PartnerList::get_rank(const PartnerList::Iterator& it) const {
     return it->first;
 }
 
 VertexPtr PartnerList::get_vertex(const PartnerList::Iterator& it) const {
     return it->second;
+}
+
+std::ostream& operator<<(std::ostream& out, PartnerList& pl) {
+    return out << &pl;
+}
+
+std::ostream& operator<<(std::ostream& out, PartnerList* pl) {
+    std::stringstream stmp;
+
+    for (auto i = pl->partners_.begin(), e = pl->partners_.end();
+         i != e; ++i)
+    {
+        stmp << pl->get_vertex(i)->get_id();
+
+        if (i+1 == e) {
+           stmp << ';';
+        } else {
+            stmp << ", ";
+        }
+    }
+
+    return out << stmp.str();
 }

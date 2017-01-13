@@ -22,8 +22,9 @@ public:
     BipartiteGraph(const ContainerType& A, const ContainerType& B);
     virtual ~BipartiteGraph();
 
-    const ContainerType& get_A_partition();
-    const ContainerType& get_B_partition();
+    const ContainerType& get_A_partition() const;
+    const ContainerType& get_B_partition() const;
+    bool has_augmenting_path() const;
 
     friend std::ostream& operator<<(std::ostream& out,
                                     const std::unique_ptr<BipartiteGraph>& G);
