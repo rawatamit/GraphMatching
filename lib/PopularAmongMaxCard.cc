@@ -10,8 +10,7 @@ PopularAmongMaxCard::PopularAmongMaxCard(const std::unique_ptr<BipartiteGraph>& 
 PopularAmongMaxCard::~PopularAmongMaxCard() {
 }
 
-#include <iostream>
-void PopularAmongMaxCard::compute_matching() {
+bool PopularAmongMaxCard::compute_matching() {
     const std::unique_ptr<BipartiteGraph>& G = get_graph();
     for (int s = 4; s <= 8; s += 2) {
         G_ = augment_graph(G, s);
@@ -19,10 +18,11 @@ void PopularAmongMaxCard::compute_matching() {
         sm.compute_matching();
 
         if (not G_->has_augmenting_path()) {
-            std::cerr << "finished at: " << s << '\n';
-            return;
+            return true;
         }
     }
+
+    return false;
 }
 
 MatchingAlgorithm::MatchedPairListType& PopularAmongMaxCard::get_matched_pairs() {

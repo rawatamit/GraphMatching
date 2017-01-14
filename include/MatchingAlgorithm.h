@@ -20,7 +20,7 @@ private:
 public:
     MatchingAlgorithm(const std::unique_ptr<BipartiteGraph>& G);
     virtual ~MatchingAlgorithm();
-    virtual void compute_matching() = 0;
+    virtual bool compute_matching() = 0;
     virtual MatchedPairListType& get_matched_pairs();
     const std::unique_ptr<BipartiteGraph>& get_graph() const;
 };

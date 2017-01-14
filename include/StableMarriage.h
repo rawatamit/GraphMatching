@@ -11,7 +11,7 @@ public:
     StableMarriage(const std::unique_ptr<BipartiteGraph>& G, bool A_proposing=true);
     virtual ~StableMarriage();
 
-    void compute_matching();
+    bool compute_matching();
 };
 
 #endif

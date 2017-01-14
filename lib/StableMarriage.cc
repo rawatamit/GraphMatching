@@ -10,8 +10,7 @@ StableMarriage::StableMarriage(const std::unique_ptr<BipartiteGraph>& G,
 StableMarriage::~StableMarriage()
 {}
 
-#include <iostream>
-void StableMarriage::compute_matching() {
+bool StableMarriage::compute_matching() {
     std::stack<VertexPtr> free_list;
     const std::unique_ptr<BipartiteGraph>& G = get_graph();
 
@@ -101,5 +100,7 @@ if (m->get_id() == "r106") { std::cerr << w->get_id() << ' '
             }
         }
     }
+
+    return true;
 }
 

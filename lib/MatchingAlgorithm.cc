@@ -31,7 +31,7 @@ const std::unique_ptr<BipartiteGraph>& MatchingAlgorithm::get_graph() const {
 }
 
 std::ostream& operator<<(std::ostream& out,
-        MatchingAlgorithm::MatchedPairListType& matched_pairs) {
+                         MatchingAlgorithm::MatchedPairListType& matched_pairs) {
     std::stringstream stmp;
 
     stmp << '{';
