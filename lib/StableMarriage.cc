@@ -17,11 +17,11 @@ bool StableMarriage::compute_matching() {
     // choose the paritions from which the vertices will propose
     // we will assume the proposing side vertices are called men
     // and the vertices from the other partition women
-    const auto& proposing_parition = G->get_A_partition(); // : G->get_B_partition();
+    const auto& proposing_partition = G->get_A_partition(); // : G->get_B_partition();
 
     // mark all proposing vertices (by pushing into the free_list)
     // and vertices from the opposite partition (implicitly) free
-    for (auto it : proposing_parition) {
+    for (auto it : proposing_partition) {
         free_list.push(it.second);
     }
 

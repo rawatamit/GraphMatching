@@ -1,4 +1,5 @@
 #include "GraphReader.h"
+#include "Vertex.h"
 #include "PreferenceList.h"
 #include <cstdlib>
 #include <stdexcept>
@@ -10,7 +11,7 @@ Lexer::Lexer(const char* file_name)
 {
     in_.open(file_name);
     if (not in_) {
-        throw std::runtime_error("error reading file");
+        throw std::runtime_error("error opening file.");
     }
 }
 
@@ -92,7 +93,7 @@ void GraphReader::match(Token expected) {
     }
 }
 
-/// partion are of the format
+/// partition are of the format
 /// @Partition (A|B)
 /// a, b, c ;
 /// @End
@@ -106,7 +107,7 @@ void GraphReader::read_partition(BipartiteGraph::ContainerType& vmap) {
         match(TOK_STRING);
 
         // does this vertex specify quota(s)
-        // (upper), (lower, upper)
+        // (upper) or (lower, upper)
         if (curtok_ == TOK_LEFT_BRACE) {
             // eat '('
             match(TOK_LEFT_BRACE);
@@ -159,9 +160,9 @@ void GraphReader::read_preference_list(BipartiteGraph::ContainerType& A,
     match(TOK_STRING);
     match(TOK_COLON); // skip the colon
 
-    VertexPtr v = partitionA ? A[a] : B[a];
     // if the vertex is in partition A, it gives preferences
     // for vertices in partition B and vice versa
+    VertexPtr v = partitionA ? A[a] : B[a];
     BipartiteGraph::ContainerType& partners = partitionA ? B : A;
 
     // read and store the preference list

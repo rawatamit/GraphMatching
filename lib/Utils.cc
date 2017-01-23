@@ -1,4 +1,5 @@
 #include "Utils.h"
+#include "Vertex.h"
 #include <sstream>
 
 // a new id is of the form id^k

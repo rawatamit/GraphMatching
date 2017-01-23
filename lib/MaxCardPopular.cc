@@ -1,4 +1,5 @@
 #include "MaxCardPopular.h"
+#include "Vertex.h"
 #include "SReduction.h"
 #include "StableMarriage.h"
 #include "Utils.h"

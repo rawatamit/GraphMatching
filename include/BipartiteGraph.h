@@ -4,9 +4,7 @@
 #include <map>
 #include <memory>
 #include <ostream>
-#include "Vertex.h"
-
-class Vertex;  // forward definition for Vertex
+#include "TDefs.h"
 
 class BipartiteGraph {
 public:

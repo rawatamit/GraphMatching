@@ -38,7 +38,7 @@ public:
     void add_partner(const PartnerList::PartnerType& partner);
 
     PreferenceList& get_preference_list();
-    PreferenceList const& get_preference_list() const;
+    const PreferenceList& get_preference_list() const;
 
     /// does this vertex have at least a partner
     bool has_partner();

@@ -4,18 +4,13 @@
 #include "StableMarriage.h"
 #include "MaxCardPopular.h"
 #include "PopularAmongMaxCard.h"
-#include "SReduction.h"
 #include "Utils.h"
-#include <map>
-#include <string>
 #include <stdexcept>
-#include <fstream>
 #include <iostream>
 #include <unistd.h>
 
 template<typename T>
 void compute_matching(const char* input_file, const char* output_file) {
-    // create the bipartite graph
     GraphReader reader(input_file);
     std::unique_ptr<BipartiteGraph> G = reader.read_graph();
 
@@ -25,12 +20,11 @@ void compute_matching(const char* input_file, const char* output_file) {
         std::ofstream out(output_file);
         print_matching_standard_format(matched_pairs, out);
     } else {
-        std::cerr << "unable to compute matching.\n";
+        throw std::runtime_error("unable to compute matching.");
     }
 }
 
 int main(int argc, char* argv[]) {
-    // parse options
     int c = 0;
     bool compute_stable = false;
     bool compute_popular = false;

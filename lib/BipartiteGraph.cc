@@ -49,41 +49,46 @@ bool BipartiteGraph::has_augmenting_path() const {
         auto u = it.first;
         auto& pl = u->get_preference_list();
         auto& partners = u->get_partners();
+        bool aug = false;
 
-        // if this is a vertex from partition A
-        // then the augmenting path cannot end here, otherwise yes
-        bool aug = it.second ? false : true;
+        if (it.second) {
+            // u is a vertex belonging to partition A
+            // go through the neigbours of this vertex
+            for (auto i = pl.all_begin(), e = pl.all_end(); i != e; ++i) {
+                auto v = pl.get_vertex(*i);
 
-        // go through the neigbours of this vertex
-        for (auto i = pl.all_begin(), e = pl.all_end(); i != e; ++i) {
-            auto v = pl.get_vertex(*i);
-
-            // if this vertex has already been visited
-            // do not add to the queue
-            if (visited.find(v) != visited.end()) {
-            } else if (it.second) {
-                // u is a vertex belonging to partition A
-                // insert outgoing edges which are not matched
-                if (partners.find(v) == partners.end()) {
+                // only add if this vertex has not been visited
+                // and is matched to u
+                if (visited.find(v) == visited.end() and
+                    partners.find(v) == partners.end())
+                {
                     // v is a vertex from partition B
                     Q.emplace(std::make_pair(v, false));
 
                     // we have seen this vertex
                     visited.emplace(v);
                 }
+            }
+        } else {
+            // u is a vertex from partition B
+            // if u is matched to less than upper quota vertices
+            // or u is unmatched |M(u)| = 0
+            // this is an augmenting path
+            if (partners.size() < u->get_upper_quota()) {
+                aug = true;
             } else {
-                // u is a vertex from partition B
-                // insert outgoing edges which are matched
-                if (partners.find(v) != partners.end()) {
-                    // v is a vertex from partition A
-                    Q.emplace(std::make_pair(v, true));
+                // add all the matched neighbours
+                for (auto i = partners.begin(), e = partners.end(); i != e; ++i) {
+                    auto v = partners.get_vertex(i);
 
-                    // we have seen this vertex
-                    visited.emplace(v);
+                    // only add if this vertex has not been visited
+                    if (visited.find(v) == visited.end()) {
+                        // v is a vertex from partition A
+                        Q.emplace(std::make_pair(v, true));
 
-                    // we added at least one vertex
-                    // so the augmenting path cannot end here
-                    aug = false;
+                        // we have seen this vertex
+                        visited.emplace(v);
+                    }
                 }
             }
         }

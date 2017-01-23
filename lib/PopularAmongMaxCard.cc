@@ -1,4 +1,5 @@
 #include "PopularAmongMaxCard.h"
+#include "Vertex.h"
 #include "SReduction.h"
 #include "StableMarriage.h"
 
@@ -12,6 +13,7 @@ PopularAmongMaxCard::~PopularAmongMaxCard() {
 
 bool PopularAmongMaxCard::compute_matching() {
     const std::unique_ptr<BipartiteGraph>& G = get_graph();
+
     for (int s = 4; s <= 8; s += 2) {
         G_ = augment_graph(G, s);
         StableMarriage sm(G_, A_proposing_);

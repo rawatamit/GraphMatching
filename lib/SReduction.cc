@@ -1,4 +1,5 @@
 #include "SReduction.h"
+#include "Vertex.h"
 #include "TDefs.h"
 #include "Utils.h"
 #include <map>
