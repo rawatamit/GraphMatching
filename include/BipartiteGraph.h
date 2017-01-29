@@ -22,7 +22,7 @@ public:
 
     const ContainerType& get_A_partition() const;
     const ContainerType& get_B_partition() const;
-    bool has_augmenting_path() const;
+    bool has_augmenting_path(const MatchedPairListType& M) const;
 
     friend std::ostream& operator<<(std::ostream& out,
                                     const std::unique_ptr<BipartiteGraph>& G);

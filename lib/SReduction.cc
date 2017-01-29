@@ -2,17 +2,16 @@
 #include "Vertex.h"
 #include "TDefs.h"
 #include "Utils.h"
-#include <map>
 
 std::unique_ptr<BipartiteGraph> augment_graph(
         const std::unique_ptr<BipartiteGraph>& G, int s)
 {
     BipartiteGraph::ContainerType A, B;
 
-    // first add vertices from partition B to vmap
+    // first add vertices from partition B
     for (auto it : G->get_B_partition()) {
         // vertex in partition B and their capacities remain unchanged
-        auto& v = it.second;
+        auto v = it.second;
         auto u_id = v->get_id();
         auto u = std::make_shared<Vertex>(u_id,
                         v->get_lower_quota(), v->get_upper_quota());
@@ -22,9 +21,8 @@ std::unique_ptr<BipartiteGraph> augment_graph(
     }
 
     // then go about building the preference list of vertices in partition A
-    // and adding them to vmap
     for (auto it : G->get_A_partition()) {
-        auto& v = it.second;
+        auto v = it.second;
         auto& v_id = v->get_id();
         auto& v_pref_list = v->get_preference_list();
 
@@ -55,7 +53,7 @@ std::unique_ptr<BipartiteGraph> augment_graph(
                 for (auto i = v_pref_list.begin(), e = v_pref_list.end();
                      i != e; ++i)
                 {
-                    const auto& neighbour = v_pref_list.get_vertex(i);
+                    auto neighbour = v_pref_list.get_vertex(i);
                     u_pref_list.emplace_back(B.at(neighbour->get_id()));
                 }
 
@@ -70,7 +68,7 @@ std::unique_ptr<BipartiteGraph> augment_graph(
                 for (auto i = v_pref_list.begin(), e = v_pref_list.end();
                      i != e; ++i)
                 {
-                    const auto& neighbour = v_pref_list.get_vertex(i);
+                    auto neighbour = v_pref_list.get_vertex(i);
                     u_pref_list.emplace_back(B.at(neighbour->get_id()));
                 }
             } else { // 1 <= k <= s-2
@@ -80,7 +78,7 @@ std::unique_ptr<BipartiteGraph> augment_graph(
                 for (auto i = v_pref_list.begin(), e = v_pref_list.end();
                      i != e; ++i)
                 {
-                    const auto& neighbour = v_pref_list.get_vertex(i);
+                    auto neighbour = v_pref_list.get_vertex(i);
                     u_pref_list.emplace_back(B.at(neighbour->get_id()));
                 }
 
@@ -106,7 +104,7 @@ std::unique_ptr<BipartiteGraph> augment_graph(
            for (auto i = v_pref_list.begin(), e = v_pref_list.end();
                 i != e; ++i)
            {
-               const auto& u = v_pref_list.get_vertex(i);
+               auto u = v_pref_list.get_vertex(i);
                const auto& u_k_id = get_vertex_id(u->get_id(), k);
                pref_list.emplace_back(A.at(u_k_id));
            }

@@ -1,5 +1,6 @@
 #include "StableMarriage.h"
 #include "Vertex.h"
+#include "PartnerList.h"
 #include <stack>
 
 StableMarriage::StableMarriage(const std::unique_ptr<BipartiteGraph>& G,
@@ -28,6 +29,7 @@ bool StableMarriage::compute_matching() {
     while (not free_list.empty()) {
         auto m = free_list.top();
         auto& m_pref_list = m->get_preference_list();
+        auto& m_partner_list = M_[m];
         free_list.pop(); // remove m from free_list
 
         // if the preferences of m have not been exhausted
@@ -37,7 +39,7 @@ bool StableMarriage::compute_matching() {
 
             // w's preference list and list of partners
             auto& w_pref_list = w->get_preference_list();
-            auto& w_partner_list = w->get_partners();
+            auto& w_partner_list = M_[w];
 
             // m's rank on w's preference list
             auto m_rank = w_pref_list.get_rank(w_pref_list.find(m));
@@ -53,7 +55,7 @@ bool StableMarriage::compute_matching() {
                 auto mc = w_partner_list.get_vertex(worst_partner);
                 auto mc_rank = w_partner_list.get_rank(worst_partner);
                 auto& mc_pref_list = mc->get_preference_list();
-                auto& mc_partner_list = mc->get_partners();
+                auto& mc_partner_list = M_[mc];
 
 #if 0
 if (m->get_id() == "r106") { std::cerr << w->get_id() << ' '
@@ -70,8 +72,8 @@ if (m->get_id() == "r106") { std::cerr << w->get_id() << ' '
                     w_partner_list.remove_least_preferred();
 
                     // add (m, w) in the matching
-                    w->add_partner(std::make_pair(m_rank, m));
-                    m->add_partner(std::make_pair(w_rank, w));
+                    w_partner_list.add_partner(std::make_pair(m_rank, m));
+                    m_partner_list.add_partner(std::make_pair(w_rank, w));
 
                     // mark mc free
                     mc_partner_list.remove_least_preferred();
@@ -90,8 +92,8 @@ if (m->get_id() == "r106") { std::cerr << w->get_id() << ' '
                 //w_pref_list.restrict_preferences(m);
             } else { // w is free
                 // accept the proposal
-                w->add_partner(std::make_pair(m_rank, m));
-                m->add_partner(std::make_pair(w_rank, w));
+                w_partner_list.add_partner(std::make_pair(m_rank, m));
+                m_partner_list.add_partner(std::make_pair(w_rank, w));
 
 //                // add m to the preference list if it has residual capacity
 //                if (m->get_upper_quota() > m_pref_list.size()) {

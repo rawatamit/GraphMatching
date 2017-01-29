@@ -5,7 +5,6 @@
 #include <ostream>
 #include <string>
 #include <vector>
-#include "PartnerList.h"
 #include "PreferenceList.h"
 #include "TDefs.h"
 
@@ -16,7 +15,6 @@ private:
     int lower_quota_;           // least number of partners to this vertex
     int upper_quota_;           // maximum number of partners to this vertex
     bool dummy_;                // is this a dummy vertex
-    PartnerList partners_;      // partners of this vertex, empty if not matched
     PreferenceList pref_list_;  // preference list according to priority
 
 public:
@@ -33,15 +31,9 @@ public:
     int get_lower_quota() const;
     int get_upper_quota() const;
     bool is_dummy() const;
-    const PartnerList& get_partners() const;
-    PartnerList& get_partners();
-    void add_partner(const PartnerList::PartnerType& partner);
 
     PreferenceList& get_preference_list();
     const PreferenceList& get_preference_list() const;
-
-    /// does this vertex have at least a partner
-    bool has_partner();
 };
 
 /// print this vertex in the format v: p1, ..., pk

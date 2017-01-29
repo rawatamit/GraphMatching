@@ -1,5 +1,6 @@
 #include "BipartiteGraph.h"
 #include "Vertex.h"
+#include "PartnerList.h"
 #include <set>
 #include <queue>
 #include <sstream>
@@ -19,7 +20,7 @@ const BipartiteGraph::ContainerType& BipartiteGraph::get_B_partition() const {
     return B_;
 }
 
-bool BipartiteGraph::has_augmenting_path() const {
+bool BipartiteGraph::has_augmenting_path(const MatchedPairListType& M) const {
     // the second entry of the pair is true if
     // the vertex belongs to partition A, otherwise false
     std::queue<std::pair<VertexPtr, bool>> Q;
@@ -31,7 +32,7 @@ bool BipartiteGraph::has_augmenting_path() const {
     for (auto it : get_A_partition()) {
         auto u = it.second;
 
-        if (u->get_partners().empty()) {
+        if (M.find(u) == M.cend()) {
             // u is a vertex from partition A
             Q.emplace(std::make_pair(u, true));
 
@@ -48,7 +49,7 @@ bool BipartiteGraph::has_augmenting_path() const {
         // get the preference list and the matched partners
         auto u = it.first;
         auto& pl = u->get_preference_list();
-        auto& partners = u->get_partners();
+        auto& partners = M.at(u);
         bool aug = false;
 
         if (it.second) {
@@ -60,7 +61,7 @@ bool BipartiteGraph::has_augmenting_path() const {
                 // only add if this vertex has not been visited
                 // and is matched to u
                 if (visited.find(v) == visited.end() and
-                    partners.find(v) == partners.end())
+                    partners.find(v) == partners.cend())
                 {
                     // v is a vertex from partition B
                     Q.emplace(std::make_pair(v, false));
@@ -78,7 +79,7 @@ bool BipartiteGraph::has_augmenting_path() const {
                 aug = true;
             } else {
                 // add all the matched neighbours
-                for (auto i = partners.begin(), e = partners.end(); i != e; ++i) {
+                for (auto i = partners.cbegin(), e = partners.cend(); i != e; ++i) {
                     auto v = partners.get_vertex(i);
 
                     // only add if this vertex has not been visited

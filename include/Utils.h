@@ -2,7 +2,7 @@
 #define UTILS_H
 
 #include "TDefs.h"
-#include "MatchingAlgorithm.h"
+#include "BipartiteGraph.h"
 
 // a new id is of the form id^k
 IdType get_vertex_id(const IdType& id, int k);
@@ -15,7 +15,7 @@ int get_dummy_level(const IdType& id);
 
 // print matching in a compatible format with other code as described here
 // a,b,index(pref_list^a(b))
-void print_matching_standard_format(MatchingAlgorithm::MatchedPairListType& matched_pairs,
-                                    std::ostream& out);
+void print_matching(const std::unique_ptr<BipartiteGraph>& G,
+                    MatchedPairListType& M, std::ostream& out);
 
 #endif

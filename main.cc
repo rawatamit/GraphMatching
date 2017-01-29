@@ -1,9 +1,10 @@
 #include "GraphReader.h"
 #include "BipartiteGraph.h"
+#include "PartnerList.h"
 #include "MatchingAlgorithm.h"
 #include "StableMarriage.h"
-#include "MaxCardPopular.h"
-#include "PopularAmongMaxCard.h"
+#include "Popular.h"
+#include "HeuristicHRLQ.h"
 #include "Utils.h"
 #include <stdexcept>
 #include <iostream>
@@ -16,9 +17,9 @@ void compute_matching(const char* input_file, const char* output_file) {
 
     T alg(G);
     if (alg.compute_matching()) {
-        auto& matched_pairs = alg.get_matched_pairs();
+        auto& M = alg.get_matched_pairs();
         std::ofstream out(output_file);
-        print_matching_standard_format(matched_pairs, out);
+        print_matching(G, M, out);
     } else {
         throw std::runtime_error("unable to compute matching.");
     }
@@ -29,15 +30,17 @@ int main(int argc, char* argv[]) {
     bool compute_stable = false;
     bool compute_popular = false;
     bool compute_max_card = false;
+    bool compute_hrlq = false;
     const char* input_file = nullptr;
     const char* output_file = nullptr;
 
     opterr = 0;
-    while ((c = getopt(argc, argv, "spmi:o:")) != -1) {
+    while ((c = getopt(argc, argv, "spmhi:o:")) != -1) {
         switch (c) {
             case 's': compute_stable = true; break;
             case 'p': compute_popular = true; break;
             case 'm': compute_max_card = true; break;
+            case 'h': compute_hrlq = true; break;
             case 'i': input_file = optarg; break;
             case 'o': output_file = optarg; break;
             case '?':
@@ -61,6 +64,8 @@ int main(int argc, char* argv[]) {
         compute_matching<MaxCardPopular>(input_file, output_file);
     } else if (compute_max_card) {
         compute_matching<PopularAmongMaxCard>(input_file, output_file);
+    } else if (compute_hrlq) {
+        compute_matching<HeuristicHRLQ>(input_file, output_file);
     }
 
     return 0;
