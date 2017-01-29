@@ -11,11 +11,11 @@
 #include <unistd.h>
 
 template<typename T>
-void compute_matching(const char* input_file, const char* output_file) {
+void compute_matching(bool A_proposing, const char* input_file, const char* output_file) {
     GraphReader reader(input_file);
     std::unique_ptr<BipartiteGraph> G = reader.read_graph();
 
-    T alg(G);
+    T alg(G, A_proposing);
     if (alg.compute_matching()) {
         auto& M = alg.get_matched_pairs();
         std::ofstream out(output_file);
@@ -31,12 +31,15 @@ int main(int argc, char* argv[]) {
     bool compute_popular = false;
     bool compute_max_card = false;
     bool compute_hrlq = false;
+    bool A_proposing = true;
     const char* input_file = nullptr;
     const char* output_file = nullptr;
 
     opterr = 0;
-    while ((c = getopt(argc, argv, "spmhi:o:")) != -1) {
+    while ((c = getopt(argc, argv, "ABspmhi:o:")) != -1) {
         switch (c) {
+            case 'A': A_proposing = true; break;
+            case 'B': A_proposing = false; break;
             case 's': compute_stable = true; break;
             case 'p': compute_popular = true; break;
             case 'm': compute_max_card = true; break;
@@ -59,13 +62,13 @@ int main(int argc, char* argv[]) {
     // do not proceed if file names are not valid
     if (not input_file or not output_file) {
     } else if (compute_stable) {
-        compute_matching<StableMarriage>(input_file, output_file);
+        compute_matching<StableMarriage>(A_proposing, input_file, output_file);
     } else if (compute_popular) {
-        compute_matching<MaxCardPopular>(input_file, output_file);
+        compute_matching<MaxCardPopular>(A_proposing, input_file, output_file);
     } else if (compute_max_card) {
-        compute_matching<PopularAmongMaxCard>(input_file, output_file);
+        compute_matching<PopularAmongMaxCard>(A_proposing, input_file, output_file);
     } else if (compute_hrlq) {
-        compute_matching<HeuristicHRLQ>(input_file, output_file);
+        compute_matching<HeuristicHRLQ>(A_proposing, input_file, output_file);
     }
 
     return 0;

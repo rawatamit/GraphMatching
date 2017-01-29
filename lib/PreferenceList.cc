@@ -2,6 +2,7 @@
 #include "Vertex.h"
 #include <algorithm>
 #include <sstream>
+#include <iostream>
 
 PreferenceList::PreferenceList()
     : start_iter_(0), end_iter_(0), cur_rank_(0)
@@ -108,7 +109,6 @@ bool PreferenceList::is_ranked_better(const VertexPtr& a, const VertexPtr& b) {
     return get_rank(find(a)) < get_rank(find(b));
 }
 
-#include <iostream>
 /// restrict the preference list [begin(), pref_list_[v]]
 void PreferenceList::restrict_preferences(const VertexPtr& v) {
   if (v->get_id( ) == "r106") { std::cerr << "r106 index: " << find(v) << '\n';}

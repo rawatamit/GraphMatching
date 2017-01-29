@@ -7,8 +7,8 @@
 #include "Utils.h"
 #include <algorithm>
 
-HeuristicHRLQ::HeuristicHRLQ(const std::unique_ptr<BipartiteGraph>& G)
-    : MatchingAlgorithm(G)
+HeuristicHRLQ::HeuristicHRLQ(const std::unique_ptr<BipartiteGraph>& G, bool A_proposing)
+    : MatchingAlgorithm(G), A_proposing_(A_proposing)
 {}
 
 HeuristicHRLQ::~HeuristicHRLQ()
@@ -23,7 +23,7 @@ bool HeuristicHRLQ::compute_matching() {
     // print_matching(G1_, pamc.get_matched_pairs(), std::cerr);
         G2_ = augment_phase2(pamc.get_matched_pairs());
     // std::cerr << "G2_: " << G2_ << '\n';
-        StableMarriage sm(G2_);
+        StableMarriage sm(G2_, A_proposing_);
 
         if (sm.compute_matching()) {
             M_tmp_ = sm.get_matched_pairs();

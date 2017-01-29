@@ -16,9 +16,8 @@ bool StableMarriage::compute_matching() {
     const std::unique_ptr<BipartiteGraph>& G = get_graph();
 
     // choose the paritions from which the vertices will propose
-    // we will assume the proposing side vertices are called men
-    // and the vertices from the other partition women
-    const auto& proposing_partition = G->get_A_partition(); // : G->get_B_partition();
+    const auto& proposing_partition = A_proposing_ ? G->get_A_partition()
+                                                   : G->get_B_partition();
 
     // mark all proposing vertices (by pushing into the free_list)
     // and vertices from the opposite partition (implicitly) free
@@ -27,78 +26,72 @@ bool StableMarriage::compute_matching() {
     }
 
     while (not free_list.empty()) {
-        auto m = free_list.top();
-        auto& m_pref_list = m->get_preference_list();
-        auto& m_partner_list = M_[m];
-        free_list.pop(); // remove m from free_list
+        auto u = free_list.top();
+        auto& u_pref_list = u->get_preference_list();
+        auto& u_partner_list = M_[u];
+        free_list.pop(); // remove u from free_list
 
-        // if the preferences of m have not been exhausted
-        if (not m_pref_list.empty()) {
-            // highest ranked woman to whom m has not yet proposed
-            auto w = m_pref_list.get_vertex(m_pref_list.get_proposal_index());
+        // if the preferences of u have not been exhausted
+        if (not u_pref_list.empty()) {
+            // highest ranked vertex to whom u not yet proposed
+            auto v = u_pref_list.get_vertex(u_pref_list.get_proposal_index());
 
-            // w's preference list and list of partners
-            auto& w_pref_list = w->get_preference_list();
-            auto& w_partner_list = M_[w];
+            // v's preference list and list of partners
+            auto& v_pref_list = v->get_preference_list();
+            auto& v_partner_list = M_[v];
 
-            // m's rank on w's preference list
-            auto m_rank = w_pref_list.get_rank(w_pref_list.find(m));
+            // u's rank on v's preference list
+            auto u_rank = v_pref_list.get_rank(v_pref_list.find(u));
 
-            // w's rank on m's preference list
-            auto w_rank = m_pref_list.get_rank(m_pref_list.get_proposal_index());
+            // v's rank on u's preference list
+            auto v_rank = u_pref_list.get_rank(u_pref_list.get_proposal_index());
 
-            if (w_partner_list.size() == w->get_upper_quota()) {
-                // w's least preferred partner
-                auto worst_partner = w_partner_list.get_least_preferred();
+            if (v_partner_list.size() == v->get_upper_quota()) {
+                // v's least preferred partner
+                auto worst_partner = v_partner_list.get_least_preferred();
 
-                // worst partners rank, details, and preference list
-                auto mc = w_partner_list.get_vertex(worst_partner);
-                auto mc_rank = w_partner_list.get_rank(worst_partner);
-                auto& mc_pref_list = mc->get_preference_list();
-                auto& mc_partner_list = M_[mc];
+                // worst partners rank, and preference list
+                auto uc = v_partner_list.get_vertex(worst_partner);
+                auto uc_rank = v_partner_list.get_rank(worst_partner);
+                auto& uc_pref_list = uc->get_preference_list();
+                auto& uc_partner_list = M_[uc];
 
-#if 0
-if (m->get_id() == "r106") { std::cerr << w->get_id() << ' '
-  << w->get_upper_quota() << ' ' << w_partner_list.size() << ' '
-    << m->get_id() << ' ' << m_rank << ' ' << mc->get_id() << ' ' << mc_rank << '\n';
-  std::cerr << "P: " << w_partner_list << '\n';
-  std::cerr << "PR: " << w_pref_list << '\n';
-}
-#endif
+                // does v prefer u over its worst partner?
+                if (u_rank < uc_rank) {
+                    // remove uc from v's matched partner list
+                    v_partner_list.remove_least_preferred();
 
-                // does w prefer m over its worst partner?
-                if (m_rank < mc_rank) {
-                    // remove mc from w's matched partner list
-                    w_partner_list.remove_least_preferred();
+                    // add (u, v) in the matching
+                    v_partner_list.add_partner(std::make_pair(u_rank, u));
+                    u_partner_list.add_partner(std::make_pair(v_rank, v));
 
-                    // add (m, w) in the matching
-                    w_partner_list.add_partner(std::make_pair(m_rank, m));
-                    m_partner_list.add_partner(std::make_pair(w_rank, w));
+                    // mark uc free
+                    uc_partner_list.remove_least_preferred();
 
-                    // mark mc free
-                    mc_partner_list.remove_least_preferred();
+                    // remove v from uc's preferences
+                    uc_pref_list.remove_first(); 
 
-                    // remove w from mc's preferences
-                    mc_pref_list.remove_first(); 
-
-                    // push mc to free list
-                    free_list.push(mc);
-                } else {
-                    // remove w from m's preferences
-                    m_pref_list.remove_first();
-                    free_list.push(m); // m remains unmatched
+                    // push uc to free list
+                    if (not uc_pref_list.empty()) {
+                        free_list.push(uc);
+                    }
                 }
 
-                //w_pref_list.restrict_preferences(m);
-            } else { // w is free
+                //v_pref_list.restrict_preferences(u);
+            } else { // v is free
                 // accept the proposal
-                w_partner_list.add_partner(std::make_pair(m_rank, m));
-                m_partner_list.add_partner(std::make_pair(w_rank, w));
+                v_partner_list.add_partner(std::make_pair(u_rank, u));
+                u_partner_list.add_partner(std::make_pair(v_rank, v));
+            }
 
-//                // add m to the preference list if it has residual capacity
-//                if (m->get_upper_quota() > m_pref_list.size()) {
-//                  free_list.push(m);
-//                }
+            // add u to the free list if it has residual capacity
+            // and its preference list is not empty
+            if (not u_pref_list.empty() and
+                u->get_upper_quota() > u_partner_list.size())
+            {
+                // remove v from u's preferences
+                u_pref_list.remove_first();
+                free_list.push(u);
             }
         }
     }

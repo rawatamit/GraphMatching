@@ -1,0 +1,33 @@
+@PartitionA
+a1, a3, a5, a7, a2, a4, a6;
+@End
+
+@PartitionB
+b4, b7, b6, b5, b2, b3, b1;
+@End
+
+@PreferenceListsA
+a1 : b7, b2, b4 ;
+a3 : b5, b7, b3, b1, b2, b4, b6 ;
+a5 : b1, b5, b3, b4, b7, b6, b2 ;
+a7 : b5, b4 ;
+a2 : b6, b7, b2 ;
+a4 : b5, b1, b4, b2 ;
+a6 : b7, b5 ;
+@End
+
+@PreferenceListsB
+b4 : a3, a5, a4, a7, a1 ;
+b7 : a2, a3, a6, a1, a5 ;
+b6 : a3, a5, a2 ;
+b5 : a6, a3, a7, a4, a5 ;
+b2 : a4, a2, a5, a3, a1 ;
+b3 : a5, a3 ;
+b1 : a4, a5, a3 ;
+@End
+
+# PartitionA is assumed to be the proposing side
+# Man optimal stable matching:
+# {(a4, b1), (a7, b4), (a3, b5), (a6, b7), (a2, b6), (a1, b2), (a5, b3)}
+# Max card popular matching:
+# {(a4, b1), (a7, b4), (a3, b5), (a6, b7), (a2, b6), (a1, b2), (a5, b3)}
