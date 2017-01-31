@@ -12,6 +12,11 @@ StableMarriage::~StableMarriage()
 {}
 
 bool StableMarriage::compute_matching() {
+    /// we do not assume that the proposal index starts at 0
+    /// in the algorithm below, this is to cover the case when
+    /// one would like to restart the algorithm at a particular place
+    /// if you want to get a stable matching from scratch make sure
+    /// that the graph provided is pristine
     std::stack<VertexPtr> free_list;
     const std::unique_ptr<BipartiteGraph>& G = get_graph();
 
@@ -19,8 +24,8 @@ bool StableMarriage::compute_matching() {
     const auto& proposing_partition = A_proposing_ ? G->get_A_partition()
                                                    : G->get_B_partition();
 
-    // mark all proposing vertices (by pushing into the free_list)
-    // and vertices from the opposite partition (implicitly) free
+    // mark all proposing vertices free (by pushing into the free_list)
+    // and vertices from the opposite partition implicitly free
     for (auto it : proposing_partition) {
         free_list.push(it.second);
     }
@@ -66,6 +71,8 @@ bool StableMarriage::compute_matching() {
                     u_partner_list.add_partner(std::make_pair(v_rank, v));
 
                     // mark uc free
+                    // NOTE: this should be uc_partner_list.remove(v);
+                    // change the preference list representation if required
                     uc_partner_list.remove_least_preferred();
 
                     // remove v from uc's preferences
@@ -78,16 +85,14 @@ bool StableMarriage::compute_matching() {
                 }
 
                 //v_pref_list.restrict_preferences(u);
-            } else { // v is free
+            } else { // v has residual capacity
                 // accept the proposal
                 v_partner_list.add_partner(std::make_pair(u_rank, u));
                 u_partner_list.add_partner(std::make_pair(v_rank, v));
             }
 
-            // add u to the free list if it has residual capacity
-            // and its preference list is not empty
-            if (not u_pref_list.empty() and
-                u->get_upper_quota() > u_partner_list.size())
+            // add u to the free_list if it has residual capacity
+            if (u->get_upper_quota() > u_partner_list.size())
             {
                 // remove v from u's preferences
                 u_pref_list.remove_first();

@@ -46,6 +46,7 @@ PartnerList::ConstIterator PartnerList::find(VertexPtr v) const {
 
 /// add a vertex to the list of matched partners
 void PartnerList::add_partner(const PartnerType& partner) {
+    // partners_.add(std::make_unique<Heap::EntryType>(partner, partner->first));
     partners_.emplace_back(partner);
     std::push_heap(partners_.begin(), partners_.end());
 }
@@ -53,6 +54,27 @@ void PartnerList::add_partner(const PartnerType& partner) {
 /// return details for the worst partner matched to this vertex
 PartnerList::Iterator PartnerList::get_least_preferred() {
     return partners_.begin();
+}
+
+void PartnerList::remove(VertexPtr v) {
+    SizeType vindex = -1;
+
+    // if only a 1 sized heap, just return
+    if (size() == 1) { partners_.clear(); return; }
+
+    for (SizeType i = 0; i < size(); ++i) {
+        if (get_vertex(begin() + i) == v) {
+            vindex = i;
+            break;
+        }
+    }
+
+    if (vindex != -1) {
+        // auto& u = partners_.at(vindex);
+        // auto& v = partners_.at(size()-1);
+        // std::swap(partners_.begin()+vindex, partners_.end()-1);
+        // partners_.pop_back();
+    }
 }
 
 /// remove the least preferred among the current partners

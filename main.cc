@@ -4,7 +4,8 @@
 #include "MatchingAlgorithm.h"
 #include "StableMarriage.h"
 #include "Popular.h"
-#include "HeuristicHRLQ.h"
+#include "RHeuristicHRLQ.h"
+#include "HHeuristicHRLQ.h"
 #include "Utils.h"
 #include <stdexcept>
 #include <iostream>
@@ -30,20 +31,28 @@ int main(int argc, char* argv[]) {
     bool compute_stable = false;
     bool compute_popular = false;
     bool compute_max_card = false;
-    bool compute_hrlq = false;
+    bool compute_rhrlq = false;
+    bool compute_hhrlq = false;
     bool A_proposing = true;
     const char* input_file = nullptr;
     const char* output_file = nullptr;
 
     opterr = 0;
-    while ((c = getopt(argc, argv, "ABspmhi:o:")) != -1) {
+    // choose the proposing partition using -A and -B
+    // -s, -p, and -m flags compute the stable, max-card popular and pop among
+    // max-card matchings respectively
+    // -r and -h compute the resident and hopsital heuristic for an HRLQ instance
+    // -i is the path to the input graph, -o is the path where the matching
+    // computed should be stored
+    while ((c = getopt(argc, argv, "ABspmrhi:o:")) != -1) {
         switch (c) {
             case 'A': A_proposing = true; break;
             case 'B': A_proposing = false; break;
             case 's': compute_stable = true; break;
             case 'p': compute_popular = true; break;
             case 'm': compute_max_card = true; break;
-            case 'h': compute_hrlq = true; break;
+            case 'r': compute_rhrlq = true; break;
+            case 'h': compute_hhrlq = true; break;
             case 'i': input_file = optarg; break;
             case 'o': output_file = optarg; break;
             case '?':
@@ -67,8 +76,10 @@ int main(int argc, char* argv[]) {
         compute_matching<MaxCardPopular>(A_proposing, input_file, output_file);
     } else if (compute_max_card) {
         compute_matching<PopularAmongMaxCard>(A_proposing, input_file, output_file);
-    } else if (compute_hrlq) {
-        compute_matching<HeuristicHRLQ>(A_proposing, input_file, output_file);
+    } else if (compute_rhrlq) {
+        compute_matching<RHeuristicHRLQ>(A_proposing, input_file, output_file);
+    } else if (compute_hhrlq) {
+        compute_matching<HHeuristicHRLQ>(A_proposing, input_file, output_file);
     }
 
     return 0;

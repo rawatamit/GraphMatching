@@ -46,10 +46,10 @@ public:
     bool empty();
 
     /// insert element at end
-    void emplace_back(const VertexPtr& v);
+    void emplace_back(VertexPtr v);
 
     /// find the vertex in the container
-    SizeType find(const VertexPtr& v);
+    SizeType find(VertexPtr v);
 
     /// functions to return the vertex and rank from an ElementType
     VertexPtr get_vertex(const ElementType& it);
@@ -63,10 +63,10 @@ public:
     SizeType get_proposal_index();
 
     /// does this vertex prefer a to b
-    bool is_ranked_better(const VertexPtr& a, const VertexPtr& b);
+    bool is_ranked_better(VertexPtr a, VertexPtr b);
 
     /// restrict the preference list [begin(), pref_list_[v]]
-    void restrict_preferences(const VertexPtr& v);
+    void restrict_preferences(VertexPtr v);
 
     /// remove the first element from the preference list
     void remove_first();

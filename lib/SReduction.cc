@@ -50,10 +50,10 @@ std::unique_ptr<BipartiteGraph> augment_graph(
             // for a level-0 vertex, its preference is the original preference
             // list followed by d^0_m
             if (k == 0) {
-                for (auto i = v_pref_list.begin(), e = v_pref_list.end();
+                for (auto i = v_pref_list.all_begin(), e = v_pref_list.all_end();
                      i != e; ++i)
                 {
-                    auto neighbour = v_pref_list.get_vertex(i);
+                    auto neighbour = v_pref_list.get_vertex(*i);
                     u_pref_list.emplace_back(B.at(neighbour->get_id()));
                 }
 
@@ -65,20 +65,20 @@ std::unique_ptr<BipartiteGraph> augment_graph(
                 const auto& dummy_s_2 = get_dummy_id(v_id, s-2);
                 u_pref_list.emplace_back(B.at(dummy_s_2));
 
-                for (auto i = v_pref_list.begin(), e = v_pref_list.end();
+                for (auto i = v_pref_list.all_begin(), e = v_pref_list.all_end();
                      i != e; ++i)
                 {
-                    auto neighbour = v_pref_list.get_vertex(i);
+                    auto neighbour = v_pref_list.get_vertex(*i);
                     u_pref_list.emplace_back(B.at(neighbour->get_id()));
                 }
             } else { // 1 <= k <= s-2
                 const auto& dummy_k_1 = get_dummy_id(v_id, k-1);
                 u_pref_list.emplace_back(B.at(dummy_k_1));
 
-                for (auto i = v_pref_list.begin(), e = v_pref_list.end();
+                for (auto i = v_pref_list.all_begin(), e = v_pref_list.all_end();
                      i != e; ++i)
                 {
-                    auto neighbour = v_pref_list.get_vertex(i);
+                    auto neighbour = v_pref_list.get_vertex(*i);
                     u_pref_list.emplace_back(B.at(neighbour->get_id()));
                 }
 
@@ -101,10 +101,10 @@ std::unique_ptr<BipartiteGraph> augment_graph(
         auto& pref_list = vertex->get_preference_list();
 
         for (int k = (s-1); k >= 0; --k) {
-           for (auto i = v_pref_list.begin(), e = v_pref_list.end();
+           for (auto i = v_pref_list.all_begin(), e = v_pref_list.all_end();
                 i != e; ++i)
            {
-               auto u = v_pref_list.get_vertex(i);
+               auto u = v_pref_list.get_vertex(*i);
                const auto& u_k_id = get_vertex_id(u->get_id(), k);
                pref_list.emplace_back(A.at(u_k_id));
            }

@@ -7,6 +7,9 @@
 // a new id is of the form id^k
 IdType get_vertex_id(const IdType& id, int k);
 
+// return the vertex level from the given id
+int get_vertex_level(const IdType& id);
+
 // a dummy id is of the form d^k_id
 IdType get_dummy_id(const IdType& id, int k);
 

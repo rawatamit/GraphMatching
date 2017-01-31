@@ -1,9 +1,10 @@
 #ifndef PARTNER_LIST_H
 #define PARTNER_LIST_H
 
-#include <memory>
-#include <vector>
 #include "TDefs.h"
+// #include "Heap.h"
+#include <vector>
+#include <memory>
 
 class PartnerList {
 public:
@@ -36,8 +37,8 @@ public:
     /// return details for the worst partner matched to this vertex
     Iterator get_least_preferred();
 
-//    /// remove this partner from the list
-//    void remove(VertexPtr v);
+    /// remove this partner from the list
+    void remove(VertexPtr v);
 
     /// remove the least preferred among the current partners
     void remove_least_preferred();

@@ -1,4 +1,4 @@
-#include "HeuristicHRLQ.h"
+#include "RHeuristicHRLQ.h"
 #include "StableMarriage.h"
 #include "Popular.h"
 #include "Vertex.h"
@@ -7,27 +7,24 @@
 #include "Utils.h"
 #include <algorithm>
 
-HeuristicHRLQ::HeuristicHRLQ(const std::unique_ptr<BipartiteGraph>& G, bool A_proposing)
-    : MatchingAlgorithm(G), A_proposing_(A_proposing)
+RHeuristicHRLQ::RHeuristicHRLQ(const std::unique_ptr<BipartiteGraph>& G, bool A_proposing)
+    : MatchingAlgorithm(G)
 {}
 
-HeuristicHRLQ::~HeuristicHRLQ()
+RHeuristicHRLQ::~RHeuristicHRLQ()
 {}
 
-// #include <iostream>
-bool HeuristicHRLQ::compute_matching() {
+bool RHeuristicHRLQ::compute_matching() {
     G1_ = augment_phase1();
     PopularAmongMaxCard pamc(G1_);
 
     if (pamc.compute_matching()) {
-    // print_matching(G1_, pamc.get_matched_pairs(), std::cerr);
         G2_ = augment_phase2(pamc.get_matched_pairs());
-    // std::cerr << "G2_: " << G2_ << '\n';
-        StableMarriage sm(G2_, A_proposing_);
+        // find a resident proposing stable matching
+        StableMarriage sm(G2_);
 
         if (sm.compute_matching()) {
             M_tmp_ = sm.get_matched_pairs();
-    // print_matching(G2_, M_, std::cerr);
         } else {
             return false;
         }
@@ -38,11 +35,11 @@ bool HeuristicHRLQ::compute_matching() {
     return false;
 }
 
-MatchedPairListType& HeuristicHRLQ::get_matched_pairs() {
+MatchedPairListType& RHeuristicHRLQ::get_matched_pairs() {
     return map_inverse(M_tmp_);
 }
 
-std::unique_ptr<BipartiteGraph> HeuristicHRLQ::augment_phase1() {
+std::unique_ptr<BipartiteGraph> RHeuristicHRLQ::augment_phase1() {
     BipartiteGraph::ContainerType A, B;
     const std::unique_ptr<BipartiteGraph>& G = get_graph();
 
@@ -99,7 +96,7 @@ std::unique_ptr<BipartiteGraph> HeuristicHRLQ::augment_phase1() {
     return std::make_unique<BipartiteGraph>(A, B);
 }
 
-std::unique_ptr<BipartiteGraph> HeuristicHRLQ::augment_phase2(MatchedPairListType& M) {
+std::unique_ptr<BipartiteGraph> RHeuristicHRLQ::augment_phase2(MatchedPairListType& M) {
     /// the matching M passed to this function is a matching in the graph G1_
     /// and not in the original graph G, therefore trying to get the matched
     /// partners in M will not work directly

@@ -1,12 +1,10 @@
-#ifndef HEURISTIC_HRLQ_H
-#define HEURISTIC_HRLQ_H
+#ifndef RHEURISTIC_HRLQ_H
+#define RHEURISTIC_HRLQ_H
 
 #include "MatchingAlgorithm.h"
 
-class HeuristicHRLQ : public MatchingAlgorithm {
+class RHeuristicHRLQ : public MatchingAlgorithm {
 private:
-    bool A_proposing_; // true if vertices from partition A propose, otherwise false
-
     // graphs for phase 1 and 2
     std::unique_ptr<BipartiteGraph> G1_;
     std::unique_ptr<BipartiteGraph> G2_;
@@ -19,8 +17,10 @@ private:
     std::unique_ptr<BipartiteGraph> augment_phase2(MatchedPairListType& M);
 
 public:
-    HeuristicHRLQ(const std::unique_ptr<BipartiteGraph>& G, bool A_proposing=true);
-    virtual ~HeuristicHRLQ();
+    // A_proposing should always be true, this is a resident proposing
+    // heuristic
+    RHeuristicHRLQ(const std::unique_ptr<BipartiteGraph>& G, bool A_proposing=true);
+    virtual ~RHeuristicHRLQ();
 
     bool compute_matching();
     MatchedPairListType& get_matched_pairs();
