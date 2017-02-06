@@ -31,8 +31,9 @@ bool BipartiteGraph::has_augmenting_path(const MatchedPairListType& M) const {
     // these are precisely the vertices that are unmatched
     for (auto it : get_A_partition()) {
         auto u = it.second;
+        auto uit = M.find(u);
 
-        if (M.find(u) == M.cend()) {
+        if (uit == M.cend() or uit->second.size() == 0) {
             // u is a vertex from partition A
             Q.emplace(std::make_pair(u, true));
 
@@ -48,9 +49,9 @@ bool BipartiteGraph::has_augmenting_path(const MatchedPairListType& M) const {
 
         // get the preference list and the matched partners
         auto u = it.first;
+        auto uit = M.find(u);
         auto& pl = u->get_preference_list();
-        auto& partners = M.at(u);
-        bool aug = false;
+        auto& partners = uit == M.end() ? PartnerList() : uit->second;
 
         if (it.second) {
             // u is a vertex belonging to partition A
@@ -59,7 +60,7 @@ bool BipartiteGraph::has_augmenting_path(const MatchedPairListType& M) const {
                 auto v = pl.get_vertex(*i);
 
                 // only add if this vertex has not been visited
-                // and is matched to u
+                // and is not matched to u
                 if (visited.find(v) == visited.end() and
                     partners.find(v) == partners.cend())
                 {
@@ -76,7 +77,7 @@ bool BipartiteGraph::has_augmenting_path(const MatchedPairListType& M) const {
             // or u is unmatched |M(u)| = 0
             // this is an augmenting path
             if (partners.size() < u->get_upper_quota()) {
-                aug = true;
+                return true;
             } else {
                 // add all the matched neighbours
                 for (auto i = partners.cbegin(), e = partners.cend(); i != e; ++i) {
@@ -92,11 +93,6 @@ bool BipartiteGraph::has_augmenting_path(const MatchedPairListType& M) const {
                     }
                 }
             }
-        }
-
-        // did we find an augmenting path
-        if (aug) {
-            return true;
         }
     }
 

@@ -11,7 +11,7 @@ PartnerList::~PartnerList() {
 }
 
 bool PartnerList::empty() const {
-    return size() == 0;
+    return partners_.empty();
 }
 
 PartnerList::SizeType PartnerList::size() const {
@@ -46,41 +46,39 @@ PartnerList::ConstIterator PartnerList::find(VertexPtr v) const {
 
 /// add a vertex to the list of matched partners
 void PartnerList::add_partner(const PartnerType& partner) {
-    // partners_.add(std::make_unique<Heap::EntryType>(partner, partner->first));
     partners_.emplace_back(partner);
-    std::push_heap(partners_.begin(), partners_.end());
 }
 
 /// return details for the worst partner matched to this vertex
 PartnerList::Iterator PartnerList::get_least_preferred() {
-    return partners_.begin();
+    if (empty()) {
+        return end();
+    } else {
+        RankType max_rank = get_rank(begin());
+        Iterator max_it = begin();
+
+        for (Iterator i = begin(), e = end(); i != e; ++i) {
+            if (get_rank(i) > max_rank) {
+                max_it = i;
+                max_rank = get_rank(i);
+            }
+        }
+
+        return max_it;
+    }
 }
 
 void PartnerList::remove(VertexPtr v) {
-    SizeType vindex = -1;
-
-    // if only a 1 sized heap, just return
-    if (size() == 1) { partners_.clear(); return; }
-
-    for (SizeType i = 0; i < size(); ++i) {
-        if (get_vertex(begin() + i) == v) {
-            vindex = i;
-            break;
-        }
-    }
-
-    if (vindex != -1) {
-        // auto& u = partners_.at(vindex);
-        // auto& v = partners_.at(size()-1);
-        // std::swap(partners_.begin()+vindex, partners_.end()-1);
-        // partners_.pop_back();
-    }
+    partners_.remove_if([v] (const PartnerType& p) { return p.second == v; });
 }
 
 /// remove the least preferred among the current partners
 void PartnerList::remove_least_preferred() {
-    std::pop_heap(partners_.begin(), partners_.end());
-    partners_.pop_back();
+    Iterator it = get_least_preferred();
+
+    if (it != end()) {
+        partners_.erase(it);
+    }
 }
 
 RankType PartnerList::get_rank(const PartnerList::ConstIterator& it) const {
@@ -99,6 +97,10 @@ VertexPtr PartnerList::get_vertex(const PartnerList::Iterator& it) const {
     return it->second;
 }
 
+void PartnerList::sort() {
+    partners_.sort();
+}
+
 std::ostream& operator<<(std::ostream& out, PartnerList& pl) {
     return out << &pl;
 }
@@ -109,14 +111,12 @@ std::ostream& operator<<(std::ostream& out, PartnerList* pl) {
     for (auto i = pl->partners_.begin(), e = pl->partners_.end();
          i != e; ++i)
     {
-        stmp << pl->get_vertex(i)->get_id();
-
-        if (i+1 == e) {
-           stmp << ';';
-        } else {
-            stmp << ", ";
-        }
+        stmp << '(' << pl->get_vertex(i)->get_id() << ':'
+             << pl->get_rank(i) << ')';
+        stmp << ", ";
     }
 
+    stmp.seekp(-2, stmp.cur);
+    stmp << ';';
     return out << stmp.str();
 }

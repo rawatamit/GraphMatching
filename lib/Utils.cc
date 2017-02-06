@@ -53,6 +53,7 @@ void print_matching(const std::unique_ptr<BipartiteGraph>& G,
         }
     }
 
+#if 0
     for (auto it : G->get_B_partition()) {
         auto u = it.second;
         auto M_u = M.find(u);
@@ -70,6 +71,7 @@ void print_matching(const std::unique_ptr<BipartiteGraph>& G,
             }
         }
     }
+#endif
 
     out << stmp.str();
 }

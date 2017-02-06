@@ -5,6 +5,7 @@
 #include "StableMarriage.h"
 #include "Utils.h"
 #include <stack>
+#include <algorithm>
 
 SPopular::SPopular(const std::unique_ptr<BipartiteGraph>& G,
                    int sbegin, int send, bool A_proposing)
@@ -14,8 +15,17 @@ SPopular::SPopular(const std::unique_ptr<BipartiteGraph>& G,
 SPopular::~SPopular()
 {}
 
+#include <iostream>
 bool SPopular::compute_matching() {
     const std::unique_ptr<BipartiteGraph>& G = get_graph();
+    send_ = std::min(send_, (int)G->get_B_partition().size());
+    sbegin_ = send_;
+        // G_ = augment_graph(G, 20);//send_);
+        // StableMarriage sm(G_, A_proMposing_);
+        // auto& M = sm.get_matched_pairs();
+        // auto& M_inv = map_inverse(M);
+    // std::cerr << "is_aug_path " << G->has_augmenting_path(M_inv) << '\n';
+        // return true;
 
     for (int s = sbegin_; s <= send_; s += 2) {
         G_ = augment_graph(G, s);

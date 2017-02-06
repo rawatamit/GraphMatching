@@ -3,13 +3,13 @@
 
 #include "TDefs.h"
 // #include "Heap.h"
-#include <vector>
+#include <list>
 #include <memory>
 
 class PartnerList {
 public:
     typedef typename std::pair<RankType, VertexPtr> PartnerType;
-    typedef typename std::vector<PartnerType> ContainerType;
+    typedef typename std::list<PartnerType> ContainerType;
     typedef ContainerType::iterator Iterator;
     typedef ContainerType::const_iterator ConstIterator;
     typedef ContainerType::size_type SizeType;
@@ -47,6 +47,9 @@ public:
     RankType get_rank(const Iterator& it) const;
     VertexPtr get_vertex(const ConstIterator& it) const;
     VertexPtr get_vertex(const Iterator& it) const;
+
+    /// sort partners according to their rank
+    void sort();
 
     friend std::ostream& operator<<(std::ostream& out, PartnerList& pl);
     friend std::ostream& operator<<(std::ostream& out, PartnerList* pl);

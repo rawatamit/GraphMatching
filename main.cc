@@ -21,6 +21,8 @@ void compute_matching(bool A_proposing, const char* input_file, const char* outp
         auto& M = alg.get_matched_pairs();
         std::ofstream out(output_file);
         print_matching(G, M, out);
+  // std::cerr << "has aug path: " << G->has_augmenting_path(M) << '\n';
+  std::cerr << "is feasible: " << alg.is_feasible(G, M) << '\n';
     } else {
         throw std::runtime_error("unable to compute matching.");
     }
@@ -68,8 +70,8 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    // do not proceed if file names are not valid
     if (not input_file or not output_file) {
+        // do not proceed if file names are not valid
     } else if (compute_stable) {
         compute_matching<StableMarriage>(A_proposing, input_file, output_file);
     } else if (compute_popular) {

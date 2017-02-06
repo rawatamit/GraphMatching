@@ -19,6 +19,8 @@ public:
     virtual bool compute_matching() = 0;
     virtual MatchedPairListType& get_matched_pairs();
     const std::unique_ptr<BipartiteGraph>& get_graph() const;
+    bool is_feasible(const std::unique_ptr<BipartiteGraph>& G,
+                     const MatchedPairListType& M);
 };
 
 #endif

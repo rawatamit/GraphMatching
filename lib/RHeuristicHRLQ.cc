@@ -7,6 +7,7 @@
 #include "Utils.h"
 #include <algorithm>
 
+#include <iostream>
 RHeuristicHRLQ::RHeuristicHRLQ(const std::unique_ptr<BipartiteGraph>& G, bool A_proposing)
     : MatchingAlgorithm(G)
 {}
@@ -19,12 +20,20 @@ bool RHeuristicHRLQ::compute_matching() {
     PopularAmongMaxCard pamc(G1_);
 
     if (pamc.compute_matching()) {
+auto& M_m =pamc.get_matched_pairs();
+std::cerr << "has aug path for G1_ " << G1_->has_augmenting_path(M_m) << '\n';
+
+auto& M_inv = map_inverse(pamc.get_matched_pairs());
+std::cerr << "is_feasible for G1_ " << is_feasible(get_graph(), M_inv) << '\n';
+std::cout << G1_ << '\n';
+
         G2_ = augment_phase2(pamc.get_matched_pairs());
         // find a resident proposing stable matching
         StableMarriage sm(G2_);
 
         if (sm.compute_matching()) {
-            M_tmp_ = sm.get_matched_pairs();
+            M_tmp_ = map_inverse(sm.get_matched_pairs());
+            return is_feasible(get_graph(), M_tmp_);
         } else {
             return false;
         }
@@ -36,13 +45,14 @@ bool RHeuristicHRLQ::compute_matching() {
 }
 
 MatchedPairListType& RHeuristicHRLQ::get_matched_pairs() {
-    return map_inverse(M_tmp_);
+    return M_tmp_;
 }
 
 std::unique_ptr<BipartiteGraph> RHeuristicHRLQ::augment_phase1() {
     BipartiteGraph::ContainerType A, B;
     const std::unique_ptr<BipartiteGraph>& G = get_graph();
 
+  int uq_sum = 0;
     // add only those vertices from partition B which have lower quota > 0
     for (auto it : G->get_B_partition()) {
         auto v = it.second;
@@ -50,6 +60,7 @@ std::unique_ptr<BipartiteGraph> RHeuristicHRLQ::augment_phase1() {
         if (v->get_lower_quota() > 0) {
             auto u_id = v->get_id();
             auto u = std::make_shared<Vertex>(u_id, 0, v->get_lower_quota());
+  uq_sum += u->get_upper_quota();
 
             // add this vertex to partition B
             B.emplace(u_id, u);
@@ -72,6 +83,7 @@ std::unique_ptr<BipartiteGraph> RHeuristicHRLQ::augment_phase1() {
             }
         }
     }
+  std::cerr << "uq sum G1_: " << uq_sum << '\n';
 
     // settle preferences for the residents in the new graph
     auto& A_old = G->get_A_partition();
@@ -82,17 +94,23 @@ std::unique_ptr<BipartiteGraph> RHeuristicHRLQ::augment_phase1() {
         auto& r_pref_list = r->get_preference_list();
         auto& old_pref_list = r_old->get_preference_list();
 
+    int nlq = 0;
         for (auto i = old_pref_list.all_begin(), e = old_pref_list.all_end();
              i != e; ++i)
         {
             // only add vertices with lower quota > 0
             auto h_old = old_pref_list.get_vertex(*i);
             if (h_old->get_lower_quota() > 0) {
+        nlq += 1;
                 r_pref_list.emplace_back(B.at(h_old->get_id()));
             }
         }
+
+    if (nlq != r_pref_list.size()) std::cerr << r_old << " has wrong pref list  " <<'\n';
+    if (r_pref_list.size() > old_pref_list.size()) std::cerr << r_old << " has incorrect size of pref list " << '\n';
     }
 
+std::cerr << "nresidents: " << A.size() << " nhospitals: " << B.size() << '\n';
     return std::make_unique<BipartiteGraph>(A, B);
 }
 
@@ -119,7 +137,7 @@ std::unique_ptr<BipartiteGraph> RHeuristicHRLQ::augment_phase2(MatchedPairListTy
 
     // add vertices from partition B
     for (auto it : G->get_B_partition()) {
-        // vertex in partition B with the capacities (0, 1)
+        // vertex in partition B with the capacities (0, uq)
         auto v = it.second;
         auto u_id = v->get_id();
         auto u = std::make_shared<Vertex>(u_id, 0, v->get_upper_quota());
@@ -193,6 +211,8 @@ std::unique_ptr<BipartiteGraph> RHeuristicHRLQ::augment_phase2(MatchedPairListTy
         }
     }
 
+    int total_lq =0 ;
+
     // create the preferences for the vertices in partition B
     for (auto it : G->get_B_partition()) {
         auto v = it.second;
@@ -212,23 +232,54 @@ std::unique_ptr<BipartiteGraph> RHeuristicHRLQ::augment_phase2(MatchedPairListTy
 
         // if this hospital has partners, add their level-0 copy
         // at the end of its preference list
-        auto v_G1 = find_vertex(G1_, v_id, false);
-        const auto& M_v = M.find(v_G1);
+        // in phase 1, only the lower quota hospitals as in the original graph
+        // G are present in the graph, and so only they can be matched
+        if (v->get_lower_quota() > 0) {
+            auto v_G1 = find_vertex(G1_, v_id, false);
+            const auto& M_v = M.find(v_G1);
 
-        if (M_v != M.end()) {
-            auto& partner_list = M_v->second;
-            std::sort(partner_list.begin(), partner_list.end());
+            if (M_v != M.end()) {
+                auto& partner_list = M_v->second;
+                partner_list.sort();
 
-            for (auto pit = partner_list.cbegin(), pie = partner_list.cend();
-                 pit != pie; ++pit)
-            {
-                auto r = partner_list.get_vertex(pit);
-                const auto& r0_id = get_vertex_id(r->get_id(), 0);
-                pref_list.emplace_back(A.at(r0_id));
+int pref_list_size_beore_partners = pref_list.size();
+                for (auto pit = partner_list.cbegin(), pie = partner_list.cend();
+                    pit != pie; ++pit)
+                {
+                    auto r = partner_list.get_vertex(pit);
+                    const auto& r0_id = get_vertex_id(r->get_id(), 0);
+                    pref_list.emplace_back(A.at(r0_id));
+                }
+
+if (pref_list.size() != (partner_list.size() + pref_list_size_beore_partners))
+  std::cerr << v_id << '\n';
             }
         }
+
+        else {
+          if (pref_list.size() != v_pref_list.size()) {
+            std::cerr << v_id << '\n';
+          }
+        }
+
+      total_lq += v->get_lower_quota();
     }
 
+    int ndummies =0 ;
+    for (auto it : B) {
+      auto v = it.second;
+        if (v->is_dummy())
+          ndummies += 1;
+    }
+
+
+  std::cerr << "dummies: " << ndummies << ' ' << " total lq: " <<  total_lq <<'\n';
+
+  int msize=  0;
+  for (auto it : M) {
+    msize += it.second.size();
+  }
+  std::cerr << "msize: " << msize << '\n';
     return std::make_unique<BipartiteGraph>(A, B);
 }
 

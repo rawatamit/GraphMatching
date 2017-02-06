@@ -10,6 +10,8 @@
 #include <algorithm>
 #include <cassert>
 
+#include <iostream>
+
 HHeuristicHRLQ::HHeuristicHRLQ(const std::unique_ptr<BipartiteGraph>& G, bool A_proposing)
     : MatchingAlgorithm(G)
 {}
@@ -17,21 +19,22 @@ HHeuristicHRLQ::HHeuristicHRLQ(const std::unique_ptr<BipartiteGraph>& G, bool A_
 HHeuristicHRLQ::~HHeuristicHRLQ()
 {}
 
-#include <iostream>
 bool HHeuristicHRLQ::compute_matching() {
     const std::unique_ptr<BipartiteGraph>& G = get_graph();
     StableMarriage sm(G, false);
 
     // how many s values do we need to try
-    int send = std::min(8ul, G->get_B_partition().size());
+    int send = std::min(10ul, G->get_B_partition().size());
 
     // compute a hospital proposing stable matching on the original graph
     if (sm.compute_matching()) {
         // compute deficiency for each lower-quota hospital
         std::map<IdType, int> def;
-        const auto& M = sm.get_matched_pairs();
+        auto& M = sm.get_matched_pairs();
         bool feasible = true; // assume the matching was feasible
+ //print_matching(G, M, std::cerr);
 
+    int sum_def = 0;
         for (auto it : G->get_B_partition()) {
             auto v = it.second;
             auto& v_id = v->get_id();
@@ -45,26 +48,32 @@ bool HHeuristicHRLQ::compute_matching() {
                 // at least one lower quota hospital has deficiency > 0
                 // therefore M_s is not feasible in G
                 if (deficiency > 0) {
+    sum_def += deficiency;
                     feasible = false;
                 }
             }
         }
 
+std::cerr << sum_def << '\n';
+std::cerr << sum_def << ' ' << feasible << '\n';
         // we have a feasible matching, return it
         if (feasible) {
-            M_tmp_ = M;
+            M_ = M;
             return true;
         } else {
-            for (int s = 2; s < send; s += 2) {
+            // for (int s = 2; s < send; s += 2) {
+            int s = send;
     // print_matching(G1_, pamc.get_matched_pairs(), std::cerr);
                 G2_ = augment_phase2(M, s);
                 compute_phase2_matching(M, def, s);
-                if (not G2_->has_augmenting_path(M_tmp_)) {
-                    return true;
-                } else {
-                    M_tmp_.clear();
-                }
-            }
+                //if (not G2_->has_augmenting_path(M_tmp_)) {
+                const auto& M_inv = map_inverse(M_tmp_);
+                return is_feasible(G, M_inv);
+                    // return true;
+                //} else {
+                    //M_tmp_.clear();
+                //}
+            // }
         }
     }
 
@@ -72,7 +81,7 @@ bool HHeuristicHRLQ::compute_matching() {
 }
 
 MatchedPairListType& HHeuristicHRLQ::get_matched_pairs() {
-    return map_inverse(M_tmp_);
+    return M_;
 }
 
 bool HHeuristicHRLQ::compute_phase2_matching(const MatchedPairListType& M,
@@ -134,8 +143,16 @@ bool HHeuristicHRLQ::compute_phase2_matching(const MatchedPairListType& M,
         }
     }
 
-// print_matching(G, M, std::cerr);
 // print_matching(G2_, M_tmp_, std::cerr);
+
+    std::map<IdType, int> nmatched_count;
+    for (auto it : G->get_B_partition()) {
+        auto v = it.second;
+        in_queue[v->get_id()] = 0;
+        if (M.find(v) != M.end()) {
+            nmatched_count[v->get_id()] = M.at(v).size();
+        }
+    }
 
     // only add level-1 lower quota hospitals with deficiency > 0 to the queue
     for (auto it : def) {
@@ -156,14 +173,17 @@ bool HHeuristicHRLQ::compute_phase2_matching(const MatchedPairListType& M,
         auto& u_pref_list = u->get_preference_list();
         auto& u_partner_list = M_tmp_[u];
         auto const& pu_id = u->get_cloned_for_id();
-        assert(find_vertex(G, pu_id, false)->get_lower_quota() > 0 && "parent is a non lq hospital");
         free_list.pop(); // remove u from free_list
+        in_queue[pu_id] = 0;
 
         // if the preferences of u have not been exhausted
         if (not u_pref_list.empty()) {
             // highest ranked vertex to whom u not yet proposed
             auto v = u_pref_list.get_vertex(u_pref_list.get_proposal_index());
+    auto v_id = v->get_id();
 
+ //std::cerr << u->get_id() << " proposes to " << v_id << '\n';
+// if (u->get_id() == "h1^0") {std::cerr << u->get_id() << " is proposing " << v->get_id() << '\n'; }
             // v's preference list and list of partners
             auto& v_pref_list = v->get_preference_list();
             auto& v_partner_list = M_tmp_[v];
@@ -185,6 +205,7 @@ bool HHeuristicHRLQ::compute_phase2_matching(const MatchedPairListType& M,
                 auto& uc_pref_list = uc->get_preference_list();
                 auto& uc_partner_list = M_tmp_[uc];
 
+ //std::cerr << v_id << " worst partner " << uc_id << '\n';
                 // does v prefer u over its worst partner?
                 if (u_rank < uc_rank) {
                     // remove uc from v's matched partner list
@@ -194,25 +215,60 @@ bool HHeuristicHRLQ::compute_phase2_matching(const MatchedPairListType& M,
                     v_partner_list.add_partner(std::make_pair(u_rank, u));
                     u_partner_list.add_partner(std::make_pair(v_rank, v));
 
-// std::cerr << v->get_id() << ' ' << u->get_id() << ' ' << uc->get_id() << ' ' << u_partner_list.size() << '\n';
+                    // we added a partner to u, decrease its deficiency
+                    // and bump the number of matched partners
+                    def[pu_id] -= 1;
+                    nmatched_count[pu_id] += 1;
+
                     // mark uc free
                     // NOTE: this should be uc_partner_list.remove(v);
                     // change the preference list representation if required
                     uc_partner_list.remove(v);
-                    // uc_partner_list.remove_least_preferred();
 
                     // remove v from uc's preferences
-                    uc_pref_list.remove_first();
+                    //uc_pref_list.remove_first();
 
+                    const auto& puc_id = uc->get_cloned_for_id();
+                    int uc_level = get_vertex_level(uc->get_id()); // get level of uc
+                    nmatched_count[puc_id] -= 1;
+
+                    def[puc_id] += 1; // add 1 to deficiency
                     if (uc->get_lower_quota() > 0) {
-                        const auto& puc_id = uc->get_cloned_for_id();
-                        def[puc_id] += 1; // add 1 to deficiency
+                        //def[puc_id] += 1; // add 1 to deficiency
 
-                        if (def[puc_id] > 0 and in_queue[puc_id] == 0) {
+                        // is any copy of uc in the queue
+                        if (in_queue[puc_id] == 1) {
+                            // do nothing
+                        } else if (def[puc_id] > 0) {
                             // push uc to free list
+// std::cerr << "push " << uc->get_id() << '\n';
+                //uc_pref_list.remove_first();
+//std::cerr << __LINE__ << "incrementing proposal index for " << uc->get_id() << '\n';
+                    // uc_pref_list.remove_first();
                             free_list.push(uc);
+                            in_queue[puc_id] = 1;
+                        } else if (uc_level == 0 and not uc_pref_list.empty()
+                                and uc->get_upper_quota() > nmatched_count[puc_id]) {
+ //std::cerr << "push " << uc->get_id() << '\n';
+                //uc_pref_list.remove_first();
+//std::cerr << __LINE__ <<  "incrementing proposal index for " << uc->get_id() << " size pref_list " << uc_pref_list.size()<< '\n';
+                    // uc_pref_list.remove_first();
+                            free_list.push(uc);
+                            in_queue[uc_id] = 1;
+                        }
+                    } else {
+                        assert(uc_level == 0 && "hospital is non lq but level is not 0");
+                        if (in_queue[puc_id] == 0
+                             and not uc_pref_list.empty()
+                            and uc->get_upper_quota() > nmatched_count[puc_id]) {
+//std::cerr << __LINE__ << "incrementing proposal index for " << uc->get_id() << '\n';
+                    // uc_pref_list.remove_first();
+                            free_list.push(uc);
+                            in_queue[puc_id] = 1;
                         }
                     }
+                } else {
+                    // u was rejected by v
                 }
 
                 //v_pref_list.restrict_preferences(u);
@@ -220,29 +276,68 @@ bool HHeuristicHRLQ::compute_phase2_matching(const MatchedPairListType& M,
                 // accept the proposal
                 v_partner_list.add_partner(std::make_pair(u_rank, u));
                 u_partner_list.add_partner(std::make_pair(v_rank, v));
-// std::cerr << v->get_id() << ' ' << u->get_id() << '\n';
+
                 // we added a partner to u, decrease its deficiency
+                nmatched_count[pu_id] += 1;
+                nmatched_count[v->get_cloned_for_id()] += 1;
                 def[pu_id] -= 1;
             }
 
-            // add u to the free_list if it has deficiency > 0
-            if (def[pu_id] > 0) {
-                // remove v from u's preferences
-                u_pref_list.remove_first();
-                free_list.push(u);
+                    // u_pref_list.remove_first();
+            int u_level = get_vertex_level(u->get_id()); // get level of u
+            if (u->get_lower_quota() > 0) {
+                if (in_queue[pu_id] == 1) {
+                    // do nothing
+                } else if (def[pu_id] > 0) {
+//std::cerr << __LINE__ << "incrementing proposal index for " << u->get_id() << '\n';
+                    u_pref_list.remove_first();
+                    free_list.push(u);
+                    in_queue[pu_id] = 1;
+                } else if (u_level == 0 and not u_pref_list.empty()
+                        and u->get_upper_quota() > nmatched_count[pu_id]) {
+//std::cerr << __LINE__ << "incrementing proposal index for " << u->get_id() << '\n';
+                    u_pref_list.remove_first();
+                    free_list.push(u);
+                    in_queue[pu_id] = 1;
+                }
+            } else {
+                assert(u_level == 0 && "hospital is non lq but level is not 0");
+                if (in_queue[pu_id] == 0
+                     and not u_pref_list.empty()
+                    and u->get_upper_quota() > nmatched_count[pu_id]) {
+//std::cerr << __LINE__ << "incrementing proposal index for " << u->get_id() << '\n';
+                    u_pref_list.remove_first();
+                    free_list.push(u);
+                    in_queue[pu_id] = 1;
+                }
             }
+
+                    //int u_level = get_vertex_level(u->get_id()); // get level of uc
+            //if (u_level == 0 and not u_pref_list.empty()
+                //and u->get_upper_quota() > nmatched_count[pu_id]) {
+                //u_pref_list.remove_first();
+                //free_list.push(u);
+            //}
+// if (u->get_id() == "h1^0") {std::cerr << u->get_id() << " has def " << def[pu_id] << '\n'; }
+            // add u to the free_list if it has deficiency > 0
+            //if (def[pu_id] > 0) {
+                // remove v from u's preferences
+                //u_pref_list.remove_first();
+// std::cerr << "push " << u->get_id() << '\n';
+                //free_list.push(u);
+            //}
         } else {
             // get level of u
             int u_level = get_vertex_level(u->get_id());
 
             // if u has deficiency > 0 and its level < s
-            if (def[pu_id] > 0 and u_level < s) {
+            if (u->get_lower_quota() > 0 and def[pu_id] > 0 and u_level < s) {
                 const auto& nu_id = get_vertex_id(u->get_cloned_for_id(), u_level + 1);
-      // std::cerr << "removing " << u->get_id() << ", adding " << nu_id << ' ' << def[pu_id] << '\n';
+ //std::cerr << "push " << nu_id << '\n';
                 free_list.push(B.at(nu_id));
             }
         }
-print_matching(G2_, M_tmp_, std::cerr); std::cerr << "ends here\n";
+// print_matching(G2_, M_tmp_, std::cerr); std::cerr << "ends here\n";
     }
 
     return true;

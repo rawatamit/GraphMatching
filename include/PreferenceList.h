@@ -25,7 +25,6 @@ private:
 public:
     PreferenceList();
     PreferenceList(const PreferenceList& that);
-    PreferenceList& operator=(const PreferenceList& that);
     virtual ~PreferenceList();
 
     SizeType begin();
