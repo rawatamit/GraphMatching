@@ -68,7 +68,7 @@ public:
     void restrict_preferences(VertexPtr v);
 
     /// remove the first element from the preference list
-    void remove_first();
+    void move_proposal_index();
 
     friend std::ostream& operator<<(std::ostream& out, PreferenceList& pl);
     friend std::ostream& operator<<(std::ostream& out, PreferenceList* pl);

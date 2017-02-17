@@ -21,8 +21,6 @@ void compute_matching(bool A_proposing, const char* input_file, const char* outp
         auto& M = alg.get_matched_pairs();
         std::ofstream out(output_file);
         print_matching(G, M, out);
-  // std::cerr << "has aug path: " << G->has_augmenting_path(M) << '\n';
-  std::cerr << "is feasible: " << alg.is_feasible(G, M) << '\n';
     } else {
         throw std::runtime_error("unable to compute matching.");
     }

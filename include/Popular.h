@@ -44,7 +44,7 @@ private:
 public:
     PopularAmongMaxCard(const std::unique_ptr<BipartiteGraph>& G,
                         bool A_proposing=true)
-        : SPopular(G, 50, 50, A_proposing)
+        : SPopular(G, 10, 10, A_proposing)
     {}
 
     virtual ~PopularAmongMaxCard()

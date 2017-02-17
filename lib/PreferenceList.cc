@@ -2,7 +2,6 @@
 #include "Vertex.h"
 #include <algorithm>
 #include <sstream>
-#include <iostream>
 
 PreferenceList::PreferenceList()
     : start_iter_(0), end_iter_(0), cur_rank_(0)
@@ -62,11 +61,6 @@ void PreferenceList::emplace_back(VertexPtr v) {
 
 /// find the vertex in the container
 PreferenceList::SizeType PreferenceList::find(VertexPtr v) {
-    // for (auto i = all_begin(), e = all_end(); i != e; ++i) {
-        // if (get_vertex(*i) == v) {
-            // return i - pref_list_.begin();
-        // }
-    // }
     for (SizeType i = begin(), e = end(); i != e; ++i) {
         if (get_vertex(i) == v) {
             return i;
@@ -109,7 +103,7 @@ void PreferenceList::restrict_preferences(VertexPtr v) {
 }
 
 /// remove the first vertex from the preference list
-void PreferenceList::remove_first() {
+void PreferenceList::move_proposal_index() {
      if (begin() < end()) {
         ++start_iter_;
      }

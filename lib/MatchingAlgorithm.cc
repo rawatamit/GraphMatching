@@ -18,11 +18,9 @@ const std::unique_ptr<BipartiteGraph>& MatchingAlgorithm::get_graph() const {
     return G_;
 }
 
-#include <iostream>
 bool MatchingAlgorithm::is_feasible(const std::unique_ptr<BipartiteGraph>& G,
                                     const MatchedPairListType& M) {
   auto feasible_for_vertices = [&M] (const BipartiteGraph::ContainerType& vertices) {
-      bool ret = true;
       for (auto it : vertices) {
           auto v = it.second;
           int uq = v->get_upper_quota();
@@ -30,31 +28,21 @@ bool MatchingAlgorithm::is_feasible(const std::unique_ptr<BipartiteGraph>& G,
           auto vit = M.find(v);
 
           if ((vit == M.end() or vit->second.empty()) and lq > 0) {
-      std::cerr << " lq " << v->get_id() << " is " << lq << " matched " << 0 << '\n';
-      ret = false;
-              // return false;
+              return false;
           } else if (vit != M.end()) {
               auto nmatched = vit->second.size();
-    if (nmatched < lq)
-      std::cerr << " lq " << v->get_id() << " is " << lq << " matched " << nmatched << '\n';
-    else if (nmatched > uq)
-      std::cerr << " uq " << v->get_id() << " is " << uq << " matched " << nmatched << '\n';
+              
               if (nmatched < lq or nmatched > uq) {
-     ret = false;
-                  // return false;
+                  return false;
               }
           }
       }
 
-      return ret;
-      // return true;
+      return true;
     };
 
-  bool a = feasible_for_vertices(G->get_A_partition());
-  bool b = feasible_for_vertices(G->get_B_partition());
-  return a and b;
-    // return feasible_for_vertices(G->get_A_partition()) and
-           // feasible_for_vertices(G->get_B_partition());
+    return feasible_for_vertices(G->get_A_partition()) and
+           feasible_for_vertices(G->get_B_partition());
 }
 
 MatchedPairListType& MatchingAlgorithm::map_inverse(const MatchedPairListType& M) {
