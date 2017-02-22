@@ -212,8 +212,6 @@ bool HHeuristicHRLQ::compute_phase2_matching(const MatchedPairListType& M,
 
                     def[puc_id] += 1; // add 1 to deficiency
                     if (uc->get_lower_quota() > 0) {
-                        //def[puc_id] += 1; // add 1 to deficiency
-
                         // is any copy of uc in the queue
                         if (in_queue[puc_id] == 1) {
                             // do nothing
@@ -229,7 +227,7 @@ bool HHeuristicHRLQ::compute_phase2_matching(const MatchedPairListType& M,
                         }
                     } else {
                         assert(uc_level == 0 && "hospital is non lq but level is not 0");
-                        
+
                         if (in_queue[puc_id] == 0
                             and not uc_pref_list.empty()
                             and uc->get_upper_quota() > nmatched_count[puc_id])
@@ -271,7 +269,7 @@ bool HHeuristicHRLQ::compute_phase2_matching(const MatchedPairListType& M,
                 }
             } else {
                 assert(u_level == 0 && "hospital is non lq but level is not 0");
-                
+
                 if (in_queue[pu_id] == 0
                      and not u_pref_list.empty()
                     and u->get_upper_quota() > nmatched_count[pu_id])
