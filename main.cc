@@ -6,6 +6,7 @@
 #include "Popular.h"
 #include "RHeuristicHRLQ.h"
 #include "HHeuristicHRLQ.h"
+#include "EnvyfreeHRLQ.h"
 #include "Utils.h"
 #include <stdexcept>
 #include <iostream>
@@ -33,6 +34,7 @@ int main(int argc, char* argv[]) {
     bool compute_max_card = false;
     bool compute_rhrlq = false;
     bool compute_hhrlq = false;
+    bool compute_ehrlq = false;
     bool A_proposing = true;
     const char* input_file = nullptr;
     const char* output_file = nullptr;
@@ -44,7 +46,7 @@ int main(int argc, char* argv[]) {
     // -r and -h compute the resident and hopsital heuristic for an HRLQ instance
     // -i is the path to the input graph, -o is the path where the matching
     // computed should be stored
-    while ((c = getopt(argc, argv, "ABspmrhi:o:")) != -1) {
+    while ((c = getopt(argc, argv, "ABspmrhei:o:")) != -1) {
         switch (c) {
             case 'A': A_proposing = true; break;
             case 'B': A_proposing = false; break;
@@ -53,6 +55,7 @@ int main(int argc, char* argv[]) {
             case 'm': compute_max_card = true; break;
             case 'r': compute_rhrlq = true; break;
             case 'h': compute_hhrlq = true; break;
+            case 'e': compute_ehrlq = true; break;
             case 'i': input_file = optarg; break;
             case 'o': output_file = optarg; break;
             case '?':
@@ -61,7 +64,7 @@ int main(int argc, char* argv[]) {
                 } else if (optopt == 'o') {
                     std::cerr << "Option -o requires an argument.\n";
                 } else {
-                    std::cerr << "Unknown option: " << optopt << '\n';
+                    std::cerr << "Unknown option: " << (char)optopt << '\n';
                 }
                 break;
             default: break;
@@ -80,6 +83,8 @@ int main(int argc, char* argv[]) {
         compute_matching<RHeuristicHRLQ>(A_proposing, input_file, output_file);
     } else if (compute_hhrlq) {
         compute_matching<HHeuristicHRLQ>(A_proposing, input_file, output_file);
+    } else if (compute_ehrlq) {
+        compute_matching<EnvyfreeHRLQ>(A_proposing, input_file, output_file);
     }
 
     return 0;

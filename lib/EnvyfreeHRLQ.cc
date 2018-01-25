@@ -29,7 +29,6 @@ bool EnvyfreeHRLQ::compute_matching() {
 
     // compute stable matching
     if (sm.compute_matching()) {
-        // compute deficiency for each lower-quota hospital
         auto& M = sm.get_matched_pairs();
 
         // for every vertex h in B, check if exactly
@@ -50,14 +49,13 @@ bool EnvyfreeHRLQ::compute_matching() {
 
         // we have a feasible matching, return it
         if (feasible) {
-            M_ = M;
+            M_ = map_inverse(M);
             return true;
         }
     }
 
     return false;
 }
-
 
 std::unique_ptr<BipartiteGraph> EnvyfreeHRLQ::augment_graph() {
     BipartiteGraph::ContainerType A, B;
@@ -67,29 +65,32 @@ std::unique_ptr<BipartiteGraph> EnvyfreeHRLQ::augment_graph() {
     for (auto it : G->get_B_partition()) {
         auto v = it.second;
 
-        // create a new vertex with quota (0, l_h)
-        auto u_id = v->get_id();
-        auto u = std::make_shared<Vertex>(u_id, 0, v->get_lower_quota());
+        // only keep vertices in B with > 0 lower quota
+        if (v->get_lower_quota() > 0) {
+            // create a new vertex with quota (0, l_h)
+            auto u_id = v->get_id();
+            auto u = std::make_shared<Vertex>(u_id, 0, v->get_lower_quota());
 
-        // add this vertex to partition B
-        B.emplace(u_id, u);
+            // add this vertex to partition B
+            B.emplace(u_id, u);
 
-        // preference list of this vertex is same as in G
-        auto& v_pref_list = v->get_preference_list();
-        auto& u_pref_list = u->get_preference_list();
+            // preference list of this vertex is same as in G
+            auto& v_pref_list = v->get_preference_list();
+            auto& u_pref_list = u->get_preference_list();
 
-        // copy the preference list as it is
-        for (auto i = v_pref_list.all_begin(), e = v_pref_list.all_end();
-                i != e; ++i)
-        {
-            auto r_old = v_pref_list.get_vertex(*i);
-            auto r_id = r_old->get_id();
-            auto r = std::make_shared<Vertex>(r_id,
-                        r_old->get_lower_quota(), r_old->get_upper_quota());
+            // copy the preference list as it is
+            for (auto i = v_pref_list.all_begin(), e = v_pref_list.all_end();
+                    i != e; ++i)
+            {
+                auto r_old = v_pref_list.get_vertex(*i);
+                auto r_id = r_old->get_id();
+                auto r = std::make_shared<Vertex>(r_id,
+                            r_old->get_lower_quota(), r_old->get_upper_quota());
 
-            // add the neighbouring vertex to A as well
-            A.emplace(r_id, r);
-            u_pref_list.emplace_back(r);
+                // add the neighbouring vertex to A as well
+                A.emplace(r_id, r);
+                u_pref_list.emplace_back(r);
+            }
         }
     }
 
@@ -107,9 +108,12 @@ std::unique_ptr<BipartiteGraph> EnvyfreeHRLQ::augment_graph() {
              i != e; ++i)
         {
             auto h_old = old_pref_list.get_vertex(*i);
-            r_pref_list.emplace_back(B.at(h_old->get_id()));
-        }
 
+            // add this vertex to pref list only if it has a positive quota
+            if (h_old->get_lower_quota() > 0) {
+                r_pref_list.emplace_back(B.at(h_old->get_id()));
+            }
+        }
     }
 
     return std::make_unique<BipartiteGraph>(A, B);
