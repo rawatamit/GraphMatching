@@ -109,7 +109,7 @@ std::unique_ptr<BipartiteGraph> EnvyfreeHRLQ::augment_graph() {
         {
             auto h_old = old_pref_list.get_vertex(*i);
 
-            // add this vertex to pref list only if it has a positive quota
+            // add this vertex to pref list only if it has a positive lower quota
             if (h_old->get_lower_quota() > 0) {
                 r_pref_list.emplace_back(B.at(h_old->get_id()));
             }
