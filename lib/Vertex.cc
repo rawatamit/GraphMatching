@@ -5,20 +5,20 @@ Vertex::Vertex(const IdType& id)
     : Vertex(id, id, 0, 1, false)
 {}
 
-Vertex::Vertex(const IdType& id, int upper_quota)
+Vertex::Vertex(const IdType& id, unsigned upper_quota)
     : Vertex(id, id, 0, upper_quota, false)
 {}
 
-Vertex::Vertex(const IdType& id, int lower_quota, int upper_quota)
+Vertex::Vertex(const IdType& id, unsigned lower_quota, unsigned upper_quota)
     : Vertex(id, id, lower_quota, upper_quota, false)
 {}
 
-Vertex::Vertex(const IdType& id, int lower_quota, int upper_quota, bool dummy)
+Vertex::Vertex(const IdType& id, unsigned lower_quota, unsigned upper_quota, bool dummy)
     : Vertex(id, id, lower_quota, upper_quota, false)
 {}
 
 Vertex::Vertex(const IdType& id, const IdType& cloned_for_id,
-               int lower_quota, int upper_quota, bool dummy)
+               unsigned lower_quota, unsigned upper_quota, bool dummy)
     : id_(id), cloned_for_id_(cloned_for_id),
       lower_quota_(lower_quota), upper_quota_(upper_quota),
       dummy_(dummy)
@@ -35,11 +35,11 @@ IdType const& Vertex::get_cloned_for_id() const {
     return cloned_for_id_;
 }
 
-int Vertex::get_lower_quota() const {
+unsigned Vertex::get_lower_quota() const {
     return lower_quota_;
 }
 
-int Vertex::get_upper_quota() const {
+unsigned Vertex::get_upper_quota() const {
     return upper_quota_;
 }
 

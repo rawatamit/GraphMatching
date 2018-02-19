@@ -21,7 +21,7 @@ bool HHeuristicHRLQ::compute_matching() {
     StableMarriage sm(G, false);
 
     // how many s values do we need to try
-    int send = std::min(10u, G->get_B_partition().size());
+    int send = 10;//std::min(10u, G->get_B_partition().size());
 
     // compute a hospital proposing stable matching on the original graph
     if (sm.compute_matching()) {
@@ -133,7 +133,7 @@ bool HHeuristicHRLQ::compute_phase2_matching(const MatchedPairListType& M,
         }
     }
 
-    std::map<IdType, int> nmatched_count;
+    std::map<IdType, unsigned> nmatched_count;
     for (auto it : G->get_B_partition()) {
         auto v = it.second;
         in_queue[v->get_id()] = 0;

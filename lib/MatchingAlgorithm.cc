@@ -23,8 +23,8 @@ bool MatchingAlgorithm::is_feasible(const std::unique_ptr<BipartiteGraph>& G,
   auto feasible_for_vertices = [&M] (const BipartiteGraph::ContainerType& vertices) {
       for (auto it : vertices) {
           auto v = it.second;
-          int uq = v->get_upper_quota();
-          int lq = v->get_lower_quota();
+          unsigned uq = v->get_upper_quota();
+          unsigned lq = v->get_lower_quota();
           auto vit = M.find(v);
 
           if ((vit == M.end() or vit->second.empty()) and lq > 0) {
@@ -87,4 +87,3 @@ MatchedPairListType& MatchingAlgorithm::map_inverse(const MatchedPairListType& M
 
     return M_;
 }
-

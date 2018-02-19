@@ -1,4 +1,4 @@
-#include "EnvyfreeHRLQ.h"
+#include "YokoiEnvyfreeHRLQ.h"
 #include "StableMarriage.h"
 #include "Popular.h"
 #include "Vertex.h"
@@ -9,18 +9,18 @@
 #include <algorithm>
 #include <cassert>
 
-EnvyfreeHRLQ::EnvyfreeHRLQ(const std::unique_ptr<BipartiteGraph>& G, bool A_proposing)
+YokoiEnvyfreeHRLQ::YokoiEnvyfreeHRLQ(const std::unique_ptr<BipartiteGraph>& G, bool A_proposing)
     : MatchingAlgorithm(G)
 {}
 
-EnvyfreeHRLQ::~EnvyfreeHRLQ()
+YokoiEnvyfreeHRLQ::~YokoiEnvyfreeHRLQ()
 {}
 
-MatchedPairListType& EnvyfreeHRLQ::get_matched_pairs() {
+MatchedPairListType& YokoiEnvyfreeHRLQ::get_matched_pairs() {
     return M_;
 }
 
-bool EnvyfreeHRLQ::compute_matching() {
+bool YokoiEnvyfreeHRLQ::compute_matching() {
     const std::unique_ptr<BipartiteGraph>& G1 = augment_graph();
 
     // find a resident proposing stable matching
@@ -38,7 +38,7 @@ bool EnvyfreeHRLQ::compute_matching() {
 
             // find v in M
             auto vit = M.find(v);
-            int nmatched = vit != M.end() ? vit->second.size() : 0;
+            unsigned nmatched = vit != M.end() ? vit->second.size() : 0;
 
             // at least one hospital has |M_h| != l_h
             // therefore M_s is not feasible in G1
@@ -57,7 +57,7 @@ bool EnvyfreeHRLQ::compute_matching() {
     return false;
 }
 
-std::unique_ptr<BipartiteGraph> EnvyfreeHRLQ::augment_graph() {
+std::unique_ptr<BipartiteGraph> YokoiEnvyfreeHRLQ::augment_graph() {
     BipartiteGraph::ContainerType A, B;
     const std::unique_ptr<BipartiteGraph>& G = get_graph();
 
@@ -103,7 +103,6 @@ std::unique_ptr<BipartiteGraph> EnvyfreeHRLQ::augment_graph() {
         auto& r_pref_list = r->get_preference_list();
         auto& old_pref_list = r_old->get_preference_list();
 
-        // copy the preferences as it is
         for (auto i = old_pref_list.all_begin(), e = old_pref_list.all_end();
              i != e; ++i)
         {

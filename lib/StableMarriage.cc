@@ -100,4 +100,3 @@ bool StableMarriage::compute_matching() {
 
     return true;
 }
-
