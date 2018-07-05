@@ -30,8 +30,12 @@ bool MaximalEnvyfreeHRLQ::compute_matching() {
 
         // find a hospital proposing stable matching
         StableMarriage sm(G1, false);
+
+        // find a resident proposing stable matching
+        //StableMarriage sm(G1, true);
         if (sm.compute_matching()) {
             auto M1 = sm.get_matched_pairs();
+          //  print_matching(G1, M1, std::cout);
             M_ = map_inverse(M1);
             return true;
         }
@@ -97,9 +101,9 @@ std::unique_ptr<BipartiteGraph> MaximalEnvyfreeHRLQ::augment_graph(MatchedPairLi
                 if (v_rank < Mr_rank) { break; }
             }
         }
-
-        // add this vertex to partition B if it is non empty
-        if (u_pref_list.size() > 0) {
+        
+        // add this vertex to partition B if its preference list is non empty
+        if (u_pref_list.size() > 0 and u->get_upper_quota() > 0) {
             B.emplace(u_id, u);
         }
     }
