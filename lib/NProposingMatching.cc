@@ -1,49 +1,52 @@
-#include "StableMarriage.h"
+#include "NProposingMatching.h"
 #include "Vertex.h"
 #include "PartnerList.h"
 #include <stack>
 #include <map>
 
-StableMarriage::StableMarriage(const std::unique_ptr<BipartiteGraph>& G,
-                               bool A_proposing)
-    : MatchingAlgorithm(G), A_proposing_(A_proposing)
+NProposingMatching::NProposingMatching(const std::unique_ptr<BipartiteGraph>& G,
+                                       bool A_proposing, int max_level)
+    : MatchingAlgorithm(G), A_proposing_(A_proposing), max_level(max_level)
 {}
 
-StableMarriage::~StableMarriage()
+NProposingMatching::~NProposingMatching()
 {}
 
-bool StableMarriage::compute_matching() {
-    /// we do not assume that the proposal index starts at 0
-    /// in the algorithm below, this is to cover the case when
-    /// one would like to restart the algorithm at a particular place
-    /// if you want to get a stable matching from scratch make sure
-    /// that the graph provided is pristine
+#include <iostream>
+bool NProposingMatching::compute_matching() {
     std::stack<VertexPtr> free_list;
     std::map<VertexPtr, int> in_queue;
+    std::map<VertexPtr, int> vertex_level;
+    std::map<VertexPtr, PreferenceList::SizeType> proposal_index;
     const std::unique_ptr<BipartiteGraph>& G = get_graph();
 
     // choose the paritions from which the vertices will propose
     const auto& proposing_partition = A_proposing_ ? G->get_A_partition()
                                                    : G->get_B_partition();
 
+    // set the level of every vertex in the proposing partition to 0
     // mark all proposing vertices free (by pushing into the free_list)
     // and vertices from the opposite partition implicitly free
     for (auto it : proposing_partition) {
         free_list.push(it.second);
         in_queue[it.second] = 1;
+        vertex_level[it.second] = 0;
+        proposal_index[it.second] = 0;
     }
 
+    // there is at least one vertex in the free list
     while (not free_list.empty()) {
+        // first vertex in free list 
         auto u = free_list.top();
         auto& u_pref_list = u->get_preference_list();
         auto& u_partner_list = M_[u];
         free_list.pop(); // remove u from free_list
-        in_queue[u] = 0;
+        in_queue[u] = 0; // u is not in free list now
 
-        // if the preferences of u have not been exhausted
-        if (not u_pref_list.empty()) {
+        // preferences of u have not been exhausted
+        if (vertex_level[u] < max_level + 1) {
             // highest ranked vertex to whom u not yet proposed
-            auto v = u_pref_list.get_vertex(u_pref_list.get_proposal_index());
+            auto v = u_pref_list.get_vertex(proposal_index[u]);
 
             // v's preference list and list of partners
             auto& v_pref_list = v->get_preference_list();
@@ -53,7 +56,7 @@ bool StableMarriage::compute_matching() {
             auto u_rank = v_pref_list.get_rank(v_pref_list.find(u));
 
             // v's rank on u's preference list
-            auto v_rank = u_pref_list.get_rank(u_pref_list.get_proposal_index());
+            auto v_rank = u_pref_list.get_rank(proposal_index[u]);
 
             if (v_partner_list.size() == v->get_upper_quota()) {
                 // v's least preferred partner
@@ -65,7 +68,9 @@ bool StableMarriage::compute_matching() {
                 auto& uc_partner_list = M_[uc];
 
                 // does v prefer u over its worst partner?
-                if (u_rank < uc_rank) {
+                // this could be either because v's worst partner
+                // has a lower level than u or has a higher rank than u 
+                if (vertex_level[uc] < vertex_level[u] or u_rank < uc_rank) {
                     // remove uc from v's matched partner list
                     v_partner_list.remove_least_preferred();
 
@@ -77,7 +82,7 @@ bool StableMarriage::compute_matching() {
                     uc_partner_list.remove(v);
 
                     // push uc to free list
-                    if (in_queue[uc] == 0){
+                    if (in_queue[uc] == 0) {
                         free_list.push(uc);
                         in_queue[uc] = 1;
                     }
@@ -88,10 +93,20 @@ bool StableMarriage::compute_matching() {
                 v_partner_list.add_partner(std::make_pair(u_rank, u));
             }
             
+//std::cout << "u: " << u->get_id() << ' ' << vertex_level[u] << ' ' << proposal_index[u]<<'\n';
+            //if (in_queue[u] == 1) { continue; }
             // add u to the free_list if it has residual capacity
-            if (u->get_upper_quota() > u_partner_list.size() and in_queue[u] == 0) {
+            // and hasn't exhausted its preference list
+            if (proposal_index[u]+1 < u_pref_list.size() and u->get_upper_quota() > u_partner_list.size() and in_queue[u] == 0) {
                 // set the proposing index to the next vertex
-                u_pref_list.move_proposal_index();
+                proposal_index[u] += 1;
+                free_list.push(u);
+                in_queue[u] = 1;
+            } else if (proposal_index[u] == u_pref_list.size() and vertex_level[u] < max_level + 1) {
+                // u can be promoted to a higher level
+std::cout << "u: " << u->get_id() << ' ' << vertex_level[u] << ' ' << proposal_index[u]<<'\n';
+                vertex_level[u] += 1;
+                proposal_index[u] = 0;
                 free_list.push(u);
                 in_queue[u] = 1;
             }

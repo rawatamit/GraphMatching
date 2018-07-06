@@ -238,4 +238,3 @@ std::unique_ptr<BipartiteGraph> RHeuristicHRLQ::augment_phase2(MatchedPairListTy
 
     return std::make_unique<BipartiteGraph>(A, B);
 }
-
