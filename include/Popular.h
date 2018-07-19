@@ -20,7 +20,7 @@ public:
     bool compute_matching() {
         NProposingMatching npm (get_graph(), A_proposing_, 2);
         bool computed = npm.compute_matching();
-        M_ = npm.get_matched_pairs();
+        M_ = map_inverse(npm.get_matched_pairs());
         return computed;
     }
 };
