@@ -45,7 +45,7 @@ bool NProposingMatching::compute_matching() {
         in_queue[u] = 0; // u is not in free list now
 
         // preferences of u have not been exhausted
-        if (proposal_index[u] < u_pref_list.size()) { // TODO: this may be wrong
+        if (proposal_index[u] < u_pref_list.size()) { // FIXME: this may be wrong
             // highest ranked vertex to whom u not yet proposed
             auto v = u_pref_list.get(proposal_index[u]).vertex;
 
@@ -87,6 +87,7 @@ assert( v_partner_list.size() <= v->get_upper_quota());
                     u_partner_list.add_partner(v, v_rank, vertex_level[v]);
                     v_partner_list.add_partner(u, u_rank, vertex_level[u]);
 
+assert(in_queue[uc] == 0);
                     // push uc to free list
                     // this vertex hasn't exhausted preferences at this level
                     if (in_queue[uc] == 0) {//} and proposal_index[uc] + 1 < uc->get_preference_list().size()) {
