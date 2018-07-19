@@ -29,10 +29,10 @@ bool MaximalEnvyfreeHRLQ::compute_matching() {
         auto G1 = augment_graph(M);
 
         // find a hospital proposing stable matching
-        StableMarriage sm(G1, false);
+        //StableMarriage sm(G1, false);
 
         // find a resident proposing stable matching
-        //StableMarriage sm(G1, true);
+        StableMarriage sm(G1, true);
         if (sm.compute_matching()) {
             auto M1 = sm.get_matched_pairs();
           //  print_matching(G1, M1, std::cout);
@@ -61,10 +61,10 @@ std::unique_ptr<BipartiteGraph> MaximalEnvyfreeHRLQ::augment_graph(MatchedPairLi
         auto& u_pref_list = u->get_preference_list();
 
         // create preference list for h
-        for (auto i = v_pref_list.all_begin(), e = v_pref_list.all_end();
+        for (auto i = v_pref_list.begin(), e = v_pref_list.end();
                 i != e; ++i)
         {
-            auto r_old = v_pref_list.get_vertex(*i);
+            auto r_old = i->vertex;
             auto& r_pref_list = r_old->get_preference_list();
             auto rit = M.find(r_old);
 
@@ -83,13 +83,13 @@ std::unique_ptr<BipartiteGraph> MaximalEnvyfreeHRLQ::augment_graph(MatchedPairLi
                 // add r to u's pref list
                 u_pref_list.emplace_back(A.find(r_id)->second);
             } else {
-                auto Mr = rit->second.get_vertex(rit->second.get_least_preferred());
+                auto Mr = rit->second.get_least_preferred().partner;// rit->second.get_vertex(rit->second.get_least_preferred());
 
                 // v rank on r_old's preference list
-                auto v_rank = r_pref_list.get_rank(r_pref_list.find(v));
+                auto v_rank = r_pref_list.find(v)->rank;
 
                 // M[r] rank on r_old's preference list
-                auto Mr_rank = r_pref_list.get_rank(r_pref_list.find(Mr));
+                auto Mr_rank = r_pref_list.find(Mr)->rank;
 
                 // if r_old is matched, but r_old prefers M[r_old] over h
                 // do not add r_old to the preference list of h
@@ -117,10 +117,10 @@ std::unique_ptr<BipartiteGraph> MaximalEnvyfreeHRLQ::augment_graph(MatchedPairLi
         auto& r_pref_list = r->get_preference_list();
         auto& old_pref_list = r_old->get_preference_list();
 
-        for (auto i = old_pref_list.all_begin(), e = old_pref_list.all_end();
+        for (auto i = old_pref_list.begin(), e = old_pref_list.end();
              i != e; ++i)
         {
-            auto h_old = old_pref_list.get_vertex(*i);
+            auto h_old = i->vertex;
 
             // add this vertex to pref list only if it is in B
             if (B.find(h_old->get_id()) != B.end()) {

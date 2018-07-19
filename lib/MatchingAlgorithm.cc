@@ -64,7 +64,7 @@ MatchedPairListType& MatchingAlgorithm::map_inverse(const MatchedPairListType& M
             bool is_a_partition_A = (A.find(ac_id) != A.end()) ? true : false;
 
             for (auto i = partners.begin(), e = partners.end(); i != e; ++i) {
-                auto b = partners.get_vertex(i);
+                auto b = i->partner;
 
                 // do not add a dummy partner to the matching
                 if (not b->is_dummy()) {
@@ -76,10 +76,10 @@ MatchedPairListType& MatchingAlgorithm::map_inverse(const MatchedPairListType& M
 
                     // get the rank of b in a's preference list
                     auto orig_a_pl = orig_a->get_preference_list();
-                    auto b_rank = orig_a_pl.get_rank(orig_a_pl.find(orig_b));
+                    auto b_rank = orig_a_pl.find(orig_b)->rank;
 
                     // add to the matching
-                    M_[orig_a].add_partner(std::make_pair(b_rank, orig_b));
+                    M_[orig_a].add_partner(orig_b, b_rank, 0);
                 }
             }
         }

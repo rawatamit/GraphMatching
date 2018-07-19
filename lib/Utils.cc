@@ -42,13 +42,13 @@ void print_matching(const std::unique_ptr<BipartiteGraph>& G,
         if (M_u != M.end()) {
             auto& partners = M_u->second;
 
-            for (auto pit = partners.cbegin(), pie = partners.cend(); pit != pie; ++pit) {
-                auto v = partners.get_vertex(pit);
+            for (auto i = partners.cbegin(), e = partners.cend(); i != e; ++i) {
+                auto v = i->partner;
                 printed.emplace(v);
 
                 stmp << u->get_id() << ','
                      << v->get_id() << ','
-                     << partners.get_rank(pit) << '\n';
+                     << i->rank << '\n';
             }
         }
     }
