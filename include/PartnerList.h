@@ -2,17 +2,16 @@
 #define PARTNER_LIST_H
 
 #include "TDefs.h"
-// #include "Heap.h"
 #include <list>
 #include <memory>
 
 struct Partner {
-    VertexPtr partner;
+    VertexPtr vertex;
     RankType rank;
     int level;
 
-    Partner(VertexPtr partner, RankType rank, int level)
-        : partner(partner), rank(rank), level(level)
+    Partner(VertexPtr vertex, RankType rank, int level)
+        : vertex(vertex), rank(rank), level(level)
     {}
 };
 

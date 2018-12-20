@@ -83,7 +83,7 @@ std::unique_ptr<BipartiteGraph> MaximalEnvyfreeHRLQ::augment_graph(MatchedPairLi
                 // add r to u's pref list
                 u_pref_list.emplace_back(A.find(r_id)->second);
             } else {
-                auto Mr = rit->second.get_least_preferred().partner;// rit->second.get_vertex(rit->second.get_least_preferred());
+                auto Mr = rit->second.get_least_preferred().vertex;// rit->second.get_vertex(rit->second.get_least_preferred());
 
                 // v rank on r_old's preference list
                 auto v_rank = r_pref_list.find(v)->rank;

@@ -36,7 +36,7 @@ PartnerList::Iterator PartnerList::end() {
 
 PartnerList::ConstIterator PartnerList::find(VertexPtr v) const {
     for (auto i = cbegin(), e = cend(); i != e; ++i) {
-        if (i->partner == v) {
+        if (i->vertex == v) {
             return i;
         }
     }
@@ -73,7 +73,7 @@ Partner PartnerList::get_least_preferred() {
 }
 
 void PartnerList::remove(VertexPtr v) {
-    partners_.remove_if([v] (const Partner& p) { return p.partner == v; });
+    partners_.remove_if([v] (const Partner& p) { return p.vertex == v; });
 }
 
 /// remove the least preferred among the current partners

@@ -36,13 +36,23 @@ void PreferenceList::emplace_back(VertexPtr v) {
 }
 
 PreferenceList::Iterator PreferenceList::find(VertexPtr v) {
+    auto index = find_index(v);
+
+    if (index < pref_list_.size()) {
+        return pref_list_.begin() + index;
+    } else {
+        return end();
+    }
+}
+
+PreferenceList::SizeType PreferenceList::find_index(VertexPtr v) {
     for (auto i = begin(), e = end(); i != e; ++i) {
         if (i->vertex == v) {
-            return i;
+            return i - begin();
         }
     }
 
-    return end();
+    return pref_list_.size();
 }
 
 PrefListElement PreferenceList::get(SizeType index) {

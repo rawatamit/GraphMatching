@@ -47,6 +47,9 @@ public:
 
     /// find the vertex in the container
     Iterator find(VertexPtr v);
+
+    /// find the index of the given vertex
+    SizeType find_index(VertexPtr v);
     
     /// get pref list element at given index
     PrefListElement get(SizeType index);

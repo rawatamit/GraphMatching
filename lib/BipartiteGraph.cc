@@ -81,7 +81,7 @@ bool BipartiteGraph::has_augmenting_path(const MatchedPairListType& M) const {
             } else {
                 // add all the matched neighbours
                 for (auto i = partners.cbegin(), e = partners.cend(); i != e; ++i) {
-                    auto v = (*i).partner;
+                    auto v = (*i).vertex;
 
                     // only add if this vertex has not been visited
                     if (visited.find(v) == visited.end()) {

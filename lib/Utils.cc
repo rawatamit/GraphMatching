@@ -43,7 +43,7 @@ void print_matching(const std::unique_ptr<BipartiteGraph>& G,
             auto& partners = M_u->second;
 
             for (auto i = partners.cbegin(), e = partners.cend(); i != e; ++i) {
-                auto v = i->partner;
+                auto v = i->vertex;
                 printed.emplace(v);
 
                 stmp << u->get_id() << ','

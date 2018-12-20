@@ -64,7 +64,7 @@ MatchedPairListType& MatchingAlgorithm::map_inverse(const MatchedPairListType& M
             bool is_a_partition_A = (A.find(ac_id) != A.end()) ? true : false;
 
             for (auto i = partners.begin(), e = partners.end(); i != e; ++i) {
-                auto b = i->partner;
+                auto b = i->vertex;
 
                 // do not add a dummy partner to the matching
                 if (not b->is_dummy()) {
