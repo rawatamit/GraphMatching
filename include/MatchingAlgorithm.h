@@ -14,8 +14,8 @@ protected:
     MatchedPairListType& map_inverse(const MatchedPairListType& M);
 
 public:
-    MatchingAlgorithm(const std::unique_ptr<BipartiteGraph>& G);
-    virtual ~MatchingAlgorithm();
+    explicit MatchingAlgorithm(const std::unique_ptr<BipartiteGraph>& G);
+    virtual ~MatchingAlgorithm() = default;
     virtual bool compute_matching() = 0;
     virtual MatchedPairListType& get_matched_pairs();
     const std::unique_ptr<BipartiteGraph>& get_graph() const;

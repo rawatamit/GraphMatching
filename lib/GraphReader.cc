@@ -1,6 +1,7 @@
 #include "GraphReader.h"
 #include "Vertex.h"
 #include "PreferenceList.h"
+#include "Utils.h"
 #include <cstdlib>
 #include <stdexcept>
 
@@ -77,9 +78,6 @@ GraphReader::GraphReader(const char* file_name) {
     consume(); // read first token
 }
 
-GraphReader::~GraphReader()
-{}
-
 void GraphReader::consume() {
     curtok_ = lexer_->next_token();
 }
@@ -113,7 +111,7 @@ void GraphReader::read_partition(BipartiteGraph::ContainerType& vmap) {
             match(TOK_LEFT_BRACE);
 
             // read the upper quota
-            upper_quota = std::atoi(lexer_->get_lexeme().c_str());
+            upper_quota = to_integer(lexer_->get_lexeme());
             match(TOK_STRING);
 
             // check if this vertex has a lower quota as well
@@ -122,7 +120,7 @@ void GraphReader::read_partition(BipartiteGraph::ContainerType& vmap) {
 
                 // the quota read first was the lower quota
                 lower_quota = upper_quota;
-                upper_quota = std::atoi(lexer_->get_lexeme().c_str());
+                upper_quota = to_integer(lexer_->get_lexeme());
                 match(TOK_STRING);
             }
 

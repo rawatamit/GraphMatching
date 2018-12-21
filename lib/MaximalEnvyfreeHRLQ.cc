@@ -14,9 +14,6 @@ MaximalEnvyfreeHRLQ::MaximalEnvyfreeHRLQ(const std::unique_ptr<BipartiteGraph>& 
     : MatchingAlgorithm(G)
 {}
 
-MaximalEnvyfreeHRLQ::~MaximalEnvyfreeHRLQ()
-{}
-
 MatchedPairListType& MaximalEnvyfreeHRLQ::get_matched_pairs() {
     return M_;
 }

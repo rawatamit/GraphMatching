@@ -7,9 +7,6 @@ MatchingAlgorithm::MatchingAlgorithm(const std::unique_ptr<BipartiteGraph>& G)
     : G_(G)
 {}
 
-MatchingAlgorithm::~MatchingAlgorithm()
-{}
-
 MatchedPairListType& MatchingAlgorithm::get_matched_pairs() {
     return M_;
 }
@@ -47,7 +44,7 @@ bool MatchingAlgorithm::is_feasible(const std::unique_ptr<BipartiteGraph>& G,
 
 MatchedPairListType& MatchingAlgorithm::map_inverse(const MatchedPairListType& M) {
     // already computed matching, just return
-    if (M_.size() > 0) { return M_; }
+    if (! M_.empty()) { return M_; }
 
     const std::unique_ptr<BipartiteGraph>& G = get_graph();
     auto& A = G->get_A_partition();
@@ -61,7 +58,7 @@ MatchedPairListType& MatchingAlgorithm::map_inverse(const MatchedPairListType& M
             auto& partners = it.second;
             const auto& ac_id = a->get_cloned_for_id(); // vertex from which a was cloned
             // is A the partition to which a belongs in the original graph G
-            bool is_a_partition_A = (A.find(ac_id) != A.end()) ? true : false;
+            bool is_a_partition_A = A.find(ac_id) != A.end();
 
             for (auto i = partners.begin(), e = partners.end(); i != e; ++i) {
                 auto b = i->vertex;

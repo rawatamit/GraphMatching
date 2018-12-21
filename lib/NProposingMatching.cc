@@ -10,9 +10,6 @@ NProposingMatching::NProposingMatching(const std::unique_ptr<BipartiteGraph>& G,
     : MatchingAlgorithm(G), A_proposing_(A_proposing), max_level(max_level)
 {}
 
-NProposingMatching::~NProposingMatching()
-{}
-
 struct PrefListBounds {
     // [begin, end)
     // begin is also the proposal index

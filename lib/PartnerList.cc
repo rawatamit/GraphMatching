@@ -3,8 +3,20 @@
 #include <algorithm>
 #include <sstream>
 
-PartnerList::PartnerList()
-{}
+bool operator<(const Partner& a, const Partner& b) {
+    // if level of a is less than of b
+    // a is less preferred
+    if (a.level < b.level) {
+        return true;
+    } else if (a.level > b.level) {
+        return false;
+    } else {
+        // however if a and b have same level
+        // and a's rank is > than b's rank
+        // a is less preferred
+        return a.rank > b.rank;
+    }
+}
 
 PartnerList::~PartnerList() {
     partners_.clear();
@@ -54,17 +66,15 @@ PartnerList::Iterator PartnerList::find_least_preferred() {
     if (empty()) {
         return end();
     } else {
-        RankType max_rank = begin()->rank;
-        Iterator max_it = begin();
+        auto min_it = begin();
 
-        for (Iterator i = begin(), e = end(); i != e; ++i) {
-            if (i->rank > max_rank) {
-                max_it = i;
-                max_rank = i->rank;
+        for (auto i = begin(), e = end(); i != e; ++i) {
+            if (*i < *min_it) {
+                min_it = i;
             }
         }
 
-        return max_it;
+        return min_it;
     }
 }
 
@@ -78,7 +88,7 @@ void PartnerList::remove(VertexPtr v) {
 
 /// remove the least preferred among the current partners
 void PartnerList::remove_least_preferred() {
-    Iterator it = find_least_preferred();
+    auto it = find_least_preferred();
 
     if (it != end()) {
         partners_.erase(it);

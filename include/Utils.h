@@ -4,6 +4,9 @@
 #include "TDefs.h"
 #include "BipartiteGraph.h"
 
+// convert string s to an integer in base 10
+int to_integer(const std::string& s);
+
 // a new id is of the form id^k
 IdType get_vertex_id(const IdType& id, int k);
 

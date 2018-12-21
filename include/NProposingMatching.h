@@ -10,10 +10,10 @@ private:
     int max_level;     // maximum level that a vertex can reach
 
 public:
-    NProposingMatching(const std::unique_ptr<BipartiteGraph>& G, bool A_proposing=true, int max_level=1);
-    virtual ~NProposingMatching();
+    explicit NProposingMatching(const std::unique_ptr<BipartiteGraph>& G, bool A_proposing=true, int max_level=1);
+    ~NProposingMatching() override = default;
 
-    bool compute_matching();
+    bool compute_matching() override;
 };
 
 #endif

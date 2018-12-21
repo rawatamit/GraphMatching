@@ -31,7 +31,7 @@ class Lexer {
     std::string lexeme_;
 
 public:
-    Lexer(const char* file_name);
+    explicit Lexer(const char* file_name);
     virtual ~Lexer();
     Token next_token();
     std::string const& get_lexeme() const;
@@ -55,8 +55,8 @@ private:
                           BipartiteGraph::ContainerType& B);
 
 public:
-    GraphReader(const char* file_name);
-    virtual ~GraphReader();
+    explicit GraphReader(const char* file_name);
+    virtual ~GraphReader() = default;
     std::unique_ptr<BipartiteGraph> read_graph();
 };
 

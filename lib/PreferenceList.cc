@@ -12,9 +12,6 @@ PreferenceList::PreferenceList(const PreferenceList& that) {
     pref_list_ = that.pref_list_;
 }
 
-PreferenceList::~PreferenceList() {
-}
-
 PreferenceList::Iterator PreferenceList::begin() {
     return pref_list_.begin();
 }
@@ -28,7 +25,7 @@ bool PreferenceList::empty() {
 }
 
 PreferenceList::SizeType PreferenceList::size() {
-    return end() - begin();
+    return pref_list_.size();
 }
 
 void PreferenceList::emplace_back(VertexPtr v) {
@@ -66,8 +63,7 @@ std::ostream& operator<<(std::ostream& out, PreferenceList& pl) {
 std::ostream& operator<<(std::ostream& out, PreferenceList* pl) {
     std::stringstream stmp;
 
-    for (PreferenceList::Iterator i = pl->begin(), e = pl->end();
-         i != e; ++i)
+    for (auto i = pl->begin(), e = pl->end(); i != e; ++i)
     {
         stmp << i->vertex->get_id();
 

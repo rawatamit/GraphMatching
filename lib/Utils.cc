@@ -4,6 +4,10 @@
 #include <set>
 #include <sstream>
 
+int to_integer(const std::string& s) {
+    return std::strtol(s.c_str(), nullptr, 10);
+}
+
 // a new id is of the form id^k
 IdType get_vertex_id(const IdType& id, int k) {
     std::stringstream stmp;
@@ -12,7 +16,7 @@ IdType get_vertex_id(const IdType& id, int k) {
 }
 
 int get_vertex_level(const IdType& id) {
-    return std::atoi(id.substr(id.find('^')+1).c_str());
+    return to_integer(id.substr(id.find('^')+1));
 }
 
 // a dummy id is of the form d^k_id
@@ -26,7 +30,7 @@ IdType get_dummy_id(const IdType& id, int k) {
 int get_dummy_level(const IdType& id) {
     auto caret_pos = id.find('^');
     auto underscore_pos = id.find('_');
-    return std::atoi(id.substr(caret_pos+1, underscore_pos-caret_pos-1).c_str());
+    return to_integer(id.substr(caret_pos+1, underscore_pos-caret_pos-1));
 }
 
 void print_matching(const std::unique_ptr<BipartiteGraph>& G,

@@ -31,7 +31,7 @@ private:
 public:
     PreferenceList();
     PreferenceList(const PreferenceList& that);
-    virtual ~PreferenceList();
+    virtual ~PreferenceList() = default;
 
     Iterator begin();
     Iterator end();

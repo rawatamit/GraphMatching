@@ -13,11 +13,14 @@ struct Partner {
     Partner(VertexPtr vertex, RankType rank, int level)
         : vertex(vertex), rank(rank), level(level)
     {}
+
+    // is this smaller that the other Partner
+    // is this less preferred
+    friend bool operator<(const Partner& a, const Partner& b);
 };
 
 class PartnerList {
 public:
-    //typedef typename std::pair<RankType, VertexPtr> PartnerType;
     typedef typename std::list<Partner> ContainerType;
     typedef ContainerType::iterator Iterator;
     typedef ContainerType::const_iterator ConstIterator;
@@ -27,7 +30,7 @@ private:
     ContainerType partners_;
 
 public:
-    PartnerList();
+    PartnerList() = default;
     virtual ~PartnerList();
 
     bool empty() const;
@@ -43,7 +46,7 @@ public:
     /// add a vertex to the list of matched partners
     void add_partner(VertexPtr partner, RankType rank, int level);
 
-Iterator find_least_preferred();
+    Iterator find_least_preferred();
     /// return details for the worst partner matched to this vertex
     Partner get_least_preferred();
 

@@ -9,8 +9,8 @@ private:
     std::unique_ptr<BipartiteGraph> augment_graph(MatchedPairListType& M);
 
 public:
-    MaximalEnvyfreeHRLQ(const std::unique_ptr<BipartiteGraph>& G, bool A_proposing=false);
-    virtual ~MaximalEnvyfreeHRLQ();
+    explicit MaximalEnvyfreeHRLQ(const std::unique_ptr<BipartiteGraph>& G, bool A_proposing=false);
+    ~MaximalEnvyfreeHRLQ() = default;
 
     bool compute_matching();
     MatchedPairListType& get_matched_pairs();
