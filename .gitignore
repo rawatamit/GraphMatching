@@ -1,2 +1,5 @@
-build/
-.vscode/
+build/*
+cmake-build-debug/*
+.vscode/*
+.idea/*
+.kdev4/*
