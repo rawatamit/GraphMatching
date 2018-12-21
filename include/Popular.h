@@ -3,52 +3,48 @@
 
 #include "MatchingAlgorithm.h"
 
-class SPopular : public MatchingAlgorithm {
-private:
-    std::unique_ptr<BipartiteGraph> G_;
-    MatchedPairListType M_tmp_;
-    // how many s values to try
-    int sbegin_;
-    int send_;
-    bool A_proposing_; // true if vertices from partition A propose, otherwise false
-
-public:
-    SPopular(const std::unique_ptr<BipartiteGraph>& G,
-             int sbegin, int send, bool A_proposing=true);
-    virtual ~SPopular();
-
-    bool compute_matching();
-    MatchedPairListType& get_matched_pairs();
-};
-
 /// max-card popular matching in an HR instance
-class MaxCardPopular : public SPopular {
+class MaxCardPopular : public MatchingAlgorithm {
 private:
-    std::unique_ptr<BipartiteGraph> G_;
+    bool A_proposing_; // true if vertices from partition A propose, otherwise false
 
 public:
     MaxCardPopular(const std::unique_ptr<BipartiteGraph>& G,
                    bool A_proposing=true)
-        : SPopular(G, 2, 2, A_proposing)
+        : MatchingAlgorithm(G), A_proposing_(A_proposing)
     {}
 
     virtual ~MaxCardPopular()
     {}
+    
+    bool compute_matching() {
+        NProposingMatching npm (get_graph(), A_proposing_, 2);
+        bool computed = npm.compute_matching();
+        M_ = map_inverse(npm.get_matched_pairs());
+        return computed;
+    }
 };
 
 /// a popular matching among the set of max-card matchings in an instance
-class PopularAmongMaxCard : public SPopular {
+class PopularAmongMaxCard  : public MatchingAlgorithm {
 private:
-    std::unique_ptr<BipartiteGraph> G_;
+    bool A_proposing_; // true if vertices from partition A propose, otherwise false
 
 public:
     PopularAmongMaxCard(const std::unique_ptr<BipartiteGraph>& G,
-                        bool A_proposing=true)
-        : SPopular(G, 10, 10, A_proposing)
+                   bool A_proposing=true)
+        : MatchingAlgorithm(G), A_proposing_(A_proposing)
     {}
 
     virtual ~PopularAmongMaxCard()
     {}
+    
+    bool compute_matching() {
+        NProposingMatching npm (get_graph(), A_proposing_, get_graph()->get_A_partition().size());
+        bool computed = npm.compute_matching();
+        M_ = npm.get_matched_pairs();
+        return computed;
+    }
 };
 
 #endif

@@ -36,7 +36,7 @@ PartnerList::Iterator PartnerList::end() {
 
 PartnerList::ConstIterator PartnerList::find(VertexPtr v) const {
     for (auto i = cbegin(), e = cend(); i != e; ++i) {
-        if (get_vertex(i) == v) {
+        if (i->vertex == v) {
             return i;
         }
     }
@@ -45,22 +45,22 @@ PartnerList::ConstIterator PartnerList::find(VertexPtr v) const {
 }
 
 /// add a vertex to the list of matched partners
-void PartnerList::add_partner(const PartnerType& partner) {
-    partners_.emplace_back(partner);
+void PartnerList::add_partner(VertexPtr partner, RankType rank, int level) {
+    partners_.emplace_back(partner, rank, level);
 }
 
 /// return details for the worst partner matched to this vertex
-PartnerList::Iterator PartnerList::get_least_preferred() {
+PartnerList::Iterator PartnerList::find_least_preferred() {
     if (empty()) {
         return end();
     } else {
-        RankType max_rank = get_rank(begin());
+        RankType max_rank = begin()->rank;
         Iterator max_it = begin();
 
         for (Iterator i = begin(), e = end(); i != e; ++i) {
-            if (get_rank(i) > max_rank) {
+            if (i->rank > max_rank) {
                 max_it = i;
-                max_rank = get_rank(i);
+                max_rank = i->rank;
             }
         }
 
@@ -68,39 +68,24 @@ PartnerList::Iterator PartnerList::get_least_preferred() {
     }
 }
 
+Partner PartnerList::get_least_preferred() {
+    return *find_least_preferred();
+}
+
 void PartnerList::remove(VertexPtr v) {
-    partners_.remove_if([v] (const PartnerType& p) { return p.second == v; });
+    partners_.remove_if([v] (const Partner& p) { return p.vertex == v; });
 }
 
 /// remove the least preferred among the current partners
 void PartnerList::remove_least_preferred() {
-    Iterator it = get_least_preferred();
+    Iterator it = find_least_preferred();
 
     if (it != end()) {
         partners_.erase(it);
     }
 }
 
-RankType PartnerList::get_rank(const PartnerList::ConstIterator& it) const {
-    return it->first;
-}
-
-VertexPtr PartnerList::get_vertex(const PartnerList::ConstIterator& it) const {
-    return it->second;
-}
-
-RankType PartnerList::get_rank(const PartnerList::Iterator& it) const {
-    return it->first;
-}
-
-VertexPtr PartnerList::get_vertex(const PartnerList::Iterator& it) const {
-    return it->second;
-}
-
-void PartnerList::sort() {
-    partners_.sort();
-}
-
+/*
 std::ostream& operator<<(std::ostream& out, PartnerList& pl) {
     return out << &pl;
 }
@@ -120,3 +105,4 @@ std::ostream& operator<<(std::ostream& out, PartnerList* pl) {
     stmp << ';';
     return out << stmp.str();
 }
+*/

@@ -56,8 +56,8 @@ bool BipartiteGraph::has_augmenting_path(const MatchedPairListType& M) const {
         if (it.second) {
             // u is a vertex belonging to partition A
             // go through the neigbours of this vertex
-            for (auto i = pl.all_begin(), e = pl.all_end(); i != e; ++i) {
-                auto v = pl.get_vertex(*i);
+            for (auto i = pl.begin(), e = pl.end(); i != e; ++i) {
+                auto v = i->vertex;
 
                 // only add if this vertex has not been visited
                 // and is not matched to u
@@ -81,7 +81,7 @@ bool BipartiteGraph::has_augmenting_path(const MatchedPairListType& M) const {
             } else {
                 // add all the matched neighbours
                 for (auto i = partners.cbegin(), e = partners.cend(); i != e; ++i) {
-                    auto v = partners.get_vertex(i);
+                    auto v = (*i).vertex;
 
                     // only add if this vertex has not been visited
                     if (visited.find(v) == visited.end()) {

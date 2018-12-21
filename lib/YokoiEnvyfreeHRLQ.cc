@@ -79,10 +79,10 @@ std::unique_ptr<BipartiteGraph> YokoiEnvyfreeHRLQ::augment_graph() {
             auto& u_pref_list = u->get_preference_list();
 
             // copy the preference list as it is
-            for (auto i = v_pref_list.all_begin(), e = v_pref_list.all_end();
+            for (auto i = v_pref_list.begin(), e = v_pref_list.end();
                     i != e; ++i)
             {
-                auto r_old = v_pref_list.get_vertex(*i);
+                auto r_old = i->vertex;
                 auto r_id = r_old->get_id();
                 auto r = std::make_shared<Vertex>(r_id,
                             r_old->get_lower_quota(), r_old->get_upper_quota());
@@ -103,10 +103,10 @@ std::unique_ptr<BipartiteGraph> YokoiEnvyfreeHRLQ::augment_graph() {
         auto& r_pref_list = r->get_preference_list();
         auto& old_pref_list = r_old->get_preference_list();
 
-        for (auto i = old_pref_list.all_begin(), e = old_pref_list.all_end();
+        for (auto i = old_pref_list.begin(), e = old_pref_list.end();
              i != e; ++i)
         {
-            auto h_old = old_pref_list.get_vertex(*i);
+            auto h_old = i->vertex;
 
             // add this vertex to pref list only if it has a positive lower quota
             if (h_old->get_lower_quota() > 0) {

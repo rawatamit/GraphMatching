@@ -2,14 +2,23 @@
 #define PARTNER_LIST_H
 
 #include "TDefs.h"
-// #include "Heap.h"
 #include <list>
 #include <memory>
 
+struct Partner {
+    VertexPtr vertex;
+    RankType rank;
+    int level;
+
+    Partner(VertexPtr vertex, RankType rank, int level)
+        : vertex(vertex), rank(rank), level(level)
+    {}
+};
+
 class PartnerList {
 public:
-    typedef typename std::pair<RankType, VertexPtr> PartnerType;
-    typedef typename std::list<PartnerType> ContainerType;
+    //typedef typename std::pair<RankType, VertexPtr> PartnerType;
+    typedef typename std::list<Partner> ContainerType;
     typedef ContainerType::iterator Iterator;
     typedef ContainerType::const_iterator ConstIterator;
     typedef ContainerType::size_type SizeType;
@@ -32,10 +41,11 @@ public:
     ConstIterator find(VertexPtr v) const;
 
     /// add a vertex to the list of matched partners
-    void add_partner(const PartnerType& partner);
+    void add_partner(VertexPtr partner, RankType rank, int level);
 
+Iterator find_least_preferred();
     /// return details for the worst partner matched to this vertex
-    Iterator get_least_preferred();
+    Partner get_least_preferred();
 
     /// remove this partner from the list
     void remove(VertexPtr v);
@@ -43,16 +53,10 @@ public:
     /// remove the least preferred among the current partners
     void remove_least_preferred();
 
-    RankType get_rank(const ConstIterator& it) const;
-    RankType get_rank(const Iterator& it) const;
-    VertexPtr get_vertex(const ConstIterator& it) const;
-    VertexPtr get_vertex(const Iterator& it) const;
-
-    /// sort partners according to their rank
-    void sort();
-
+/*
     friend std::ostream& operator<<(std::ostream& out, PartnerList& pl);
     friend std::ostream& operator<<(std::ostream& out, PartnerList* pl);
+*/
 };
 
 #endif

@@ -4,109 +4,59 @@
 #include <sstream>
 
 PreferenceList::PreferenceList()
-    : start_iter_(0), end_iter_(0), cur_rank_(0)
+    : cur_rank_(0)
 {}
 
 PreferenceList::PreferenceList(const PreferenceList& that) {
-    cur_rank_ = 0;//that.cur_rank_;
+    cur_rank_ = 0;
     pref_list_ = that.pref_list_;
-    start_iter_ = 0;
-    end_iter_ = pref_list_.size();
 }
 
 PreferenceList::~PreferenceList() {
-    clear();
 }
 
-PreferenceList::SizeType PreferenceList::begin() {
-    return start_iter_;
-}
-
-PreferenceList::SizeType PreferenceList::end() {
-    return end_iter_;
-}
-
-PreferenceList::Iterator PreferenceList::all_begin() {
+PreferenceList::Iterator PreferenceList::begin() {
     return pref_list_.begin();
 }
 
-PreferenceList::Iterator PreferenceList::all_end() {
+PreferenceList::Iterator PreferenceList::end() {
     return pref_list_.end();
 }
 
-/// clear the list
-void PreferenceList::clear() {
-    pref_list_.clear();
-    start_iter_ = 0;
-    end_iter_ = 0;
-}
-
-/// is the preference list empty
 bool PreferenceList::empty() {
     return size() == 0;
 }
 
-/// is the preference list empty
 PreferenceList::SizeType PreferenceList::size() {
     return end() - begin();
 }
 
-/// insert element at end
 void PreferenceList::emplace_back(VertexPtr v) {
     pref_list_.emplace_back(++cur_rank_, v);
-
-    // end_iter_ always points one past the end of preference list
-    end_iter_ = pref_list_.size();
 }
 
-/// find the vertex in the container
-PreferenceList::SizeType PreferenceList::find(VertexPtr v) {
-    for (SizeType i = begin(), e = end(); i != e; ++i) {
-        if (get_vertex(i) == v) {
-            return i;
+PreferenceList::Iterator PreferenceList::find(VertexPtr v) {
+    auto index = find_index(v);
+
+    if (index < pref_list_.size()) {
+        return pref_list_.begin() + index;
+    } else {
+        return end();
+    }
+}
+
+PreferenceList::SizeType PreferenceList::find_index(VertexPtr v) {
+    for (auto i = begin(), e = end(); i != e; ++i) {
+        if (i->vertex == v) {
+            return i - begin();
         }
     }
 
-    return end();
+    return pref_list_.size();
 }
 
-VertexPtr PreferenceList::get_vertex(const ElementType& e) {
-    return e.second;
-}
-
-RankType PreferenceList::get_rank(const ElementType& e) {
-    return e.first;
-}
-
-VertexPtr PreferenceList::get_vertex(SizeType index) {
-    return get_vertex(pref_list_.at(index));
-}
-
-RankType PreferenceList::get_rank(SizeType index) {
-    return (index < end()) ? get_rank(pref_list_.at(index)) : RANK_INFINITY ;
-}
-
-/// return the index of the vertex that this vertex will now propose to
-PreferenceList::SizeType PreferenceList::get_proposal_index() {
-    return begin();
-}
-
-/// does this vertex prefer a to b
-bool PreferenceList::is_ranked_better(VertexPtr a, VertexPtr b) {
-    return get_rank(find(a)) < get_rank(find(b));
-}
-
-/// restrict the preference list [begin(), pref_list_[v]]
-void PreferenceList::restrict_preferences(VertexPtr v) {
-    auto index = find(v);
-    end_iter_ = (index == end()) ? index : (index + 1);
-}
-
-/// remove the first vertex from the preference list
-void PreferenceList::move_proposal_index() {
-     if (begin() < end()) {
-        ++start_iter_;
-     }
+PrefListElement PreferenceList::get(SizeType index) {
+    return pref_list_.at(index);
 }
 
 std::ostream& operator<<(std::ostream& out, PreferenceList& pl) {
@@ -116,10 +66,10 @@ std::ostream& operator<<(std::ostream& out, PreferenceList& pl) {
 std::ostream& operator<<(std::ostream& out, PreferenceList* pl) {
     std::stringstream stmp;
 
-    for (PreferenceList::SizeType i = pl->begin(), e = pl->end();
+    for (PreferenceList::Iterator i = pl->begin(), e = pl->end();
          i != e; ++i)
     {
-        stmp << pl->get_vertex(pl->pref_list_.at(i))->get_id();
+        stmp << i->vertex->get_id();
 
         if (i+1 == e) {
            stmp << ';';
@@ -130,4 +80,3 @@ std::ostream& operator<<(std::ostream& out, PreferenceList* pl) {
 
     return out << stmp.str();
 }
-
