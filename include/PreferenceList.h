@@ -37,7 +37,7 @@ public:
     Iterator end();
 
     /// size of the preference list
-    SizeType size();
+    SizeType size() const;
 
     /// is the preference list empty
     bool empty();
@@ -49,7 +49,7 @@ public:
     Iterator find(VertexPtr v);
 
     /// find the index of the given vertex
-    SizeType find_index(VertexPtr v);
+    SizeType find_index(VertexPtr v) const;
     
     /// get pref list element at given index
     PrefListElement get(SizeType index);

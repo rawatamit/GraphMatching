@@ -20,6 +20,7 @@ const BipartiteGraph::ContainerType& BipartiteGraph::get_B_partition() const {
     return B_;
 }
 
+/*
 bool BipartiteGraph::has_augmenting_path(const MatchedPairListType& M) const {
     // the second entry of the pair is true if
     // the vertex belongs to partition A, otherwise false
@@ -98,6 +99,7 @@ bool BipartiteGraph::has_augmenting_path(const MatchedPairListType& M) const {
 
     return false;
 }
+*/
 
 std::ostream& operator<<(std::ostream& out, const std::unique_ptr<BipartiteGraph>& G) {
     auto print_vertex = [](const VertexPtr& v, std::stringstream& stmp) {

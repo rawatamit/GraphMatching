@@ -3,5 +3,5 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 add_library(graph
                 MatchingAlgorithm.cc NProposingMatching.cc
                 YokoiEnvyfreeHRLQ.cc MaximalEnvyfreeHRLQ.cc
-                BipartiteGraph.cc PartnerList.cc PreferenceList.cc Vertex.cc
+                BipartiteGraph.cc Partner.cc PartnerList.cc PreferenceList.cc Vertex.cc
                 GraphReader.cc Utils.cc)

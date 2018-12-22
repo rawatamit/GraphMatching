@@ -1,11 +1,25 @@
 #include "Utils.h"
 #include "Vertex.h"
-#include "PartnerList.h"
 #include <set>
 #include <sstream>
 
 int to_integer(const std::string& s) {
-    return std::strtol(s.c_str(), nullptr, 10);
+    return (int) std::strtol(s.c_str(), nullptr, 10);
+}
+
+bool has_partner(const MatchingAlgorithm::MatchedPairListType& M, VertexPtr v) {
+    auto v_it = M.find(v);
+    return v_it != M.end() and not v_it->second.empty();
+}
+
+int matching_size(const MatchingAlgorithm::MatchedPairListType& M) {
+    int size = 0;
+
+    for (auto it : M) {
+        size += it.second.size();
+    }
+
+    return size / 2;
 }
 
 // a new id is of the form id^k
@@ -33,8 +47,13 @@ int get_dummy_level(const IdType& id) {
     return to_integer(id.substr(caret_pos+1, underscore_pos-caret_pos-1));
 }
 
+RankType compute_rank(VertexPtr u, const PreferenceList& pref_list, int level) {
+    auto index = pref_list.find_index(u);
+    return (RankType) ((index + 1) + (level * pref_list.size()));
+}
+
 void print_matching(const std::unique_ptr<BipartiteGraph>& G,
-                    MatchedPairListType& M, std::ostream& out)
+                    MatchingAlgorithm::MatchedPairListType& M, std::ostream& out)
 {
     std::stringstream stmp;
     std::set<VertexPtr> printed;

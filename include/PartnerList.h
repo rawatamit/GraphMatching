@@ -2,22 +2,9 @@
 #define PARTNER_LIST_H
 
 #include "TDefs.h"
+#include "Partner.h"
 #include <list>
 #include <memory>
-
-struct Partner {
-    VertexPtr vertex;
-    RankType rank;
-    int level;
-
-    Partner(VertexPtr vertex, RankType rank, int level)
-        : vertex(vertex), rank(rank), level(level)
-    {}
-
-    // is this smaller that the other Partner
-    // is this less preferred
-    friend bool operator<(const Partner& a, const Partner& b);
-};
 
 class PartnerList {
 public:

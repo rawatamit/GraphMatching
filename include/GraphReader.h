@@ -5,7 +5,6 @@
 #include <map>
 #include <string>
 #include "BipartiteGraph.h"
-#include "TDefs.h"
 
 enum Token {
     TOK_AT = 0, /* 0 */
@@ -20,7 +19,6 @@ enum Token {
     TOK_SEMICOLON,
     TOK_LEFT_BRACE, /* 10 */
     TOK_RIGHT_BRACE,
-    TOK_NEWLINE,
     TOK_EOF,
     TOK_ERROR,
 };

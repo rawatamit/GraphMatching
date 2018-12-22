@@ -1,66 +1,45 @@
 #include "NProposingMatching.h"
 #include "Vertex.h"
+#include "Partner.h"
 #include "PartnerList.h"
+#include "Utils.h"
 #include <stack>
 #include <map>
 #include <cassert>
 
 NProposingMatching::NProposingMatching(const std::unique_ptr<BipartiteGraph>& G,
                                        bool A_proposing, int max_level)
-    : MatchingAlgorithm(G), A_proposing_(A_proposing), max_level(max_level)
+    : MatchingAlgorithm(G, A_proposing), max_level(max_level)
 {}
 
-struct PrefListBounds {
-    // [begin, end)
-    // begin is also the proposal index
-    PreferenceList::SizeType begin;
-    PreferenceList::SizeType end;
+void NProposingMatching::add_matched_partners(VertexPtr u, VertexPtr v,
+                                              int u_level,
+                                              const PrefListBounds& u_pref_list_bounds,
+                                              const PreferenceList& v_pref_list)
+{
+    // v is the first vertex on u's current preference list
+    // invariant for non proposing vertices: rank = index + 1
+    // v is always at level 0
+    M_[u].add_partner(v, (RankType) u_pref_list_bounds.begin + 1, 0);
 
-    PrefListBounds()
-        : begin(0), end(0)
-    {}
-
-    PrefListBounds(PreferenceList::SizeType begin, PreferenceList::SizeType end)
-        : begin(begin), end(end)
-    {}
-};
-
-static bool isWorseThan(VertexPtr a, int a_level, int a_rank, VertexPtr b, int b_level, int b_rank) {
-    if (a_level < b_level) {
-        return true;
-    } else if (a_level > b_level) {
-        return false;
-    } else if (a_rank > b_rank) {
-        return true;
-    } else if (a_rank < b_rank) {
-        return false;
-    } else { // should never happen
-        return true;
-    }
+    M_[v].add_partner(u, compute_rank(u, v_pref_list, u_level), u_level);
 }
 
-static bool isBetterThan(VertexPtr a, int a_level, int a_rank, VertexPtr b, int b_level, int b_rank) {
-    return ! isWorseThan(a, a_level, a_rank, b, b_level, b_rank);
-}
-
-#include <iostream>
 bool NProposingMatching::compute_matching() {
     std::stack<VertexPtr> free_list;
-    //std::map<VertexPtr, int> in_queue;
     std::map<VertexPtr, int> vertex_level;
     std::map<VertexPtr, PrefListBounds> pref_list_bounds;
     const std::unique_ptr<BipartiteGraph>& G = get_graph();
 
     // choose the paritions from which the vertices will propose
-    const auto& proposing_partition = A_proposing_ ? G->get_A_partition()
-                                                   : G->get_B_partition();
+    const auto& proposing_partition = is_A_proposing() ? G->get_A_partition()
+                                                       : G->get_B_partition();
 
     // set the level of every vertex in the proposing partition to 0
     // mark all proposing vertices free (by pushing into the free_list)
     // and vertices from the opposite partition implicitly free
     for (auto it : proposing_partition) {
         free_list.push(it.second);
-        //in_queue[it.second] = 1;
         vertex_level[it.second] = 0;
         pref_list_bounds[it.second] = PrefListBounds(0, it.second->get_preference_list().size());
     }
@@ -71,37 +50,41 @@ bool NProposingMatching::compute_matching() {
         auto u = free_list.top();
         auto& u_pref_list = u->get_preference_list();
         free_list.pop(); // remove u from free_list
-        //in_queue[u] = 0; // u is not in free list now
 
         // if u^l hasn't exhausted its preference list
-        if (pref_list_bounds[u].begin < pref_list_bounds[u].end) {
+        if (! pref_list_bounds[u].is_exhausted()) {
             // highest ranked vertex to whom u not yet proposed
-            auto v = u_pref_list.get(pref_list_bounds[u].begin).vertex;
+            auto v_it = u_pref_list.get(pref_list_bounds[u].begin);
+            auto v = v_it.vertex;
+            auto v_pref_list = v->get_preference_list();
 
             // M[v] exists
-            if (M_.find(v) != M_.end() and M_[v].size() != 0) {
-                // a worst partner must exist
+            if (has_partner(M_, v)) {
                 auto v_worst_partner = M_[v].get_least_preferred();
-                auto u_in_v_pref_list = v->get_preference_list().find(u);
+                auto u_in_v_pref_list = v_pref_list.find(u);
+                auto possible_partner = Partner(u, u_in_v_pref_list->rank, vertex_level[u]);
 
-                if (isWorseThan(v_worst_partner.vertex, v_worst_partner.level, v_worst_partner.rank,
-                                u, vertex_level[u], u_in_v_pref_list->rank))
-                {
-                    M_[u].add_partner(v, pref_list_bounds[u].begin, vertex_level[v]);
-                    M_[v].add_partner(u, v->get_preference_list().find_index(u), vertex_level[u]);
+                if (v_worst_partner < possible_partner) {
+                    add_matched_partners(u, v, vertex_level.at(u), pref_list_bounds[u], v_pref_list);
+
+                    M_[v].remove_least_preferred();
+                    M_[v_worst_partner.vertex].remove(v);
+
+                    pref_list_bounds[v_worst_partner.vertex].begin += 1;
+                    free_list.push(v_worst_partner.vertex);
                 } else {
-                    pref_list_bounds[v].begin += 1;
-                    free_list.push(v);
+                    pref_list_bounds[u].begin += 1;
+                    free_list.push(u);
                 }
             } else {
-                // match u and v
-                M_[u].add_partner(v, pref_list_bounds[u].begin, vertex_level[v]);
-                M_[v].add_partner(u, v->get_preference_list().find_index(u), vertex_level[u]);
+                // add u and v to the matching
+                add_matched_partners(u, v, vertex_level.at(u), pref_list_bounds[u], v_pref_list);
             }
         } else if (vertex_level[u] < max_level) {
             vertex_level[u] += 1;
             pref_list_bounds[u].begin = 0;
             pref_list_bounds[u].end = u->get_preference_list().size();
+            free_list.push(u);
         }
     }
 

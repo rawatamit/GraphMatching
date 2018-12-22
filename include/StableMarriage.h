@@ -5,20 +5,16 @@
 #include "NProposingMatching.h"
 
 class StableMarriage : public MatchingAlgorithm {
-private:
-    bool A_proposing_; // true if vertices from partition A propose, otherwise false
-
 public:
-    StableMarriage(const std::unique_ptr<BipartiteGraph>& G,
-                   bool A_proposing=true)
-    : MatchingAlgorithm(G), A_proposing_(A_proposing)
+    explicit StableMarriage(const std::unique_ptr<BipartiteGraph>& G,
+                            bool A_proposing=true)
+    : MatchingAlgorithm(G, A_proposing)
     {}
 
-    virtual ~StableMarriage()
-    {}
+    ~StableMarriage() override = default;
 
-    bool compute_matching() {
-        NProposingMatching npm (get_graph(), A_proposing_, 1);
+    bool compute_matching() override {
+        NProposingMatching npm (get_graph(), is_A_proposing(), 0);
         bool computed = npm.compute_matching();
         M_ = npm.get_matched_pairs();
         return computed;

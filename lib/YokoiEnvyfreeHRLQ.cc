@@ -10,13 +10,10 @@
 #include <cassert>
 
 YokoiEnvyfreeHRLQ::YokoiEnvyfreeHRLQ(const std::unique_ptr<BipartiteGraph>& G, bool A_proposing)
-    : MatchingAlgorithm(G)
+    : MatchingAlgorithm(G, A_proposing)
 {}
 
-YokoiEnvyfreeHRLQ::~YokoiEnvyfreeHRLQ()
-{}
-
-MatchedPairListType& YokoiEnvyfreeHRLQ::get_matched_pairs() {
+MatchingAlgorithm::MatchedPairListType& YokoiEnvyfreeHRLQ::get_matched_pairs() {
     return M_;
 }
 

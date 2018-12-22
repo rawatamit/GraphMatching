@@ -3,11 +3,11 @@
 #include "PartnerList.h"
 #include <set>
 
-MatchingAlgorithm::MatchingAlgorithm(const std::unique_ptr<BipartiteGraph>& G)
-    : G_(G)
+MatchingAlgorithm::MatchingAlgorithm(const std::unique_ptr<BipartiteGraph>& G, bool A_proposing)
+    : G_(G), A_proposing_(A_proposing)
 {}
 
-MatchedPairListType& MatchingAlgorithm::get_matched_pairs() {
+MatchingAlgorithm::MatchedPairListType& MatchingAlgorithm::get_matched_pairs() {
     return M_;
 }
 
@@ -15,8 +15,12 @@ const std::unique_ptr<BipartiteGraph>& MatchingAlgorithm::get_graph() const {
     return G_;
 }
 
+bool MatchingAlgorithm::is_A_proposing() {
+    return A_proposing_;
+}
+
 bool MatchingAlgorithm::is_feasible(const std::unique_ptr<BipartiteGraph>& G,
-                                    const MatchedPairListType& M) {
+                                    const MatchingAlgorithm::MatchedPairListType& M) {
   auto feasible_for_vertices = [&M] (const BipartiteGraph::ContainerType& vertices) {
       for (auto it : vertices) {
           auto v = it.second;
@@ -42,7 +46,7 @@ bool MatchingAlgorithm::is_feasible(const std::unique_ptr<BipartiteGraph>& G,
            feasible_for_vertices(G->get_B_partition());
 }
 
-MatchedPairListType& MatchingAlgorithm::map_inverse(const MatchedPairListType& M) {
+MatchingAlgorithm::MatchedPairListType& MatchingAlgorithm::map_inverse(const MatchedPairListType& M) {
     // already computed matching, just return
     if (! M_.empty()) { return M_; }
 

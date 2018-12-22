@@ -24,7 +24,7 @@ bool PreferenceList::empty() {
     return size() == 0;
 }
 
-PreferenceList::SizeType PreferenceList::size() {
+PreferenceList::SizeType PreferenceList::size() const {
     return pref_list_.size();
 }
 
@@ -42,11 +42,15 @@ PreferenceList::Iterator PreferenceList::find(VertexPtr v) {
     }
 }
 
-PreferenceList::SizeType PreferenceList::find_index(VertexPtr v) {
-    for (auto i = begin(), e = end(); i != e; ++i) {
-        if (i->vertex == v) {
-            return i - begin();
+PreferenceList::SizeType PreferenceList::find_index(VertexPtr v) const {
+    PreferenceList::SizeType index = 0;
+
+    for (auto& i : pref_list_) {
+        if (i.vertex == v) {
+            return index;
         }
+
+        ++index;
     }
 
     return pref_list_.size();

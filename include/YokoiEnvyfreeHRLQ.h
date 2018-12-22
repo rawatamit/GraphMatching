@@ -9,11 +9,11 @@ private:
     std::unique_ptr<BipartiteGraph> augment_graph();
 
 public:
-    YokoiEnvyfreeHRLQ(const std::unique_ptr<BipartiteGraph>& G, bool A_proposing=true);
-    virtual ~YokoiEnvyfreeHRLQ();
+    explicit YokoiEnvyfreeHRLQ(const std::unique_ptr<BipartiteGraph>& G, bool A_proposing=true);
+    ~YokoiEnvyfreeHRLQ() override = default;
 
-    bool compute_matching();
-    MatchedPairListType& get_matched_pairs();
+    bool compute_matching() override;
+    MatchedPairListType& get_matched_pairs() override;
 };
 
 #endif

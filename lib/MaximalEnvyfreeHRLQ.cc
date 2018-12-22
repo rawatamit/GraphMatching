@@ -11,10 +11,10 @@
 #include <cassert>
 
 MaximalEnvyfreeHRLQ::MaximalEnvyfreeHRLQ(const std::unique_ptr<BipartiteGraph>& G, bool A_proposing)
-    : MatchingAlgorithm(G)
+    : MatchingAlgorithm(G, A_proposing)
 {}
 
-MatchedPairListType& MaximalEnvyfreeHRLQ::get_matched_pairs() {
+MatchingAlgorithm::MatchedPairListType& MaximalEnvyfreeHRLQ::get_matched_pairs() {
     return M_;
 }
 
