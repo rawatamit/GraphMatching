@@ -1,5 +1,6 @@
 #include "Utils.h"
 #include "Vertex.h"
+#include "GraphReader.h"
 #include <set>
 #include <sstream>
 
@@ -7,19 +8,49 @@ int to_integer(const std::string& s) {
     return (int) std::strtol(s.c_str(), nullptr, 10);
 }
 
-bool has_partner(const MatchingAlgorithm::MatchedPairListType& M, VertexPtr v) {
+PartnerList get_partners(const MatchingAlgorithm::MatchedPairListType& M, VertexPtr v) {
     auto v_it = M.find(v);
-    return v_it != M.end() and not v_it->second.empty();
+    return v_it == M.end() ? PartnerList() : v_it->second;
+}
+
+PartnerList::SizeType number_of_partners(const MatchingAlgorithm::MatchedPairListType& M, VertexPtr v) {
+    return get_partners(M, v).size();
+}
+
+bool has_partner(const MatchingAlgorithm::MatchedPairListType& M, VertexPtr v) {
+    return number_of_partners(M, v) > 0;
+}
+
+VertexPtr get_partner(const MatchingAlgorithm::MatchedPairListType& M, VertexPtr v) {
+    return get_partner(get_partners(M, v));
+}
+
+VertexPtr get_partner(const PartnerList& partner_list) {
+    if (partner_list.empty()) {
+        return nullptr;
+    } else {
+        return partner_list.get_least_preferred().vertex;
+    }
 }
 
 int matching_size(const MatchingAlgorithm::MatchedPairListType& M) {
     int size = 0;
 
-    for (auto it : M) {
+    for (auto& it : M) {
         size += it.second.size();
     }
 
     return size / 2;
+}
+
+VertexPtr get_vertex_by_id(const std::unique_ptr<BipartiteGraph>& G, const IdType& id) {
+    auto A_it = G->get_A_partition().find(id);
+
+    return A_it == G->get_A_partition().end() ? G->get_B_partition().find(id)->second : A_it->second;
+}
+
+std::unique_ptr<BipartiteGraph> read_graph(const std::string& filepath) {
+    return GraphReader(filepath.c_str()).read_graph();
 }
 
 // a new id is of the form id^k

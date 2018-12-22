@@ -9,11 +9,29 @@
 // convert string s to an integer in base 10
 int to_integer(const std::string& s);
 
+// get partners for v in M
+PartnerList get_partners(const MatchingAlgorithm::MatchedPairListType& M, VertexPtr v);
+
+// # of partners for v in M
+PartnerList::SizeType number_of_partners(const MatchingAlgorithm::MatchedPairListType& M, VertexPtr v);
+
 // does v have at least one partner in M
 bool has_partner(const MatchingAlgorithm::MatchedPairListType& M, VertexPtr v);
 
+// get matched partner for v in M
+VertexPtr get_partner(const MatchingAlgorithm::MatchedPairListType& M, VertexPtr v);
+
+// get matched partner from partner list
+VertexPtr get_partner(const PartnerList& partner_list);
+
 // size of matching M
 int matching_size(const MatchingAlgorithm::MatchedPairListType& M);
+
+// get vertex by id in graph G
+VertexPtr get_vertex_by_id(const std::unique_ptr<BipartiteGraph>& G, const IdType& id);
+
+// read graph from a given filepath
+std::unique_ptr<BipartiteGraph> read_graph(const std::string& filepath);
 
 // a new id is of the form id^k
 IdType get_vertex_id(const IdType& id, int k);

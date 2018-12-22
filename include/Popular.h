@@ -2,6 +2,7 @@
 #define POPULAR_H
 
 #include "MatchingAlgorithm.h"
+#include "NProposingMatching.h"
 
 /// max-card popular matching in an HR instance
 class MaxCardPopular : public MatchingAlgorithm {

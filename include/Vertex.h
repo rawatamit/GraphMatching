@@ -36,6 +36,9 @@ public:
     const PreferenceList& get_preference_list() const;
 };
 
+bool operator<(const Vertex& a, const Vertex& b);
+bool operator<(const VertexPtr& a, const VertexPtr& b);
+
 /// print this vertex in the format v: p1, ..., pk
 std::ostream& operator<<(std::ostream& out, VertexPtr v);
 

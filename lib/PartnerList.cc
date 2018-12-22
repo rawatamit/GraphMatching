@@ -47,13 +47,13 @@ void PartnerList::add_partner(VertexPtr partner, RankType rank, int level) {
 }
 
 /// return details for the worst partner matched to this vertex
-PartnerList::Iterator PartnerList::find_least_preferred() {
+PartnerList::ConstIterator PartnerList::find_least_preferred() const {
     if (empty()) {
-        return end();
+        return cend();
     } else {
-        auto min_it = begin();
+        auto min_it = cbegin();
 
-        for (auto i = begin(), e = end(); i != e; ++i) {
+        for (auto i = cbegin(), e = cend(); i != e; ++i) {
             if (*i < *min_it) {
                 min_it = i;
             }
@@ -63,7 +63,7 @@ PartnerList::Iterator PartnerList::find_least_preferred() {
     }
 }
 
-Partner PartnerList::get_least_preferred() {
+Partner PartnerList::get_least_preferred() const {
     return *find_least_preferred();
 }
 

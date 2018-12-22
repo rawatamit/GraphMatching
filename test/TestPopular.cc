@@ -1,10 +1,10 @@
 #include "catch.hpp"
-#include "StableMarriage.h"
+#include "Popular.h"
 #include "GraphReader.h"
 #include "Utils.h"
 #include "TestDefs.h"
 
-TEST_CASE("StableMarriage example_paper", "[matching_stable]") {
+TEST_CASE("MaxCardPopular example_paper", "[matching_max_card_popular]") {
     auto G = read_graph(get_filepath(get_resources_dir(), "/example_paper.txt"));
     auto a1 = get_vertex_by_id(G, "a1");
     auto a2 = get_vertex_by_id(G, "a2");
@@ -12,49 +12,51 @@ TEST_CASE("StableMarriage example_paper", "[matching_stable]") {
     auto b2 = get_vertex_by_id(G, "b2");
 
     SECTION("residents proposing") {
-        StableMarriage sm(G);
-        sm.compute_matching();
-        auto M = sm.get_matched_pairs();
+        MaxCardPopular mp(G);
+        mp.compute_matching();
+        auto M = mp.get_matched_pairs();
 
-        REQUIRE(matching_size(M) == 1);
+        REQUIRE(matching_size(M) == 2);
 
         SECTION("size of partner list") {
             REQUIRE(number_of_partners(M, a1) == 1);
+            REQUIRE(number_of_partners(M, a2) == 1);
             REQUIRE(number_of_partners(M, b1) == 1);
-
-            REQUIRE(!has_partner(M, a2));
-            REQUIRE(!has_partner(M, b2));
+            REQUIRE(number_of_partners(M, b2) == 1);
         }
 
         SECTION("actual partners") {
-            REQUIRE(get_partner(M, a1) == b1);
-            REQUIRE(get_partner(M, b1) == a1);
+            REQUIRE(get_partner(M, a1) == b2);
+            REQUIRE(get_partner(M, a2) == b1);
+            REQUIRE(get_partner(M, b1) == a2);
+            REQUIRE(get_partner(M, b2) == a1);
         }
     }
 
     SECTION("hospitals proposing") {
-        StableMarriage sm(G, false);
-        sm.compute_matching();
-        auto M = sm.get_matched_pairs();
+        MaxCardPopular mp(G, false);
+        mp.compute_matching();
+        auto M = mp.get_matched_pairs();
 
-        REQUIRE(matching_size(M) == 1);
+        REQUIRE(matching_size(M) == 2);
 
         SECTION("size of partner list") {
             REQUIRE(number_of_partners(M, a1) == 1);
+            REQUIRE(number_of_partners(M, a2) == 1);
             REQUIRE(number_of_partners(M, b1) == 1);
-
-            REQUIRE(!has_partner(M, a2));
-            REQUIRE(!has_partner(M, b2));
+            REQUIRE(number_of_partners(M, b2) == 1);
         }
 
         SECTION("actual partners") {
-            REQUIRE(get_partner(M, a1) == b1);
-            REQUIRE(get_partner(M, b1) == a1);
+            REQUIRE(get_partner(M, a1) == b2);
+            REQUIRE(get_partner(M, a2) == b1);
+            REQUIRE(get_partner(M, b1) == a2);
+            REQUIRE(get_partner(M, b2) == a1);
         }
     }
 }
 
-TEST_CASE("StableMarriage 2pop_matchings", "[matching_stable]") {
+TEST_CASE("MaxCardPopular 2pop_matchings", "[matching_max_card_popular]") {
     auto G = read_graph(get_filepath(get_resources_dir(), "/2pop_matchings.txt"));
     auto a1 = get_vertex_by_id(G, "a1");
     auto a2 = get_vertex_by_id(G, "a2");
@@ -64,9 +66,9 @@ TEST_CASE("StableMarriage 2pop_matchings", "[matching_stable]") {
     auto b3 = get_vertex_by_id(G, "b3");
 
     SECTION("residents proposing") {
-        StableMarriage sm(G);
-        sm.compute_matching();
-        auto M = sm.get_matched_pairs();
+        MaxCardPopular mp(G);
+        mp.compute_matching();
+        auto M = mp.get_matched_pairs();
 
         REQUIRE(matching_size(M) == 3);
 
@@ -89,10 +91,10 @@ TEST_CASE("StableMarriage 2pop_matchings", "[matching_stable]") {
         }
     }
 
-    SECTION("residents proposing") {
-        StableMarriage sm(G, false);
-        sm.compute_matching();
-        auto M = sm.get_matched_pairs();
+    SECTION("hospitals proposing") {
+        MaxCardPopular mp(G, false);
+        mp.compute_matching();
+        auto M = mp.get_matched_pairs();
 
         REQUIRE(matching_size(M) == 3);
 
@@ -116,9 +118,9 @@ TEST_CASE("StableMarriage 2pop_matchings", "[matching_stable]") {
     }
 }
 
-TEST_CASE("StableMarriage diff_stable_diff_pop1 (residents proposing)", "[matching_resident]") {
+TEST_CASE("MaxCardPopular diff_stable_diff_pop1 (residents proposing)", "[matching_resident]") {
     auto G = read_graph(get_filepath(get_resources_dir(), "/diff_stable_diff_pop1.txt"));
-    StableMarriage sm(G);
+    MaxCardPopular sm(G);
     sm.compute_matching();
     auto M = sm.get_matched_pairs();
 
