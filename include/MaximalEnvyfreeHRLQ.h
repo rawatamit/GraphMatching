@@ -6,14 +6,13 @@
 class MaximalEnvyfreeHRLQ : public MatchingAlgorithm {
 private:
     // augment graph to compute matching
-    std::unique_ptr<BipartiteGraph> augment_graph(MatchedPairListType& M);
+    std::shared_ptr<BipartiteGraph> augment_graph(std::shared_ptr<MatchedPairListType> M);
 
 public:
-    explicit MaximalEnvyfreeHRLQ(const std::unique_ptr<BipartiteGraph>& G, bool A_proposing=false);
-    ~MaximalEnvyfreeHRLQ() = default;
+    explicit MaximalEnvyfreeHRLQ(std::shared_ptr<BipartiteGraph> G, bool A_proposing=false);
+    ~MaximalEnvyfreeHRLQ() override = default;
 
-    bool compute_matching();
-    MatchedPairListType& get_matched_pairs();
+    std::shared_ptr<MatchedPairListType> compute_matching() override;
 };
 
 #endif

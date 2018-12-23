@@ -30,16 +30,17 @@ private:
     int max_level;     // maximum level that a vertex can reach
 
     // add (u, v) pair to M_
-    void add_matched_partners(VertexPtr u, VertexPtr v,
+    void add_matched_partners(std::shared_ptr<MatchedPairListType> M,
+                              VertexPtr u, VertexPtr v,
                               int u_level,
                               const PrefListBounds& u_pref_list_bounds,
                               const PreferenceList& v_pref_list);
 
 public:
-    explicit NProposingMatching(const std::unique_ptr<BipartiteGraph>& G, bool A_proposing, int max_level);
+    explicit NProposingMatching(std::shared_ptr<BipartiteGraph> G, bool A_proposing, int max_level);
     ~NProposingMatching() override = default;
 
-    bool compute_matching() override;
+    std::shared_ptr<MatchedPairListType> compute_matching() override;
 };
 
 #endif

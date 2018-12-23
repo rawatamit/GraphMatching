@@ -16,16 +16,12 @@
 template<typename T>
 void compute_matching(bool A_proposing, const char* input_file, const char* output_file) {
     GraphReader reader(input_file);
-    std::unique_ptr<BipartiteGraph> G = reader.read_graph();
+    std::shared_ptr<BipartiteGraph> G = reader.read_graph();
 
     T alg(G, A_proposing);
-    if (alg.compute_matching()) {
-        auto& M = alg.get_matched_pairs();
-        std::ofstream out(output_file);
-        print_matching(G, M, out);
-    } else {
-        throw std::runtime_error("unable to compute matching.");
-    }
+    auto M = alg.compute_matching();
+    std::ofstream out(output_file);
+    print_matching(G, M, out);
 }
 
 int main(int argc, char* argv[]) {

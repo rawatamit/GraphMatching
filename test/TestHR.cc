@@ -18,8 +18,7 @@ TEST_CASE("StableMarriage hrlq_m6", "[matching_SM_HR]") {
 
     SECTION("residents proposing") {
         StableMarriage sm(G);
-        sm.compute_matching();
-        auto M = sm.get_matched_pairs();
+        auto M = sm.compute_matching();
 
         REQUIRE(matching_size(M) == 3);
 
@@ -42,8 +41,7 @@ TEST_CASE("StableMarriage hrlq_m6", "[matching_SM_HR]") {
 
     SECTION("hospitals proposing") {
         StableMarriage sm(G, false);
-        sm.compute_matching();
-        auto M = sm.get_matched_pairs();
+        auto M = sm.compute_matching();
 
         REQUIRE(matching_size(M) == 3);
 
@@ -78,8 +76,7 @@ TEST_CASE("MaxCardPopular hrlq_m6", "[matching_MP_HR]") {
 
     SECTION("residents proposing") {
         MaxCardPopular mp(G);
-        mp.compute_matching();
-        auto M = mp.get_matched_pairs();
+        auto M = mp.compute_matching();
 
         REQUIRE(matching_size(M) == 4);
 
@@ -105,8 +102,7 @@ TEST_CASE("MaxCardPopular hrlq_m6", "[matching_MP_HR]") {
 
     SECTION("hospitals proposing") {
         MaxCardPopular mp(G, false);
-        mp.compute_matching();
-        auto M = mp.get_matched_pairs();
+        auto M = mp.compute_matching();
 
         REQUIRE(matching_size(M) == 4);
 

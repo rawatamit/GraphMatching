@@ -55,7 +55,7 @@ private:
 public:
     explicit GraphReader(const char* file_name);
     virtual ~GraphReader() = default;
-    std::unique_ptr<BipartiteGraph> read_graph();
+    std::shared_ptr<BipartiteGraph> read_graph();
 };
 
 #endif

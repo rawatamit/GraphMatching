@@ -13,8 +13,7 @@ TEST_CASE("MaxCardPopular example_paper", "[matching_max_card_popular]") {
 
     SECTION("residents proposing") {
         MaxCardPopular mp(G);
-        mp.compute_matching();
-        auto M = mp.get_matched_pairs();
+        auto M = mp.compute_matching();
 
         REQUIRE(matching_size(M) == 2);
 
@@ -35,8 +34,7 @@ TEST_CASE("MaxCardPopular example_paper", "[matching_max_card_popular]") {
 
     SECTION("hospitals proposing") {
         MaxCardPopular mp(G, false);
-        mp.compute_matching();
-        auto M = mp.get_matched_pairs();
+        auto M = mp.compute_matching();
 
         REQUIRE(matching_size(M) == 2);
 
@@ -67,8 +65,7 @@ TEST_CASE("MaxCardPopular 2pop_matchings", "[matching_max_card_popular]") {
 
     SECTION("residents proposing") {
         MaxCardPopular mp(G);
-        mp.compute_matching();
-        auto M = mp.get_matched_pairs();
+        auto M = mp.compute_matching();
 
         REQUIRE(matching_size(M) == 3);
 
@@ -93,8 +90,7 @@ TEST_CASE("MaxCardPopular 2pop_matchings", "[matching_max_card_popular]") {
 
     SECTION("hospitals proposing") {
         MaxCardPopular mp(G, false);
-        mp.compute_matching();
-        auto M = mp.get_matched_pairs();
+        auto M = mp.compute_matching();
 
         REQUIRE(matching_size(M) == 3);
 
@@ -121,8 +117,7 @@ TEST_CASE("MaxCardPopular 2pop_matchings", "[matching_max_card_popular]") {
 TEST_CASE("MaxCardPopular diff_stable_diff_pop1 (residents proposing)", "[matching_resident]") {
     auto G = read_graph(get_filepath(get_resources_dir(), "/diff_stable_diff_pop1.txt"));
     MaxCardPopular sm(G);
-    sm.compute_matching();
-    auto M = sm.get_matched_pairs();
+    auto M = sm.compute_matching();
 
     REQUIRE(matching_size(M) == 7);
 

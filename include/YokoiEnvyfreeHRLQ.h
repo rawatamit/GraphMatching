@@ -6,14 +6,13 @@
 class YokoiEnvyfreeHRLQ : public MatchingAlgorithm {
 private:
     // augment graph to compute matching
-    std::unique_ptr<BipartiteGraph> augment_graph();
+    std::shared_ptr<BipartiteGraph> augment_graph();
 
 public:
-    explicit YokoiEnvyfreeHRLQ(const std::unique_ptr<BipartiteGraph>& G, bool A_proposing=true);
+    explicit YokoiEnvyfreeHRLQ(std::shared_ptr<BipartiteGraph> G, bool A_proposing=true);
     ~YokoiEnvyfreeHRLQ() override = default;
 
-    bool compute_matching() override;
-    MatchedPairListType& get_matched_pairs() override;
+    std::shared_ptr<MatchedPairListType> compute_matching() override;
 };
 
 #endif

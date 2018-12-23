@@ -227,7 +227,7 @@ void GraphReader::handle_directive(BipartiteGraph::ContainerType& A,
     }
 }
 
-std::unique_ptr<BipartiteGraph> GraphReader::read_graph() {
+std::shared_ptr<BipartiteGraph> GraphReader::read_graph() {
     BipartiteGraph::ContainerType A, B;
 
     // parse the file
@@ -235,5 +235,5 @@ std::unique_ptr<BipartiteGraph> GraphReader::read_graph() {
         handle_directive(A, B);
     }
 
-    return std::make_unique<BipartiteGraph>(A, B);
+    return std::make_shared<BipartiteGraph>(A, B);
 }

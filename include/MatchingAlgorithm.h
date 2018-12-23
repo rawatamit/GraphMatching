@@ -8,26 +8,22 @@ class MatchingAlgorithm {
 public:
     typedef std::map<std::shared_ptr<Vertex>, PartnerList> MatchedPairListType;
 
-protected:
-    MatchedPairListType M_;
-
 private:
-    const std::unique_ptr<BipartiteGraph>& G_;
+    std::shared_ptr<BipartiteGraph> G_;
     bool A_proposing_; // true if vertices from partition A propose, otherwise false
 
 protected:
-    MatchedPairListType& map_inverse(const MatchedPairListType& M);
+    std::shared_ptr<MatchedPairListType> map_inverse(std::shared_ptr<MatchedPairListType> M);
 
 public:
-    explicit MatchingAlgorithm(const std::unique_ptr<BipartiteGraph>& G, bool A_proposing);
+    explicit MatchingAlgorithm(std::shared_ptr<BipartiteGraph> G, bool A_proposing);
     virtual ~MatchingAlgorithm() = default;
 
     bool is_A_proposing();
-    virtual bool compute_matching() = 0;
-    virtual MatchedPairListType& get_matched_pairs();
-    const std::unique_ptr<BipartiteGraph>& get_graph() const;
-    bool is_feasible(const std::unique_ptr<BipartiteGraph>& G,
-                     const MatchedPairListType& M);
+    virtual std::shared_ptr<MatchedPairListType> compute_matching() = 0;
+    std::shared_ptr<BipartiteGraph> get_graph() const;
+    bool is_feasible(std::shared_ptr<BipartiteGraph> G,
+                     std::shared_ptr<MatchedPairListType> M);
 };
 
 #endif

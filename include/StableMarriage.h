@@ -6,18 +6,16 @@
 
 class StableMarriage : public MatchingAlgorithm {
 public:
-    explicit StableMarriage(const std::unique_ptr<BipartiteGraph>& G,
+    explicit StableMarriage(std::shared_ptr<BipartiteGraph> G,
                             bool A_proposing=true)
     : MatchingAlgorithm(G, A_proposing)
     {}
 
     ~StableMarriage() override = default;
 
-    bool compute_matching() override {
+    std::shared_ptr<MatchingAlgorithm::MatchedPairListType> compute_matching() override {
         NProposingMatching npm (get_graph(), is_A_proposing(), 0);
-        bool computed = npm.compute_matching();
-        M_ = npm.get_matched_pairs();
-        return computed;
+        return npm.compute_matching();
     }
 };
 

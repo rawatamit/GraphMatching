@@ -9,9 +9,6 @@ BipartiteGraph::BipartiteGraph(const ContainerType& A, const ContainerType& B)
     : A_(A), B_(B)
 {}
 
-BipartiteGraph::~BipartiteGraph()
-{}
-
 const BipartiteGraph::ContainerType& BipartiteGraph::get_A_partition() const {
     return A_;
 }
@@ -101,7 +98,7 @@ bool BipartiteGraph::has_augmenting_path(const MatchedPairListType& M) const {
 }
 */
 
-std::ostream& operator<<(std::ostream& out, const std::unique_ptr<BipartiteGraph>& G) {
+std::ostream& operator<<(std::ostream& out, std::shared_ptr<BipartiteGraph> G) {
     auto print_vertex = [](const VertexPtr& v, std::stringstream& stmp) {
         int lq = v->get_lower_quota();
         int uq = v->get_upper_quota();

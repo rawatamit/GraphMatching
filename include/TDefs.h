@@ -11,7 +11,7 @@ class Vertex;
 typedef std::string IdType;
 
 // Rank representation for a vertex in the preference/partner list
-// this must be unique for all the vertex in a list
+// this must be unique for all the vertices in a list
 typedef int RankType;
 
 // Pointer type for vertices

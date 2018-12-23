@@ -6,24 +6,23 @@
 class RHeuristicHRLQ : public MatchingAlgorithm {
 private:
     // graphs for phase 1 and 2
-    std::unique_ptr<BipartiteGraph> G1_;
-    std::unique_ptr<BipartiteGraph> G2_;
+    std::shared_ptr<BipartiteGraph> G1_;
+    std::shared_ptr<BipartiteGraph> G2_;
 
     // matching to hold temporary results
     MatchedPairListType M_tmp_;
 
     // augment graph for phase 1 and phase 2
-    std::unique_ptr<BipartiteGraph> augment_phase1();
-    std::unique_ptr<BipartiteGraph> augment_phase2(MatchedPairListType& M);
+    std::shared_ptr<BipartiteGraph> augment_phase1();
+    std::shared_ptr<BipartiteGraph> augment_phase2(std::shared_ptr<MatchedPairListType> M);
 
 public:
     // A_proposing should always be true, this is a resident proposing
     // heuristic
-    RHeuristicHRLQ(const std::unique_ptr<BipartiteGraph>& G, bool A_proposing=true);
-    virtual ~RHeuristicHRLQ();
+    explicit RHeuristicHRLQ(const std::shared_ptr<BipartiteGraph>& G, bool A_proposing=true);
+    ~RHeuristicHRLQ() override = default;
 
-    bool compute_matching();
-    MatchedPairListType& get_matched_pairs();
+    std::shared_ptr<MatchedPairListType> compute_matching() override;
 };
 
 #endif

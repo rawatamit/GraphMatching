@@ -9,57 +9,49 @@
 #include <algorithm>
 #include <cassert>
 
-YokoiEnvyfreeHRLQ::YokoiEnvyfreeHRLQ(const std::unique_ptr<BipartiteGraph>& G, bool A_proposing)
+YokoiEnvyfreeHRLQ::YokoiEnvyfreeHRLQ(std::shared_ptr<BipartiteGraph> G, bool A_proposing)
     : MatchingAlgorithm(G, A_proposing)
 {}
 
-MatchingAlgorithm::MatchedPairListType& YokoiEnvyfreeHRLQ::get_matched_pairs() {
-    return M_;
-}
-
-bool YokoiEnvyfreeHRLQ::compute_matching() {
-    const std::unique_ptr<BipartiteGraph>& G1 = augment_graph();
+std::shared_ptr<MatchingAlgorithm::MatchedPairListType> YokoiEnvyfreeHRLQ::compute_matching() {
+    std::shared_ptr<BipartiteGraph> G1 = augment_graph();
 
     // find a resident proposing stable matching
     StableMarriage sm(G1);
     bool feasible = true;
 
     // compute stable matching
-    if (sm.compute_matching()) {
-        auto& M = sm.get_matched_pairs();
+    auto M = sm.compute_matching();
 
-        // for every vertex h in B, check if exactly
-        // l_h partners are matched
-        for (auto it : G1->get_B_partition()) {
-            auto v = it.second;
+    // for every vertex h in B, check if exactly
+    // l_h partners are matched
+    for (auto& it : G1->get_B_partition()) {
+        auto v = it.second;
 
-            // find v in M
-            auto vit = M.find(v);
-            unsigned nmatched = vit != M.end() ? vit->second.size() : 0;
+        // find v in M
+        PartnerList::SizeType nmatched = number_of_partners(M, v);
 
-            // at least one hospital has |M_h| != l_h
-            // therefore M_s is not feasible in G1
-            if (nmatched != v->get_upper_quota()) {
-                feasible = false;
-            }
-        }
-
-        // we have a feasible matching, return it
-        if (feasible) {
-            M_ = map_inverse(M);
-            return true;
+        // at least one hospital has |M_h| != l_h
+        // therefore M_s is not feasible in G1
+        if (nmatched != v->get_upper_quota()) {
+            feasible = false;
         }
     }
 
-    return false;
+    // we have a feasible matching, return it
+    if (feasible) {
+        return map_inverse(M);
+    } else {
+        return std::make_shared<MatchedPairListType>();
+    }
 }
 
-std::unique_ptr<BipartiteGraph> YokoiEnvyfreeHRLQ::augment_graph() {
+std::shared_ptr<BipartiteGraph> YokoiEnvyfreeHRLQ::augment_graph() {
     BipartiteGraph::ContainerType A, B;
-    const std::unique_ptr<BipartiteGraph>& G = get_graph();
+    std::shared_ptr<BipartiteGraph> G = get_graph();
 
     // add all vertices from partition B / hospitals
-    for (auto it : G->get_B_partition()) {
+    for (auto& it : G->get_B_partition()) {
         auto v = it.second;
 
         // only keep vertices in B with > 0 lower quota
@@ -76,13 +68,10 @@ std::unique_ptr<BipartiteGraph> YokoiEnvyfreeHRLQ::augment_graph() {
             auto& u_pref_list = u->get_preference_list();
 
             // copy the preference list as it is
-            for (auto i = v_pref_list.begin(), e = v_pref_list.end();
-                    i != e; ++i)
-            {
-                auto r_old = i->vertex;
+            for (auto& i : v_pref_list) {
+                auto r_old = i.vertex;
                 auto r_id = r_old->get_id();
-                auto r = std::make_shared<Vertex>(r_id,
-                            r_old->get_lower_quota(), r_old->get_upper_quota());
+                auto r = std::make_shared<Vertex>(r_id, r_old->get_lower_quota(), r_old->get_upper_quota());
 
                 // add the neighbouring vertex to A as well
                 A.emplace(r_id, r);
@@ -94,16 +83,14 @@ std::unique_ptr<BipartiteGraph> YokoiEnvyfreeHRLQ::augment_graph() {
     // settle preferences for the residents in the new graph
     auto& A_old = G->get_A_partition();
 
-    for (auto it : A) {
+    for (auto& it : A) {
         auto r = it.second;
-        auto r_old = A_old.at(r->get_id());
+        auto& r_old = A_old.at(r->get_id());
         auto& r_pref_list = r->get_preference_list();
         auto& old_pref_list = r_old->get_preference_list();
 
-        for (auto i = old_pref_list.begin(), e = old_pref_list.end();
-             i != e; ++i)
-        {
-            auto h_old = i->vertex;
+        for (auto& i : old_pref_list) {
+            auto h_old = i.vertex;
 
             // add this vertex to pref list only if it has a positive lower quota
             if (h_old->get_lower_quota() > 0) {
@@ -112,5 +99,5 @@ std::unique_ptr<BipartiteGraph> YokoiEnvyfreeHRLQ::augment_graph() {
         }
     }
 
-    return std::make_unique<BipartiteGraph>(A, B);
+    return std::make_shared<BipartiteGraph>(A, B);
 }

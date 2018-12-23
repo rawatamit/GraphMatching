@@ -9,15 +9,12 @@
 #include <algorithm>
 #include <cassert>
 
-HHeuristicHRLQ::HHeuristicHRLQ(const std::unique_ptr<BipartiteGraph>& G, bool A_proposing)
+HHeuristicHRLQ::HHeuristicHRLQ(std::shared_ptr<BipartiteGraph> G, bool A_proposing)
     : MatchingAlgorithm(G)
 {}
 
-HHeuristicHRLQ::~HHeuristicHRLQ()
-{}
-
-bool HHeuristicHRLQ::compute_matching() {
-    const std::unique_ptr<BipartiteGraph>& G = get_graph();
+std::shared_ptr<MatchedPairListType> HHeuristicHRLQ::compute_matching() {
+    std::shared_ptr<BipartiteGraph> G = get_graph();
     StableMarriage sm(G, false);
 
     // how many s values do we need to try
@@ -90,11 +87,11 @@ bool HHeuristicHRLQ::compute_phase2_matching(const MatchedPairListType& M,
     const auto& B = G2_->get_B_partition();
 
     // original graph G
-    const std::unique_ptr<BipartiteGraph>& G = get_graph();
+    std::shared_ptr<BipartiteGraph> G = get_graph();
 
     // find the vertex given a bipartite graph and the information whether it
     // lies in the first partition or not
-    auto find_vertex = [] (const std::unique_ptr<BipartiteGraph>& G,
+    auto find_vertex = [] (std::shared_ptr<BipartiteGraph> G,
                           const IdType& u, bool is_A_partition=true)
     {
         return is_A_partition ? G->get_A_partition().find(u)->second :
@@ -294,9 +291,9 @@ bool HHeuristicHRLQ::compute_phase2_matching(const MatchedPairListType& M,
     return true;
 }
 
-std::unique_ptr<BipartiteGraph> HHeuristicHRLQ::augment_phase2(const MatchedPairListType& M, int s) {
+std::shared_ptr<BipartiteGraph> HHeuristicHRLQ::augment_phase2(std::shared_ptr<MatchedPairListType> M, int s) {
     BipartiteGraph::ContainerType A, B;
-    const std::unique_ptr<BipartiteGraph>& G = get_graph();
+    std::shared_ptr<BipartiteGraph> G = get_graph();
     std::map<IdType, std::vector<IdType>> lq_map; // lq hospitals for a resident
 
     // first add vertices from partition A
@@ -395,6 +392,5 @@ std::unique_ptr<BipartiteGraph> HHeuristicHRLQ::augment_phase2(const MatchedPair
         }
     }
 
-    return std::make_unique<BipartiteGraph>(A, B);
+    return std::make_shared<BipartiteGraph>(A, B);
 }
-

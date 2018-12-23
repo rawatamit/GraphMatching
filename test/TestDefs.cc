@@ -14,7 +14,7 @@ std::string get_filepath(std::string dir, std::string filename) {
     return dir + filename;
 }
 
-bool has_partners(const MatchingAlgorithm::MatchedPairListType& M, VertexPtr v, const std::vector<VertexPtr>& partners) {
+bool has_partners(std::shared_ptr<MatchingAlgorithm::MatchedPairListType> M, VertexPtr v, const std::vector<VertexPtr>& partners) {
     auto M_v = get_partners(M, v);
 
     for (auto& it : M_v) {

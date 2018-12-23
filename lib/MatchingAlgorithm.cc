@@ -3,15 +3,11 @@
 #include "PartnerList.h"
 #include <set>
 
-MatchingAlgorithm::MatchingAlgorithm(const std::unique_ptr<BipartiteGraph>& G, bool A_proposing)
+MatchingAlgorithm::MatchingAlgorithm(std::shared_ptr<BipartiteGraph> G, bool A_proposing)
     : G_(G), A_proposing_(A_proposing)
 {}
 
-MatchingAlgorithm::MatchedPairListType& MatchingAlgorithm::get_matched_pairs() {
-    return M_;
-}
-
-const std::unique_ptr<BipartiteGraph>& MatchingAlgorithm::get_graph() const {
+std::shared_ptr<BipartiteGraph> MatchingAlgorithm::get_graph() const {
     return G_;
 }
 
@@ -19,18 +15,18 @@ bool MatchingAlgorithm::is_A_proposing() {
     return A_proposing_;
 }
 
-bool MatchingAlgorithm::is_feasible(const std::unique_ptr<BipartiteGraph>& G,
-                                    const MatchingAlgorithm::MatchedPairListType& M) {
+bool MatchingAlgorithm::is_feasible(std::shared_ptr<BipartiteGraph> G,
+                                    std::shared_ptr<MatchingAlgorithm::MatchedPairListType> M) {
   auto feasible_for_vertices = [&M] (const BipartiteGraph::ContainerType& vertices) {
-      for (auto it : vertices) {
+      for (auto& it : vertices) {
           auto v = it.second;
           unsigned uq = v->get_upper_quota();
           unsigned lq = v->get_lower_quota();
-          auto vit = M.find(v);
+          auto vit = M->find(v);
 
-          if ((vit == M.end() or vit->second.empty()) and lq > 0) {
+          if ((vit == M->end() or vit->second.empty()) and lq > 0) {
               return false;
-          } else if (vit != M.end()) {
+          } else if (vit != M->end()) {
               auto nmatched = vit->second.size();
               
               if (nmatched < lq or nmatched > uq) {
@@ -46,25 +42,24 @@ bool MatchingAlgorithm::is_feasible(const std::unique_ptr<BipartiteGraph>& G,
            feasible_for_vertices(G->get_B_partition());
 }
 
-MatchingAlgorithm::MatchedPairListType& MatchingAlgorithm::map_inverse(const MatchedPairListType& M) {
-    // already computed matching, just return
-    if (! M_.empty()) { return M_; }
-
-    const std::unique_ptr<BipartiteGraph>& G = get_graph();
+std::shared_ptr<MatchingAlgorithm::MatchedPairListType> MatchingAlgorithm::map_inverse(std::shared_ptr<MatchedPairListType> M)
+{
+    std::shared_ptr<BipartiteGraph> G = get_graph();
     auto& A = G->get_A_partition();
     auto& B = G->get_B_partition();
+    auto M_ = std::make_shared<MatchingAlgorithm::MatchedPairListType>();
 
-    for (auto it : M) {
+    for (auto& it : *M) {
         auto a = it.first;
 
         // if a is not a dummy vertex
         if (not a->is_dummy()) {
-            auto& partners = it.second;
+            const auto& partners = it.second;
             const auto& ac_id = a->get_cloned_for_id(); // vertex from which a was cloned
             // is A the partition to which a belongs in the original graph G
             bool is_a_partition_A = A.find(ac_id) != A.end();
 
-            for (auto i = partners.begin(), e = partners.end(); i != e; ++i) {
+            for (auto i = partners.cbegin(), e = partners.cend(); i != e; ++i) {
                 auto b = i->vertex;
 
                 // do not add a dummy partner to the matching
@@ -80,7 +75,7 @@ MatchingAlgorithm::MatchedPairListType& MatchingAlgorithm::map_inverse(const Mat
                     auto b_rank = orig_a_pl.find(orig_b)->rank;
 
                     // add to the matching
-                    M_[orig_a].add_partner(orig_b, b_rank, 0);
+                    (*M_)[orig_a].add_partner(orig_b, b_rank, 0);
                 }
             }
         }

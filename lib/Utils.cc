@@ -8,20 +8,20 @@ int to_integer(const std::string& s) {
     return (int) std::strtol(s.c_str(), nullptr, 10);
 }
 
-PartnerList get_partners(const MatchingAlgorithm::MatchedPairListType& M, VertexPtr v) {
-    auto v_it = M.find(v);
-    return v_it == M.end() ? PartnerList() : v_it->second;
+PartnerList get_partners(std::shared_ptr<MatchingAlgorithm::MatchedPairListType> M, VertexPtr v) {
+    auto v_it = M->find(v);
+    return v_it == M->end() ? PartnerList() : v_it->second;
 }
 
-PartnerList::SizeType number_of_partners(const MatchingAlgorithm::MatchedPairListType& M, VertexPtr v) {
+PartnerList::SizeType number_of_partners(std::shared_ptr<MatchingAlgorithm::MatchedPairListType> M, VertexPtr v) {
     return get_partners(M, v).size();
 }
 
-bool has_partner(const MatchingAlgorithm::MatchedPairListType& M, VertexPtr v) {
+bool has_partner(std::shared_ptr<MatchingAlgorithm::MatchedPairListType> M, VertexPtr v) {
     return number_of_partners(M, v) > 0;
 }
 
-VertexPtr get_partner(const MatchingAlgorithm::MatchedPairListType& M, VertexPtr v) {
+VertexPtr get_partner(std::shared_ptr<MatchingAlgorithm::MatchedPairListType> M, VertexPtr v) {
     return get_partner(get_partners(M, v));
 }
 
@@ -33,23 +33,23 @@ VertexPtr get_partner(const PartnerList& partner_list) {
     }
 }
 
-int matching_size(const MatchingAlgorithm::MatchedPairListType& M) {
+int matching_size(std::shared_ptr<MatchingAlgorithm::MatchedPairListType> M) {
     int size = 0;
 
-    for (auto& it : M) {
+    for (auto& it : *M) {
         size += it.second.size();
     }
 
     return size / 2;
 }
 
-VertexPtr get_vertex_by_id(const std::unique_ptr<BipartiteGraph>& G, const IdType& id) {
+VertexPtr get_vertex_by_id(std::shared_ptr<BipartiteGraph> G, const IdType& id) {
     auto A_it = G->get_A_partition().find(id);
 
     return A_it == G->get_A_partition().end() ? G->get_B_partition().find(id)->second : A_it->second;
 }
 
-std::unique_ptr<BipartiteGraph> read_graph(const std::string& filepath) {
+std::shared_ptr<BipartiteGraph> read_graph(const std::string& filepath) {
     return GraphReader(filepath.c_str()).read_graph();
 }
 
@@ -83,17 +83,17 @@ RankType compute_rank(VertexPtr u, const PreferenceList& pref_list, int level) {
     return (RankType) ((index + 1) + (level * pref_list.size()));
 }
 
-void print_matching(const std::unique_ptr<BipartiteGraph>& G,
-                    MatchingAlgorithm::MatchedPairListType& M, std::ostream& out)
+void print_matching(std::shared_ptr<BipartiteGraph> G,
+                    std::shared_ptr<MatchingAlgorithm::MatchedPairListType> M, std::ostream& out)
 {
     std::stringstream stmp;
     std::set<VertexPtr> printed;
 
     for (auto it : G->get_A_partition()) {
         auto u = it.second;
-        auto M_u = M.find(u);
+        auto M_u = M->find(u);
 
-        if (M_u != M.end()) {
+        if (M_u != M->end()) {
             auto& partners = M_u->second;
 
             for (auto i = partners.cbegin(), e = partners.cend(); i != e; ++i) {
