@@ -3,7 +3,7 @@
 #include <algorithm>
 
 std::string get_root_dir() {
-    return "/media/rawatamit/f55c6248-0895-4d46-8d0e-1db681847773/sea/GraphMatching";
+    return "/media/rawatamit/f55c6248-0895-4d46-8d0e-1db681847773/meghana/sea/GraphMatching";
 }
 
 std::string get_resources_dir() {

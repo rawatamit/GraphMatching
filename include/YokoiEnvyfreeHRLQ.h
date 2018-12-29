@@ -4,7 +4,7 @@
 #include "MatchingAlgorithm.h"
 
 class YokoiEnvyfreeHRLQ : public MatchingAlgorithm {
-private:
+public:
     // augment graph to compute matching
     std::shared_ptr<BipartiteGraph> augment_graph();
 

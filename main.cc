@@ -1,7 +1,4 @@
-#include "GraphReader.h"
 #include "BipartiteGraph.h"
-#include "PartnerList.h"
-#include "MatchingAlgorithm.h"
 #include "StableMarriage.h"
 #include "Popular.h"
 #include "RHeuristicHRLQ.h"
@@ -9,15 +6,13 @@
 #include "YokoiEnvyfreeHRLQ.h"
 #include "MaximalEnvyfreeHRLQ.h"
 #include "Utils.h"
-#include <stdexcept>
+#include <fstream>
 #include <iostream>
 #include <unistd.h>
 
 template<typename T>
 void compute_matching(bool A_proposing, const char* input_file, const char* output_file) {
-    GraphReader reader(input_file);
-    std::shared_ptr<BipartiteGraph> G = reader.read_graph();
-
+    std::shared_ptr<BipartiteGraph> G = read_graph(input_file);
     T alg(G, A_proposing);
     auto M = alg.compute_matching();
     std::ofstream out(output_file);

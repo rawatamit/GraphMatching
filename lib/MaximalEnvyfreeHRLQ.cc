@@ -1,21 +1,16 @@
 #include "MaximalEnvyfreeHRLQ.h"
 #include "YokoiEnvyfreeHRLQ.h"
 #include "StableMarriage.h"
-#include "Popular.h"
 #include "Vertex.h"
-#include "PartnerList.h"
 #include "TDefs.h"
 #include "Utils.h"
-#include <stack>
-#include <algorithm>
-#include <cassert>
 
 MaximalEnvyfreeHRLQ::MaximalEnvyfreeHRLQ(std::shared_ptr<BipartiteGraph> G, bool A_proposing)
     : MatchingAlgorithm(G, A_proposing)
 {}
 
 std::shared_ptr<MatchingAlgorithm::MatchedPairListType> MaximalEnvyfreeHRLQ::compute_matching() {
-    YokoiEnvyfreeHRLQ y (get_graph());
+    YokoiEnvyfreeHRLQ y (get_graph(), is_A_proposing());
     auto M = y.compute_matching();
     auto G1 = augment_graph(M);
 
@@ -23,7 +18,7 @@ std::shared_ptr<MatchingAlgorithm::MatchedPairListType> MaximalEnvyfreeHRLQ::com
     //StableMarriage sm(G1, false);
 
     // find a resident proposing stable matching
-    StableMarriage sm(G1, true);
+    StableMarriage sm(G1, is_A_proposing());
     auto M1 = sm.compute_matching();
     return map_inverse(M1);
 }
@@ -33,7 +28,7 @@ std::shared_ptr<BipartiteGraph> MaximalEnvyfreeHRLQ::augment_graph(std::shared_p
     std::shared_ptr<BipartiteGraph> G = get_graph();
 
     // add all vertices from partition B / hospitals
-    for (auto it : G->get_B_partition()) {
+    for (auto& it : G->get_B_partition()) {
         auto v = it.second;
 
         // create a new vertex with quota (0, u_h - |M(h)|)
@@ -45,8 +40,8 @@ std::shared_ptr<BipartiteGraph> MaximalEnvyfreeHRLQ::augment_graph(std::shared_p
         auto& u_pref_list = u->get_preference_list();
 
         // create preference list for h
-        for (auto i = v_pref_list.begin(), e = v_pref_list.end(); i != e; ++i) {
-            auto r_old = i->vertex;
+        for (auto& i : v_pref_list) {
+            auto r_old = i.vertex;
             auto& r_pref_list = r_old->get_preference_list();
             auto rit = M->find(r_old);
 
@@ -93,16 +88,14 @@ std::shared_ptr<BipartiteGraph> MaximalEnvyfreeHRLQ::augment_graph(std::shared_p
     // settle preferences for the residents in the new graph
     auto& A_old = G->get_A_partition();
 
-    for (auto it : A) {
+    for (auto& it : A) {
         auto r = it.second;
-        auto r_old = A_old.at(r->get_id());
+        auto& r_old = A_old.at(r->get_id());
         auto& r_pref_list = r->get_preference_list();
         auto& old_pref_list = r_old->get_preference_list();
 
-        for (auto i = old_pref_list.begin(), e = old_pref_list.end();
-             i != e; ++i)
-        {
-            auto h_old = i->vertex;
+        for (auto& i : old_pref_list) {
+            auto h_old = i.vertex;
 
             // add this vertex to pref list only if it is in B
             if (B.find(h_old->get_id()) != B.end()) {
