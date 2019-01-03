@@ -84,12 +84,19 @@ std::unique_ptr<BipartiteGraph> YokoiEnvyfreeHRLQ::augment_graph() {
             {
                 auto r_old = v_pref_list.get_vertex(*i);
                 auto r_id = r_old->get_id();
-                auto r = std::make_shared<Vertex>(r_id,
-                            r_old->get_lower_quota(), r_old->get_upper_quota());
+                auto r_it_A = A.find(r_id);
 
-                // add the neighbouring vertex to A as well
-                A.emplace(r_id, r);
-                u_pref_list.emplace_back(r);
+                if (r_it_A != A.end()) {
+                    u_pref_list.emplace_back(r_it_A->second);
+                    // assert that this has the same lower and upper quotas
+                    assert(r_it_A->second->get_lower_quota() == r_old->get_lower_quota());
+                    assert(r_it_A->second->get_upper_quota() == r_old->get_upper_quota());
+                } else {
+                    auto r = std::make_shared<Vertex>(r_id, r_old->get_lower_quota(), r_old->get_upper_quota());
+                    // add the neighbouring vertex to A as well
+                    A.emplace(r_id, r);
+                    u_pref_list.emplace_back(r);
+                }
             }
         }
     }
