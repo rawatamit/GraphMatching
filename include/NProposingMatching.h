@@ -3,37 +3,31 @@
 
 #include "MatchingAlgorithm.h"
 #include "PreferenceList.h"
+#include "VertexBookkeeping.h"
+#include <stack>
 
 // simulate Gale and Shapley with n levels for proposing side
 class NProposingMatching : public MatchingAlgorithm {
 private:
-    // keep track of preference list indices for a vertex
-    struct PrefListBounds {
-        // [begin, end)
-        // begin is also the proposal index
-        PreferenceList::SizeType begin;
-        PreferenceList::SizeType end;
+    // typedef list for unmatched vertices
+    typedef std::stack<VertexPtr> FreeListType;
 
-        PrefListBounds()
-            : begin(0), end(0)
-        {}
+    // maximum level that a vertex can reach
+    int max_level;
 
-        PrefListBounds(PreferenceList::SizeType begin, PreferenceList::SizeType end)
-            : begin(begin), end(end)
-        {}
+    // remove arbitrary element from list of unmatched vertices
+    // and update bookkeep data
+    VertexPtr remove_and_update(FreeListType& free_list, std::map<VertexPtr, VertexBookkeeping>& bookkeep_data);
 
-        bool is_exhausted() {
-            return begin >= end;
-        }
-    };
+    void add_to_list(FreeListType& free_list, VertexPtr u);
 
-    int max_level;     // maximum level that a vertex can reach
+    // add vertex u to free list and update proposal index if required
+    void add_to_list_and_update(FreeListType& free_list, VertexBookkeeping& u_data, VertexPtr u);
 
     // add (u, v) pair to M_
     void add_matched_partners(std::shared_ptr<MatchedPairListType> M,
                               VertexPtr u, VertexPtr v,
-                              int u_level,
-                              const PrefListBounds& u_pref_list_bounds,
+                              const VertexBookkeeping& u_data,
                               const PreferenceList& v_pref_list);
 
 public:

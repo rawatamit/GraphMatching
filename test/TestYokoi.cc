@@ -8,28 +8,6 @@
 TEST_CASE("YokoiEnvyfreeHRLQ yokoi_diff_R_H", "[matching_yokoi]") {
     auto G = read_graph(get_filepath(get_resources_dir(), "/yokoi_diff_R_H.txt"));
 
-    SECTION("augment graph") {
-        YokoiEnvyfreeHRLQ ye(G, true);
-        auto G_ = ye.augment_graph();
-        auto r1 = get_vertex_by_id(G_, "r1");
-        auto r2 = get_vertex_by_id(G_, "r2");
-        auto r3 = get_vertex_by_id(G_, "r3");
-        auto r4 = get_vertex_by_id(G_, "r4");
-        auto h1 = get_vertex_by_id(G_, "h1");
-        auto h2 = get_vertex_by_id(G_, "h2");
-
-        REQUIRE(G_->get_A_partition().size() == 4);
-        REQUIRE(G_->get_B_partition().size() == 2);
-
-        REQUIRE(r1->get_preference_list().size() == 1);
-        REQUIRE(r2->get_preference_list().size() == 2);
-        REQUIRE(r3->get_preference_list().size() == 2);
-        REQUIRE(r4->get_preference_list().size() == 2);
-
-        REQUIRE(h1->get_preference_list().size() == 4);
-        REQUIRE(h2->get_preference_list().size() == 3);
-    }
-
     SECTION("residents proposing") {
         YokoiEnvyfreeHRLQ ye(G, true);
         auto r1 = get_vertex_by_id(G, "r1");

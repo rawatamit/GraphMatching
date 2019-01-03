@@ -7,45 +7,28 @@
 #include "Utils.h"
 #include <algorithm>
 
-RHeuristicHRLQ::RHeuristicHRLQ(const std::unique_ptr<BipartiteGraph>& G, bool A_proposing)
-    : MatchingAlgorithm(G)
+RHeuristicHRLQ::RHeuristicHRLQ(std::shared_ptr<BipartiteGraph> G, bool A_proposing)
+    : MatchingAlgorithm(G, A_proposing)
 {}
 
-RHeuristicHRLQ::~RHeuristicHRLQ()
-{}
-
-bool RHeuristicHRLQ::compute_matching() {
+std::shared_ptr<MatchingAlgorithm::MatchedPairListType> RHeuristicHRLQ::compute_matching() {
     G1_ = augment_phase1();
     PopularAmongMaxCard pamc(G1_);
 
-    if (pamc.compute_matching()) {
-        G2_ = augment_phase2(pamc.get_matched_pairs());
-        // find a resident proposing stable matching
-        StableMarriage sm(G2_);
+    G2_ = augment_phase2(pamc.compute_matching());
+    // find a resident proposing stable matching
+    StableMarriage sm(G2_);
 
-        if (sm.compute_matching()) {
-            M_tmp_ = map_inverse(sm.get_matched_pairs());
-            return is_feasible(get_graph(), M_tmp_);
-        } else {
-            return false;
-        }
-
-        return true;
-    }
-
-    return false;
+    auto M = map_inverse(sm.compute_matching());
+    return is_feasible(get_graph(), M) ? M : std::make_shared<MatchedPairListType>();
 }
 
-MatchedPairListType& RHeuristicHRLQ::get_matched_pairs() {
-    return M_tmp_;
-}
-
-std::unique_ptr<BipartiteGraph> RHeuristicHRLQ::augment_phase1() {
+std::shared_ptr<BipartiteGraph> RHeuristicHRLQ::augment_phase1() {
     BipartiteGraph::ContainerType A, B;
-    const std::unique_ptr<BipartiteGraph>& G = get_graph();
+    const std::shared_ptr<BipartiteGraph>& G = get_graph();
 
     // add only those vertices from partition B which have lower quota > 0
-    for (auto it : G->get_B_partition()) {
+    for (auto& it : G->get_B_partition()) {
         auto v = it.second;
 
         if (v->get_lower_quota() > 0) {
@@ -59,10 +42,8 @@ std::unique_ptr<BipartiteGraph> RHeuristicHRLQ::augment_phase1() {
             auto& v_pref_list = v->get_preference_list();
             auto& u_pref_list = u->get_preference_list();
 
-            for (auto i = v_pref_list.all_begin(), e = v_pref_list.all_end();
-                 i != e; ++i)
-            {
-                auto r_old = v_pref_list.get_vertex(*i);
+            for (auto& i : v_pref_list) {
+                auto r_old = i.vertex;
                 auto r_id = r_old->get_id();
                 auto r = std::make_shared<Vertex>(r_id,
                             r_old->get_lower_quota(), r_old->get_upper_quota());
@@ -77,28 +58,25 @@ std::unique_ptr<BipartiteGraph> RHeuristicHRLQ::augment_phase1() {
     // settle preferences for the residents in the new graph
     auto& A_old = G->get_A_partition();
 
-    for (auto it : A) {
+    for (auto& it : A) {
         auto r = it.second;
-        auto r_old = A_old.at(r->get_id());
+        auto& r_old = A_old.at(r->get_id());
         auto& r_pref_list = r->get_preference_list();
         auto& old_pref_list = r_old->get_preference_list();
 
-        for (auto i = old_pref_list.all_begin(), e = old_pref_list.all_end();
-             i != e; ++i)
-        {
+        for (auto& i : old_pref_list) {
             // only add vertices with lower quota > 0
-            auto h_old = old_pref_list.get_vertex(*i);
+            auto h_old = i.vertex;
             if (h_old->get_lower_quota() > 0) {
                 r_pref_list.emplace_back(B.at(h_old->get_id()));
             }
         }
-
     }
 
     return std::make_unique<BipartiteGraph>(A, B);
 }
 
-std::unique_ptr<BipartiteGraph> RHeuristicHRLQ::augment_phase2(MatchedPairListType& M) {
+std::shared_ptr<BipartiteGraph> RHeuristicHRLQ::augment_phase2(std::shared_ptr<MatchedPairListType> M) {
     /// the matching M passed to this function is a matching in the graph G1_
     /// and not in the original graph G, therefore trying to get the matched
     /// partners in M will not work directly
@@ -108,11 +86,11 @@ std::unique_ptr<BipartiteGraph> RHeuristicHRLQ::augment_phase2(MatchedPairListTy
     /// vertices in G, get their pointers from G using their id
 
     BipartiteGraph::ContainerType A, B;
-    const std::unique_ptr<BipartiteGraph>& G = get_graph();
+    std::shared_ptr<BipartiteGraph> G = get_graph();
 
     // find the vertex given a bipartite graph and the information whether it
     // lies in the first partition or not
-    auto find_vertex = [] (const std::unique_ptr<BipartiteGraph>& G,
+    auto find_vertex = [] (std::shared_ptr<BipartiteGraph> G,
                           const IdType& u, bool is_A_partition=true)
     {
         return is_A_partition ? G->get_A_partition().find(u)->second :
@@ -120,7 +98,7 @@ std::unique_ptr<BipartiteGraph> RHeuristicHRLQ::augment_phase2(MatchedPairListTy
     };
 
     // add vertices from partition B
-    for (auto it : G->get_B_partition()) {
+    for (auto& it : G->get_B_partition()) {
         // vertex in partition B with the capacities (0, uq)
         auto v = it.second;
         auto u_id = v->get_id();
@@ -131,7 +109,7 @@ std::unique_ptr<BipartiteGraph> RHeuristicHRLQ::augment_phase2(MatchedPairListTy
     }
 
     // build the preference list of vertices in partition A
-    for (auto it : G->get_A_partition()) {
+    for (auto& it : G->get_A_partition()) {
         auto v = it.second;
         auto& v_id = v->get_id();
 
@@ -142,11 +120,11 @@ std::unique_ptr<BipartiteGraph> RHeuristicHRLQ::augment_phase2(MatchedPairListTy
         A.emplace(v_id, r);
 
         auto v_G1 = find_vertex(G1_, v_id);
-        const auto& M_v = M.find(v_G1);
+        const auto& M_v = M->find(v_G1);
 
         // if this vertex has a partner, create a new resident and a dummy
         // corresponding to it, v is the original resident in G and not r
-        if (M_v != M.end()) {
+        if (M_v != M->end()) {
             // create a new level-0 resident
             const auto& r0_id = get_vertex_id(v_id, 0);
             auto r0 = std::make_shared<Vertex>(r0_id, v_id,
@@ -175,7 +153,7 @@ std::unique_ptr<BipartiteGraph> RHeuristicHRLQ::augment_phase2(MatchedPairListTy
             // preference list r^0 : M(r), d^r
             auto& v_partners = M_v->second;
             auto& r0_pref_list = r0->get_preference_list();
-            auto partner = v_partners.get_vertex(v_partners.cbegin());
+            auto partner = v_partners.cbegin()->vertex;
             r0_pref_list.emplace_back(B.at(partner->get_id()));
             r0_pref_list.emplace_back(dummy);
         }
@@ -185,9 +163,9 @@ std::unique_ptr<BipartiteGraph> RHeuristicHRLQ::augment_phase2(MatchedPairListTy
         auto& v_pref_list = v->get_preference_list();
         auto& r_pref_list = r->get_preference_list();
 
-        for (auto i = v_pref_list.all_begin(), e = v_pref_list.all_end(); i != e; ++i) {
+        for (auto& i : v_pref_list) {
             // get the old neighbouring hospital
-            auto h_old = v_pref_list.get_vertex(*i);
+            auto h_old = i.vertex;
             auto& h_id = h_old->get_id();
 
             // add h to r's preference list and the partition B
@@ -196,7 +174,7 @@ std::unique_ptr<BipartiteGraph> RHeuristicHRLQ::augment_phase2(MatchedPairListTy
     }
 
     // create the preferences for the vertices in partition B
-    for (auto it : G->get_B_partition()) {
+    for (auto& it : G->get_B_partition()) {
         auto v = it.second;
         auto v_id = v->get_id();
         auto& v_pref_list = v->get_preference_list();
@@ -207,8 +185,8 @@ std::unique_ptr<BipartiteGraph> RHeuristicHRLQ::augment_phase2(MatchedPairListTy
         auto vertex = B.at(v_id);
         auto& pref_list = vertex->get_preference_list();
 
-        for (auto i = v_pref_list.all_begin(), e = v_pref_list.all_end(); i != e; ++i) {
-            auto u = v_pref_list.get_vertex(*i);
+        for (auto& i : v_pref_list) {
+            auto u = i.vertex;
             pref_list.emplace_back(A.at(u->get_id()));
         }
 
@@ -218,20 +196,18 @@ std::unique_ptr<BipartiteGraph> RHeuristicHRLQ::augment_phase2(MatchedPairListTy
         // G are present in the graph, and so only they can be matched
         if (v->get_lower_quota() > 0) {
             auto v_G1 = find_vertex(G1_, v_id, false);
-            const auto& M_v = M.find(v_G1);
+            const auto& M_v = M->find(v_G1);
 
-            if (M_v != M.end()) {
+            if (M_v != M->end()) {
                 auto& partner_list = M_v->second;
-                partner_list.sort();
+                // TODO: is this important?
+                // partner_list.sort();
 
-                for (auto pit = partner_list.cbegin(), pie = partner_list.cend();
-                    pit != pie; ++pit)
-                {
-                    auto r = partner_list.get_vertex(pit);
+                for (auto& pit : partner_list) {
+                    auto r = pit.vertex;
                     const auto& r0_id = get_vertex_id(r->get_id(), 0);
                     pref_list.emplace_back(A.at(r0_id));
                 }
-
             }
         }
     }

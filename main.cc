@@ -73,12 +73,10 @@ int main(int argc, char* argv[]) {
         compute_matching<MaxCardPopular>(A_proposing, input_file, output_file);
     } else if (compute_max_card) {
         compute_matching<PopularAmongMaxCard>(A_proposing, input_file, output_file);
-        /*
     } else if (compute_rhrlq) {
         compute_matching<RHeuristicHRLQ>(A_proposing, input_file, output_file);
     } else if (compute_hhrlq) {
         compute_matching<HHeuristicHRLQ>(A_proposing, input_file, output_file);
-        */
     } else if (compute_yhrlq) {
         compute_matching<YokoiEnvyfreeHRLQ>(A_proposing, input_file, output_file);
     } else if (compute_ehrlq) {

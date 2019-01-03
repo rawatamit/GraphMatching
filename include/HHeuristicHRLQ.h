@@ -12,10 +12,10 @@ private:
     std::shared_ptr<MatchedPairListType> M_tmp_;
 
     bool compute_phase2_matching(std::shared_ptr<MatchedPairListType> M,
-                                 std::map<IdType, int>& def,
+                                 std::map<IdType, PartnerList::SizeType >& def,
                                  int s);
     // augment graph phase 2
-    std::shared_ptr<BipartiteGraph> augment_phase2(std::shared_ptr<MatchedPairListType> M, int s);
+    std::shared_ptr<BipartiteGraph> augment_phase2(int s);
 
 public:
     explicit HHeuristicHRLQ(std::shared_ptr<BipartiteGraph> G, bool A_proposing=true);
