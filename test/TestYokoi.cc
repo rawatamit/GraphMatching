@@ -36,3 +36,29 @@ TEST_CASE("YokoiEnvyfreeHRLQ yokoi_diff_R_H", "[matching_yokoi]") {
         }
     }
 }
+
+TEST_CASE("YokoiEnvyfreeHRLQ yokoi_and_max_envy", "[matching_yokoi]") {
+    auto G = read_graph(get_filepath(get_resources_dir(), "/yokoi_and_max_envy.txt"));
+    auto r1 = get_vertex_by_id(G, "r1");
+    auto r2 = get_vertex_by_id(G, "r2");
+    auto h1 = get_vertex_by_id(G, "h1");
+    auto h2 = get_vertex_by_id(G, "h2");
+    auto h3 = get_vertex_by_id(G, "h3");
+
+    SECTION("residents proposing") {
+        YokoiEnvyfreeHRLQ ye(G, true);
+        auto M = ye.compute_matching();
+
+        REQUIRE(matching_size(M) == 1);
+
+        SECTION("size of partner list") {
+            REQUIRE(number_of_partners(M, r1) == 1);
+            REQUIRE(number_of_partners(M, r2) == 0);
+        }
+
+        SECTION("actual partners") {
+            REQUIRE(get_partner(M, r1) == h2);
+            REQUIRE(get_partner(M, h2) == r1);
+        }
+    }
+}

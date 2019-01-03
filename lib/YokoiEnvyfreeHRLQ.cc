@@ -27,12 +27,9 @@ std::shared_ptr<MatchingAlgorithm::MatchedPairListType> YokoiEnvyfreeHRLQ::compu
     for (auto& it : G1->get_B_partition()) {
         auto v = it.second;
 
-        // find v in M
-        PartnerList::SizeType nmatched = number_of_partners(M, v);
-
         // at least one hospital has |M_h| != l_h
         // therefore M_s is not feasible in G1
-        if (nmatched != v->get_upper_quota()) {
+        if (number_of_partners(M, v) != v->get_upper_quota()) {
             return std::make_shared<MatchedPairListType>();
         }
     }

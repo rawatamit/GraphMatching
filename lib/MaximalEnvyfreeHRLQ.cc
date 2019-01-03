@@ -12,15 +12,22 @@ MaximalEnvyfreeHRLQ::MaximalEnvyfreeHRLQ(std::shared_ptr<BipartiteGraph> G, bool
 std::shared_ptr<MatchingAlgorithm::MatchedPairListType> MaximalEnvyfreeHRLQ::compute_matching() {
     YokoiEnvyfreeHRLQ y (get_graph(), is_A_proposing());
     auto M = y.compute_matching();
-    auto G1 = augment_graph(M);
 
-    // find a hospital proposing stable matching
-    //StableMarriage sm(G1, false);
+    // if there is no envy free matching in the graph
+    // we cannot compute a maximal envy free matching
+    if (M->empty()) {
+        return std::make_shared<MatchedPairListType>();
+    } else {
+        auto G1 = augment_graph(M);
 
-    // find a resident proposing stable matching
-    StableMarriage sm(G1, is_A_proposing());
-    auto M1 = sm.compute_matching();
-    return map_inverse(M1);
+        // find a stable matching in the augmented graph
+        StableMarriage sm(G1, is_A_proposing());
+        auto M1 = sm.compute_matching();
+        // FIXME: we return only the non-Yokoi matched part for now
+        // FIXME: take a union before returning sometime later
+        // FIXME: also update test cases
+        return map_inverse(M1);
+    }
 }
 
 std::shared_ptr<BipartiteGraph> MaximalEnvyfreeHRLQ::augment_graph(std::shared_ptr<MatchedPairListType> M) {

@@ -2,8 +2,9 @@
 #include "Utils.h"
 #include <algorithm>
 
+// FIXME: platform independent way of getting root directory
 std::string get_root_dir() {
-    return "/media/rawatamit/f55c6248-0895-4d46-8d0e-1db681847773/meghana/sea/GraphMatching";
+    return "/mnt/f55c6248-0895-4d46-8d0e-1db681847773/meghana/sea/GraphMatching";
 }
 
 std::string get_resources_dir() {
