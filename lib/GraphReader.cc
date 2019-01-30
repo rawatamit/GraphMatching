@@ -7,49 +7,55 @@
 
 /// Lexer class defined here
 
-Lexer::Lexer(const char* file_name)
-    : ch_(' ')
+Lexer::Lexer(std::istream& in)
+    : ch_(' '), lineno_(0), in_(in)
 {
-    in_.open(file_name);
     if (not in_) {
-        throw std::runtime_error("error opening file.");
+        throw ReaderException("error reading input stream.");
     }
 }
 
-Lexer::~Lexer() {
-    in_.close();
+void Lexer::read_character() {
+    ch_ = in_.get();
+    if (ch_ == '\n') {
+        ++lineno_;
+    }
+}
+
+int Lexer::line_number() {
+    return lineno_;
 }
 
 Token Lexer::next_token() {
     // skip whitespace
     while (isspace(ch_)) {
-        ch_ = in_.get();
+        read_character();
     }
 
     // skip comments
     if (ch_ == '#') {
         while (ch_ != '\n' and ch_ != EOF) {
-            ch_ = in_.get();
+            read_character();
         }
     }
 
     // skip newline and spaces
-    if (isspace(ch_)) { ch_ = in_.get(); return next_token(); }
+    if (isspace(ch_)) { read_character(); return next_token(); }
     if (ch_ == EOF)   { return TOK_EOF; }
-    if (ch_ == ':')   { ch_ = in_.get(); return TOK_COLON; }
-    if (ch_ == '@')   { ch_ = in_.get(); return TOK_AT; }
-    if (ch_ == ',')   { ch_ = in_.get(); return TOK_COMMA; }
-    if (ch_ == ';')   { ch_ = in_.get(); return TOK_SEMICOLON; }
-    if (ch_ == '(')   { ch_ = in_.get(); return TOK_LEFT_BRACE; }
-    if (ch_ == ')')   { ch_ = in_.get(); return TOK_RIGHT_BRACE; }
+    if (ch_ == ':')   { read_character(); return TOK_COLON; }
+    if (ch_ == '@')   { read_character(); return TOK_AT; }
+    if (ch_ == ',')   { read_character(); return TOK_COMMA; }
+    if (ch_ == ';')   { read_character(); return TOK_SEMICOLON; }
+    if (ch_ == '(')   { read_character(); return TOK_LEFT_BRACE; }
+    if (ch_ == ')')   { read_character(); return TOK_RIGHT_BRACE; }
 
     // a directive or a string
     if (isalnum(ch_)) {
         lexeme_.clear();
 
         while (isalnum(ch_) or ch_ == '+') {
-            lexeme_.push_back(ch_);
-            ch_ = in_.get();
+            lexeme_.push_back(static_cast<char>(ch_));
+            read_character();
         }
 
         if (lexeme_ == "End") return TOK_END;
@@ -62,8 +68,8 @@ Token Lexer::next_token() {
 
     // flag error, return the erraneous character
     lexeme_.clear();
-    lexeme_.push_back(ch_);
-    ch_ = in_.get();
+    lexeme_.push_back(static_cast<char>(ch_));
+    read_character();
     return TOK_ERROR;
 }
 
@@ -73,8 +79,8 @@ std::string const& Lexer::get_lexeme() const {
 
 /// GraphReader class defined here
 
-GraphReader::GraphReader(const char* file_name) {
-    lexer_ = std::make_unique<Lexer>(file_name);
+GraphReader::GraphReader(std::istream& in) {
+    lexer_ = std::make_unique<Lexer>(in);
     consume(); // read first token
 }
 
@@ -82,13 +88,27 @@ void GraphReader::consume() {
     curtok_ = lexer_->next_token();
 }
 
-/// TODO: handle errors more gracefully
 void GraphReader::match(Token expected) {
     if (curtok_ != expected) {
-        throw std::runtime_error("invalid data in file");
+       throw ReaderException(error_message("invalid data in file", curtok_, {expected}));
     } else {
         consume(); // skip the token
     }
+}
+
+const char* GraphReader::error_message(const char* prefix, Token got, const std::vector<Token>& expected) {
+    static char buf[1024];
+    int ret = snprintf(buf, sizeof buf, "%d: %s", lexer_->line_number(), prefix);
+    ret += snprintf(buf + ret, sizeof buf, ", got: '%s', expected one of: {", token_to_string(got));
+
+    for (std::vector<Token>::size_type i = 0; i < expected.size(); ++i) {
+        // token description
+        ret += snprintf(buf + ret, sizeof buf, "'%s'", token_to_string(expected[i]));
+        // pretty printing
+        ret += snprintf(buf + ret, sizeof buf, "%s", (i == expected.size() - 1) ? "}" : ", ");
+    }
+
+    return buf;
 }
 
 /// partition are of the format
@@ -96,8 +116,6 @@ void GraphReader::match(Token expected) {
 /// a, b, c ;
 /// @End
 void GraphReader::read_partition(BipartiteGraph::ContainerType& vmap) {
-    consume(); // assume that the call to this function was sane
-
     // read the vertices in the partion
     while (curtok_ != TOK_SEMICOLON) {
         std::string v = lexer_->get_lexeme();
@@ -146,55 +164,37 @@ void GraphReader::read_partition(BipartiteGraph::ContainerType& vmap) {
     match(TOK_END);
 }
 
-/// preference lists for a vertex are given in this format
-/// the v: part has already been parsed by read_preference_lists()
-/// v: a, b, c ;
-void GraphReader::read_preference_list(BipartiteGraph::ContainerType& A,
-                                       BipartiteGraph::ContainerType& B,
-                                       bool partitionA)
-{
-    // read the vertex for which the preference list is given
-    std::string a = lexer_->get_lexeme();
-    match(TOK_STRING);
-    match(TOK_COLON); // skip the colon
-
-    // if the vertex is in partition A, it gives preferences
-    // for vertices in partition B and vice versa
-    VertexPtr v = partitionA ? A[a] : B[a];
-    BipartiteGraph::ContainerType& partners = partitionA ? B : A;
-
-    // read and store the preference list
-    PreferenceList& pref_list = v->get_preference_list();
-    while (curtok_ != TOK_SEMICOLON) {
-        std::string b = lexer_->get_lexeme();
-        match(TOK_STRING);
-        pref_list.emplace_back(partners[b]);
-
-        // if there are more vertices, they must
-        // be delimited using commas
-        if (curtok_ != TOK_SEMICOLON) {
-            match(TOK_COMMA);
-        }
-    }
-
-    // preference list should be delimited by a semicolon
-    match(TOK_SEMICOLON);
-    //v->set_preference_list(pref_list);
-}
-
 /// @PreferenceLists (A|B)
-/// for preference list format, see read_preference_list()
+/// preference lists
 /// @End
-void GraphReader::read_preference_lists(BipartiteGraph::ContainerType& A,
-                                        BipartiteGraph::ContainerType& B,
-                                        bool partitionA)
-{
-    // skip the directive, we assume the call is correct
-    consume();
-
+/// preference lists for a vertex are given in this format
+/// v: a, b, c ;
+/// we read the preference lists for vertices in partition A
+/// and lookup the other side in partition B
+void GraphReader::read_preference_lists(BipartiteGraph::ContainerType& A, BipartiteGraph::ContainerType& B) {
     // read the lists
     while (curtok_ != TOK_AT) {
-        read_preference_list(A, B, partitionA);
+        // read the vertex for which the preference list is given
+        std::string a = lexer_->get_lexeme();
+        match(TOK_STRING);
+        match(TOK_COLON); // skip the colon
+
+        // read and store the preference list
+        PreferenceList& pref_list = A[a]->get_preference_list();
+        while (curtok_ != TOK_SEMICOLON) {
+            std::string b = lexer_->get_lexeme();
+            match(TOK_STRING);
+            pref_list.emplace_back(B[b]);
+
+            // if there are more vertices, they must
+            // be delimited using commas
+            if (curtok_ != TOK_SEMICOLON) {
+                match(TOK_COMMA);
+            }
+        }
+
+        // preference list should be delimited by a semicolon
+        match(TOK_SEMICOLON);
     }
 
     // directive should be properly terminated
@@ -202,37 +202,60 @@ void GraphReader::read_preference_lists(BipartiteGraph::ContainerType& A,
     match(TOK_END);
 }
 
-/// TODO: handle error more gracefully
-/// FIXME: what if a directive is specified twice? handle that case
-void GraphReader::handle_directive(BipartiteGraph::ContainerType& A,
-                                   BipartiteGraph::ContainerType& B)
-{
-    match(TOK_AT);
-
-    switch (curtok_) {
-        case TOK_PARTITION_A:
-            read_partition(A);
-            break;
-        case TOK_PARTITION_B:
-            read_partition(B);
-            break;
-        case TOK_PREF_LISTS_A:
-            read_preference_lists(A, B, true);
-            break;
-        case TOK_PREF_LISTS_B:
-            read_preference_lists(A, B, false);
-            break;
-        default:
-            throw std::runtime_error("error in read_graph()");
+void GraphReader::handle_partition(BipartiteGraph::ContainerType& A, BipartiteGraph::ContainerType& B) {
+    if (curtok_ == TOK_PARTITION_A) {
+        match(TOK_PARTITION_A);
+        read_partition(A);
+    } else if(curtok_ == TOK_PARTITION_B) {
+        match(TOK_PARTITION_B);
+        read_partition(B);
+    } else {
+        throw ReaderException(error_message("", curtok_, {TOK_PARTITION_A, TOK_PARTITION_B}));
     }
 }
 
+void GraphReader::handle_preference_lists(BipartiteGraph::ContainerType& A, BipartiteGraph::ContainerType& B) {
+    if (curtok_ == TOK_PREF_LISTS_A) {
+        match(TOK_PREF_LISTS_A);
+        read_preference_lists(A, B);
+    } else if(curtok_ == TOK_PREF_LISTS_B) {
+        match(TOK_PREF_LISTS_B);
+        read_preference_lists(B, A);
+    } else {
+        throw ReaderException(error_message("", curtok_, {TOK_PREF_LISTS_A, TOK_PREF_LISTS_B}));
+    }
+}
+
+/// FIXME: what if a directive is specified twice? handle that case
 std::shared_ptr<BipartiteGraph> GraphReader::read_graph() {
     BipartiteGraph::ContainerType A, B;
 
-    // parse the file
-    while (curtok_ != TOK_EOF) {
-        handle_directive(A, B);
+    // read the partitions
+    match(TOK_AT);
+    Token partition = curtok_;
+    handle_partition(A, B);
+
+    match(TOK_AT);
+    // shouldn't have the same partition listed twice
+    if (curtok_ != partition) {
+        handle_partition(A, B);
+    } else {
+        throw ReaderException(error_message("duplicate partition listing", curtok_,
+                                            {(partition == TOK_PARTITION_A) ? TOK_PARTITION_B : TOK_PARTITION_A}));
+    }
+
+    // read the preference lists
+    match(TOK_AT);
+    Token preference_lists = curtok_;
+    handle_preference_lists(A, B);
+
+    match(TOK_AT);
+    // shouldn't have the same preference lists twice
+    if (curtok_ != preference_lists) {
+        handle_preference_lists(A, B);
+    } else {
+        throw ReaderException(error_message("duplicate preference listing", curtok_,
+                                            {(preference_lists == TOK_PREF_LISTS_A) ? TOK_PREF_LISTS_B : TOK_PREF_LISTS_A}));
     }
 
     return std::make_shared<BipartiteGraph>(A, B);

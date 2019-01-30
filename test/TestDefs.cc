@@ -4,11 +4,11 @@
 
 // FIXME: platform independent way of getting root directory
 std::string get_root_dir() {
-    return "/mnt/f55c6248-0895-4d46-8d0e-1db681847773/meghana/sea/GraphMatching";
+    return "/mnt/f55c6248-0895-4d46-8d0e-1db681847773/meghana/sea/GraphMatching/";
 }
 
 std::string get_resources_dir() {
-    return get_root_dir() + std::string("/resources");
+    return get_root_dir() + std::string("resources/");
 }
 
 std::string get_filepath(std::string dir, std::string filename) {

@@ -24,9 +24,6 @@ Vertex::Vertex(const IdType& id, const IdType& cloned_for_id,
       dummy_(dummy)
 {}
 
-Vertex::~Vertex()
-{}
-
 IdType const& Vertex::get_id() const {
     return id_;
 }

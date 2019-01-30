@@ -67,8 +67,7 @@ std::ostream& operator<<(std::ostream& out, PreferenceList& pl) {
 std::ostream& operator<<(std::ostream& out, PreferenceList* pl) {
     std::stringstream stmp;
 
-    for (auto i = pl->begin(), e = pl->end(); i != e; ++i)
-    {
+    for (auto i = pl->begin(), e = pl->end(); i != e; ++i) {
         stmp << i->vertex->get_id();
 
         if (i+1 == e) {

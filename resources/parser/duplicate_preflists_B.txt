@@ -1,0 +1,18 @@
+@PartitionA
+a;
+@End
+
+@PartitionB
+b;
+@End
+
+# the order in which preference lists are written matters
+# we don't want to get a nullptr exception because we were
+# reading a in the pref list in partition B
+@PreferenceListsB
+b: a;
+@End
+
+@PreferenceListsB
+a: b;
+@End

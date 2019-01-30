@@ -1,0 +1,15 @@
+@PartitionA
+a;
+@End
+
+@PartitionA
+b;
+@End
+
+@PreferenceListsA
+a: b;
+@End
+
+@PreferenceListsB
+b: a;
+@End

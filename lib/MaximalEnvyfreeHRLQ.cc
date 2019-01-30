@@ -9,6 +9,17 @@ MaximalEnvyfreeHRLQ::MaximalEnvyfreeHRLQ(std::shared_ptr<BipartiteGraph> G, bool
     : MatchingAlgorithm(G, A_proposing)
 {}
 
+void MaximalEnvyfreeHRLQ::matching_union(std::shared_ptr<MatchedPairListType> M1,
+                                         std::shared_ptr<MatchedPairListType> M2) {
+    for (auto& it : *M2) {
+        auto& u = it.first;
+
+        for (auto& v : it.second) {
+            (*M1)[u].add_partner(v.vertex, v.rank, 0);
+        }
+    }
+}
+
 std::shared_ptr<MatchingAlgorithm::MatchedPairListType> MaximalEnvyfreeHRLQ::compute_matching() {
     YokoiEnvyfreeHRLQ y (get_graph(), is_A_proposing());
     auto M = y.compute_matching();
@@ -22,11 +33,9 @@ std::shared_ptr<MatchingAlgorithm::MatchedPairListType> MaximalEnvyfreeHRLQ::com
 
         // find a stable matching in the augmented graph
         StableMarriage sm(G1, is_A_proposing());
-        auto M1 = sm.compute_matching();
-        // FIXME: we return only the non-Yokoi matched part for now
-        // FIXME: take a union before returning sometime later
-        // FIXME: also update test cases
-        return map_inverse(M1);
+        auto M1 = map_inverse(sm.compute_matching());
+        matching_union(M1, M);
+        return M1;
     }
 }
 

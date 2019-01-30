@@ -4,6 +4,36 @@
 #include <set>
 #include <sstream>
 
+const char* token_to_string(Token tok) {
+   static struct {
+       const char* desc;
+       Token token;
+   } array [] = {
+           {"@", TOK_AT},
+           {"@PartitionA", TOK_PARTITION_A},
+           {"@PartitionB", TOK_PARTITION_B},
+           {"@PreferenceListsA", TOK_PREF_LISTS_A},
+           {"@PreferenceListsB", TOK_PREF_LISTS_B},
+           {"@End", TOK_END},
+           {"STRING", TOK_STRING},
+           {":", TOK_COLON},
+           {",", TOK_COMMA},
+           {";", TOK_SEMICOLON},
+           {"(", TOK_LEFT_BRACE},
+           {")", TOK_RIGHT_BRACE},
+           {"EOF", TOK_EOF},
+           {"ERROR", TOK_ERROR},
+           {nullptr}};
+
+   for (int i = 0; array[i].desc != nullptr; ++i) {
+       if (array[i].token == tok) {
+           return array[i].desc;
+       }
+   }
+
+   return "UNKNOWN";
+}
+
 int to_integer(const std::string& s) {
     return (int) std::strtol(s.c_str(), nullptr, 10);
 }
@@ -50,7 +80,8 @@ VertexPtr get_vertex_by_id(std::shared_ptr<BipartiteGraph> G, const IdType& id) 
 }
 
 std::shared_ptr<BipartiteGraph> read_graph(const std::string& filepath) {
-    return GraphReader(filepath.c_str()).read_graph();
+    std::ifstream fin(filepath);
+    return GraphReader(fin).read_graph();
 }
 
 // a new id is of the form id^k

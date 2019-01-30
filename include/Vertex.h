@@ -18,13 +18,13 @@ private:
     PreferenceList pref_list_;  // preference list according to priority
 
 public:
-    Vertex(const IdType& id);
-    Vertex(const IdType& id, unsigned upper_quota);
-    Vertex(const IdType& id, unsigned lower_quota, unsigned upper_quota);
-    Vertex(const IdType& id, unsigned lower_quota, unsigned upper_quota, bool dummy);
-    Vertex(const IdType& id, const IdType& cloned_for_id, unsigned lower_quota,
-           unsigned upper_quota, bool dummy);
-    virtual ~Vertex();
+    explicit Vertex(const IdType& id);
+    explicit Vertex(const IdType& id, unsigned upper_quota);
+    explicit Vertex(const IdType& id, unsigned lower_quota, unsigned upper_quota);
+    explicit Vertex(const IdType& id, unsigned lower_quota, unsigned upper_quota, bool dummy);
+    explicit Vertex(const IdType& id, const IdType& cloned_for_id, unsigned lower_quota,
+                    unsigned upper_quota, bool dummy);
+    virtual ~Vertex() = default;
 
     const IdType& get_id() const;
     const IdType& get_cloned_for_id() const;

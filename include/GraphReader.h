@@ -4,6 +4,7 @@
 #include <fstream>
 #include <map>
 #include <string>
+#include <vector>
 #include "BipartiteGraph.h"
 
 enum Token {
@@ -23,14 +24,30 @@ enum Token {
     TOK_ERROR,
 };
 
-class Lexer {
-    int ch_;
-    std::ifstream in_;
-    std::string lexeme_;
+class ReaderException: public std::exception {
+private:
+    const char* msg;
 
 public:
-    explicit Lexer(const char* file_name);
-    virtual ~Lexer();
+    explicit ReaderException(const char* msg) : msg(msg) {}
+    ~ReaderException() override = default;
+    const char* what() const noexcept override { return msg; }
+};
+
+class Lexer {
+private:
+    int ch_;
+    int lineno_;
+    std::istream& in_;
+    std::string lexeme_;
+
+private:
+    void read_character();
+
+public:
+    explicit Lexer(std::istream& in);
+    virtual ~Lexer() = default;
+    int line_number();
     Token next_token();
     std::string const& get_lexeme() const;
 };
@@ -42,18 +59,14 @@ private:
 
     void consume();
     void match(Token expected);
+    const char* error_message(const char* prefix, Token got, const std::vector<Token>& expected);
     void read_partition(BipartiteGraph::ContainerType& vmap);
-    void read_preference_list(BipartiteGraph::ContainerType& A,
-                              BipartiteGraph::ContainerType& B,
-                              bool partitionA);
-    void read_preference_lists(BipartiteGraph::ContainerType& A,
-                               BipartiteGraph::ContainerType& B,
-                               bool partitionA);
-    void handle_directive(BipartiteGraph::ContainerType& A,
-                          BipartiteGraph::ContainerType& B);
+    void read_preference_lists(BipartiteGraph::ContainerType& A, BipartiteGraph::ContainerType& B);
+    void handle_partition(BipartiteGraph::ContainerType& A, BipartiteGraph::ContainerType& B);
+    void handle_preference_lists(BipartiteGraph::ContainerType& A, BipartiteGraph::ContainerType& B);
 
 public:
-    explicit GraphReader(const char* file_name);
+    explicit GraphReader(std::istream& in);
     virtual ~GraphReader() = default;
     std::shared_ptr<BipartiteGraph> read_graph();
 };

@@ -2,9 +2,13 @@
 #define UTILS_H
 
 #include "TDefs.h"
+#include "GraphReader.h"
 #include "BipartiteGraph.h"
 #include "PreferenceList.h"
 #include "MatchingAlgorithm.h"
+
+// convert token to string representation
+const char* token_to_string(Token tok);
 
 // convert string s to an integer in base 10
 int to_integer(const std::string& s);

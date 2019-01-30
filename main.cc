@@ -6,17 +6,38 @@
 #include "YokoiEnvyfreeHRLQ.h"
 #include "MaximalEnvyfreeHRLQ.h"
 #include "Utils.h"
+#include "GraphReader.h"
 #include <fstream>
 #include <iostream>
 #include <unistd.h>
 
 template<typename T>
 void compute_matching(bool A_proposing, const char* input_file, const char* output_file) {
-    std::shared_ptr<BipartiteGraph> G = read_graph(input_file);
+    // setup input/output stream as std::cin/std::cout by default
+    // if a file is specified use it to read/write
+
+    auto cin_buf = std::cin.rdbuf(); // save pointer to std::cin buffer
+    auto cout_buf = std::cout.rdbuf(); // save pointer to std::cout buffer
+
+    std::ifstream filein(input_file);
+    std::ofstream fileout(output_file);
+
+    if (input_file) {
+        std::cin.rdbuf(filein.rdbuf());
+    }
+
+    if (output_file) {
+        std::cout.rdbuf(fileout.rdbuf());
+    }
+
+    std::shared_ptr<BipartiteGraph> G = GraphReader(std::cin).read_graph();
     T alg(G, A_proposing);
     auto M = alg.compute_matching();
-    std::ofstream out(output_file);
-    print_matching(G, M, out);
+    print_matching(G, M, std::cout);
+
+    // restore buffers
+    std::cin.rdbuf(cin_buf);
+    std::cout.rdbuf(cout_buf);
 }
 
 int main(int argc, char* argv[]) {
@@ -58,16 +79,14 @@ int main(int argc, char* argv[]) {
                 } else if (optopt == 'o') {
                     std::cerr << "Option -o requires an argument.\n";
                 } else {
-                    std::cerr << "Unknown option: " << (char)optopt << '\n';
+                    std::cerr << "Unknown option: " << static_cast<char>(optopt) << '\n';
                 }
                 break;
             default: break;
         }
     }
 
-    if (not input_file or not output_file) {
-        // do not proceed if file names are not valid
-    } else if (compute_stable) {
+    if (compute_stable) {
         compute_matching<StableMarriage>(A_proposing, input_file, output_file);
     } else if (compute_popular) {
         compute_matching<MaxCardPopular>(A_proposing, input_file, output_file);

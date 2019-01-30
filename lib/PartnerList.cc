@@ -79,25 +79,3 @@ void PartnerList::remove_least_preferred() {
         partners_.erase(it);
     }
 }
-
-/*
-std::ostream& operator<<(std::ostream& out, PartnerList& pl) {
-    return out << &pl;
-}
-
-std::ostream& operator<<(std::ostream& out, PartnerList* pl) {
-    std::stringstream stmp;
-
-    for (auto i = pl->partners_.begin(), e = pl->partners_.end();
-         i != e; ++i)
-    {
-        stmp << '(' << pl->get_vertex(i)->get_id() << ':'
-             << pl->get_rank(i) << ')';
-        stmp << ", ";
-    }
-
-    stmp.seekp(-2, stmp.cur);
-    stmp << ';';
-    return out << stmp.str();
-}
-*/
