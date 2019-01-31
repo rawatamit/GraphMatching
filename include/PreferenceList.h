@@ -22,19 +22,21 @@ public:
     typedef typename std::vector<PrefListElement> ContainerType;
     typedef ContainerType::size_type SizeType;
     typedef ContainerType::iterator Iterator;
+    typedef ContainerType::const_iterator ConstIterator;
 
 private:
-    static const RankType RANK_INFINITY = std::numeric_limits<RankType>::max();
     RankType cur_rank_;        // the current unused rank
     ContainerType pref_list_;  // strictly ordered preference list
 
 public:
     PreferenceList();
-    PreferenceList(const PreferenceList& that);
     virtual ~PreferenceList() = default;
 
     Iterator begin();
     Iterator end();
+
+    ConstIterator cbegin() const;
+    ConstIterator cend() const;
 
     /// size of the preference list
     SizeType size() const;
@@ -46,13 +48,13 @@ public:
     void emplace_back(VertexPtr v);
 
     /// find the vertex in the container
-    Iterator find(VertexPtr v);
+    ConstIterator find(VertexPtr v) const;
 
     /// find the index of the given vertex
     SizeType find_index(VertexPtr v) const;
     
     /// get pref list element at given index
-    PrefListElement get(SizeType index);
+    PrefListElement at(SizeType index) const;
 
     friend std::ostream& operator<<(std::ostream& out, PreferenceList& pl);
     friend std::ostream& operator<<(std::ostream& out, PreferenceList* pl);

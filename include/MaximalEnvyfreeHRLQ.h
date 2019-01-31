@@ -6,7 +6,7 @@
 class MaximalEnvyfreeHRLQ : public MatchingAlgorithm {
 private:
     // augment graph to compute matching
-    std::shared_ptr<BipartiteGraph> augment_graph(std::shared_ptr<MatchedPairListType> M);
+    std::shared_ptr<BipartiteGraph> augment_graph(std::shared_ptr<MatchedPairListType> M) const;
 
     // M1 U M2
     // modifies M1, does not modify M2

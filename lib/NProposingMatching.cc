@@ -11,7 +11,8 @@ NProposingMatching::NProposingMatching(std::shared_ptr<BipartiteGraph> G,
 {}
 
 VertexPtr NProposingMatching::remove_and_update(FreeListType& free_list,
-                                                std::map<VertexPtr, VertexBookkeeping>& bookkeep_data) {
+                                                std::map<VertexPtr,
+                                                VertexBookkeeping>& bookkeep_data) {
     auto ret = free_list.top();
     free_list.pop(); // remove u from free_list
     bookkeep_data[ret].in_free_list = false;
@@ -71,7 +72,7 @@ std::shared_ptr<MatchingAlgorithm::MatchedPairListType> NProposingMatching::comp
         // if u^l hasn't exhausted its preference list
         if (! bookkeep_data[u].is_exhausted()) {
             // highest ranked vertex to whom u not yet proposed
-            auto v = u_pref_list.get(bookkeep_data[u].begin).vertex;
+            auto v = u_pref_list.at(bookkeep_data[u].begin).vertex;
             auto v_pref_list = v->get_preference_list();
 
             // |M[v]| = upper_quota(v)

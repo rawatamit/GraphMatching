@@ -38,7 +38,7 @@ TEST_CASE("PreferenceList find", "[pref_list]") {
         REQUIRE(pref_list.find(v3)->vertex == v3);
         REQUIRE(pref_list.find(v3)->rank == 3);
 
-        REQUIRE(pref_list.find(v4) == pref_list.end());
+        REQUIRE(pref_list.find(v4) == pref_list.cend());
     }
 
     SECTION("find_index") {
@@ -60,9 +60,9 @@ TEST_CASE("PreferenceList get", "[pref_list]") {
     pref_list.emplace_back(v2);
     pref_list.emplace_back(v3);
 
-    REQUIRE(pref_list.get(0).vertex == v1);
-    REQUIRE(pref_list.get(1).vertex == v2);
-    REQUIRE(pref_list.get(2).vertex == v3);
+    REQUIRE(pref_list.at(0).vertex == v1);
+    REQUIRE(pref_list.at(1).vertex == v2);
+    REQUIRE(pref_list.at(2).vertex == v3);
 
-    REQUIRE_THROWS(pref_list.get(4));
+    REQUIRE_THROWS(pref_list.at(4));
 }

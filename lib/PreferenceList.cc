@@ -7,11 +7,6 @@ PreferenceList::PreferenceList()
     : cur_rank_(0)
 {}
 
-PreferenceList::PreferenceList(const PreferenceList& that) {
-    cur_rank_ = 0;
-    pref_list_ = that.pref_list_;
-}
-
 PreferenceList::Iterator PreferenceList::begin() {
     return pref_list_.begin();
 }
@@ -20,8 +15,16 @@ PreferenceList::Iterator PreferenceList::end() {
     return pref_list_.end();
 }
 
+PreferenceList::ConstIterator PreferenceList::cbegin() const {
+    return pref_list_.cbegin();
+}
+
+PreferenceList::ConstIterator PreferenceList::cend() const {
+    return pref_list_.cend();
+}
+
 bool PreferenceList::empty() {
-    return size() == 0;
+    return pref_list_.empty();
 }
 
 PreferenceList::SizeType PreferenceList::size() const {
@@ -32,31 +35,15 @@ void PreferenceList::emplace_back(VertexPtr v) {
     pref_list_.emplace_back(++cur_rank_, v);
 }
 
-PreferenceList::Iterator PreferenceList::find(VertexPtr v) {
-    auto index = find_index(v);
-
-    if (index < pref_list_.size()) {
-        return pref_list_.begin() + index;
-    } else {
-        return end();
-    }
+PreferenceList::ConstIterator PreferenceList::find(VertexPtr v) const {
+    return std::find_if(cbegin(), cend(), [&v] (const PrefListElement& i) { return i.vertex == v; });
 }
 
 PreferenceList::SizeType PreferenceList::find_index(VertexPtr v) const {
-    PreferenceList::SizeType index = 0;
-
-    for (auto& i : pref_list_) {
-        if (i.vertex == v) {
-            return index;
-        }
-
-        ++index;
-    }
-
-    return pref_list_.size();
+    return (SizeType) std::distance(cbegin(), find(v));
 }
 
-PrefListElement PreferenceList::get(SizeType index) {
+PrefListElement PreferenceList::at(SizeType index) const {
     return pref_list_.at(index);
 }
 
@@ -67,7 +54,7 @@ std::ostream& operator<<(std::ostream& out, PreferenceList& pl) {
 std::ostream& operator<<(std::ostream& out, PreferenceList* pl) {
     std::stringstream stmp;
 
-    for (auto i = pl->begin(), e = pl->end(); i != e; ++i) {
+    for (auto i = pl->cbegin(), e = pl->cend(); i != e; ++i) {
         stmp << i->vertex->get_id();
 
         if (i+1 == e) {

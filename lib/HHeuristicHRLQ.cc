@@ -151,7 +151,7 @@ bool HHeuristicHRLQ::compute_phase2_matching(std::shared_ptr<MatchedPairListType
         // if the preferences of u have not been exhausted
         if (pref_list_bounds[u->get_id()].first < pref_list_bounds[u->get_id()].second) {
             // highest ranked vertex to whom u not yet proposed
-            auto v_it = u_pref_list.get(pref_list_bounds[u->get_id()].first);
+            auto v_it = u_pref_list.at(pref_list_bounds[u->get_id()].first);
             auto v = v_it.vertex;
 
             // v's preference list and list of partners

@@ -226,7 +226,6 @@ void GraphReader::handle_preference_lists(BipartiteGraph::ContainerType& A, Bipa
     }
 }
 
-/// FIXME: what if a directive is specified twice? handle that case
 std::shared_ptr<BipartiteGraph> GraphReader::read_graph() {
     BipartiteGraph::ContainerType A, B;
 
@@ -236,7 +235,7 @@ std::shared_ptr<BipartiteGraph> GraphReader::read_graph() {
     handle_partition(A, B);
 
     match(TOK_AT);
-    // shouldn't have the same partition listed twice
+    // shouldn't have partition listed twice
     if (curtok_ != partition) {
         handle_partition(A, B);
     } else {
@@ -246,16 +245,16 @@ std::shared_ptr<BipartiteGraph> GraphReader::read_graph() {
 
     // read the preference lists
     match(TOK_AT);
-    Token preference_lists = curtok_;
+    Token pref_lists = curtok_;
     handle_preference_lists(A, B);
 
     match(TOK_AT);
-    // shouldn't have the same preference lists twice
-    if (curtok_ != preference_lists) {
+    // shouldn't have preference lists twice
+    if (curtok_ != pref_lists) {
         handle_preference_lists(A, B);
     } else {
         throw ReaderException(error_message("duplicate preference listing", curtok_,
-                                            {(preference_lists == TOK_PREF_LISTS_A) ? TOK_PREF_LISTS_B : TOK_PREF_LISTS_A}));
+                                            {(pref_lists == TOK_PREF_LISTS_A) ? TOK_PREF_LISTS_B : TOK_PREF_LISTS_A}));
     }
 
     return std::make_shared<BipartiteGraph>(A, B);

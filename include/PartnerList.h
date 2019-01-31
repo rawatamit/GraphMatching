@@ -22,8 +22,10 @@ public:
 
     bool empty() const;
     SizeType size() const;
+
     ConstIterator cbegin() const;
     ConstIterator cend() const;
+
     Iterator begin();
     Iterator end();
 

@@ -39,7 +39,7 @@ std::shared_ptr<MatchingAlgorithm::MatchedPairListType> MaximalEnvyfreeHRLQ::com
     }
 }
 
-std::shared_ptr<BipartiteGraph> MaximalEnvyfreeHRLQ::augment_graph(std::shared_ptr<MatchedPairListType> M) {
+std::shared_ptr<BipartiteGraph> MaximalEnvyfreeHRLQ::augment_graph(std::shared_ptr<MatchedPairListType> M) const {
     BipartiteGraph::ContainerType A, B;
     std::shared_ptr<BipartiteGraph> G = get_graph();
 
@@ -117,7 +117,7 @@ std::shared_ptr<BipartiteGraph> MaximalEnvyfreeHRLQ::augment_graph(std::shared_p
             if (B.find(h_old->get_id()) != B.end()) {
                 auto h_pref_list = B.find(h_old->get_id())->second->get_preference_list();
                 
-                if (h_pref_list.find(r) != h_pref_list.end()) {
+                if (h_pref_list.find(r) != h_pref_list.cend()) {
                     r_pref_list.emplace_back(B.at(h_old->get_id()));
                 }
             }
