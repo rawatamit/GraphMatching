@@ -4,7 +4,7 @@
 #include <set>
 
 MatchingAlgorithm::MatchingAlgorithm(std::shared_ptr<BipartiteGraph> G, bool A_proposing)
-    : G_(G), A_proposing_(A_proposing)
+    : G_(std::move(G)), A_proposing_(A_proposing)
 {}
 
 std::shared_ptr<BipartiteGraph> MatchingAlgorithm::get_graph() const {
@@ -42,8 +42,8 @@ bool MatchingAlgorithm::is_feasible(std::shared_ptr<BipartiteGraph> G,
            feasible_for_vertices(G->get_B_partition());
 }
 
-std::shared_ptr<MatchingAlgorithm::MatchedPairListType> MatchingAlgorithm::map_inverse(std::shared_ptr<MatchedPairListType> M)
-{
+std::shared_ptr<MatchingAlgorithm::MatchedPairListType> MatchingAlgorithm::map_inverse(
+        std::shared_ptr<MatchedPairListType> M) const {
     std::shared_ptr<BipartiteGraph> G = get_graph();
     auto& A = G->get_A_partition();
     auto& B = G->get_B_partition();
@@ -75,11 +75,21 @@ std::shared_ptr<MatchingAlgorithm::MatchedPairListType> MatchingAlgorithm::map_i
                     auto b_rank = orig_a_pl.find(orig_b)->rank;
 
                     // add to the matching
-                    (*M_)[orig_a].add_partner(orig_b, b_rank, 0);
+                    add_partner(M_, orig_a, orig_b, b_rank, 0);
                 }
             }
         }
     }
 
     return M_;
+}
+
+void MatchingAlgorithm::add_partner(std::shared_ptr<MatchedPairListType> M,
+                                    VertexPtr u, const Partner& v, int level) const {
+    (*M)[u].add_partner(v.vertex, v.rank, level);
+}
+
+void MatchingAlgorithm::add_partner(std::shared_ptr<MatchedPairListType> M,
+                                    VertexPtr u, VertexPtr v, RankType rank, int level) const {
+    (*M)[u].add_partner(std::move(v), rank, level);
 }

@@ -7,7 +7,7 @@
 
 NProposingMatching::NProposingMatching(std::shared_ptr<BipartiteGraph> G,
                                        bool A_proposing, int max_level)
-    : MatchingAlgorithm(G, A_proposing), max_level(max_level)
+    : MatchingAlgorithm(std::move(G), A_proposing), max_level(max_level)
 {}
 
 VertexPtr NProposingMatching::remove_and_update(FreeListType& free_list,
@@ -28,7 +28,7 @@ void NProposingMatching::add_to_list_and_update(NProposingMatching::FreeListType
     if (not u_data.in_free_list) {
         u_data.begin += 1;
         u_data.in_free_list = true;
-        add_to_list(free_list, u);
+        add_to_list(free_list, std::move(u));
     }
 }
 
@@ -39,9 +39,9 @@ void NProposingMatching::add_matched_partners(std::shared_ptr<MatchedPairListTyp
     // v is the first vertex on u's current preference list
     // invariant for non proposing vertices: rank = index + 1
     // v is always at level 0
-    (*M)[u].add_partner(v, (RankType) u_data.begin + 1, 0);
+    add_partner(M, u, v, (RankType) u_data.begin + 1, 0);
 
-    (*M)[v].add_partner(u, compute_rank(u, v_pref_list, u_data.level), u_data.level);
+    add_partner(M, v, u, compute_rank(u, v_pref_list, u_data.level), u_data.level);
 }
 
 std::shared_ptr<MatchingAlgorithm::MatchedPairListType> NProposingMatching::compute_matching() {
@@ -77,7 +77,7 @@ std::shared_ptr<MatchingAlgorithm::MatchedPairListType> NProposingMatching::comp
 
             // |M[v]| = upper_quota(v)
             if (number_of_partners(M, v) == v->get_upper_quota()) {
-                auto v_worst_partner = (*M)[v].get_least_preferred();
+                auto v_worst_partner = M->at(v).get_least_preferred();
                 auto u_in_v_pref_list = v_pref_list.find(u);
                 auto possible_partner = Partner(u, u_in_v_pref_list->rank, bookkeep_data[u].level);
 

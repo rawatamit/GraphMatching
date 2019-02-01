@@ -10,7 +10,7 @@
 #include <cassert>
 
 HHeuristicHRLQ::HHeuristicHRLQ(std::shared_ptr<BipartiteGraph> G, bool A_proposing)
-    : MatchingAlgorithm(G, A_proposing)
+    : MatchingAlgorithm(std::move(G), A_proposing)
 {}
 
 std::shared_ptr<MatchingAlgorithm::MatchedPairListType> HHeuristicHRLQ::compute_matching() {
@@ -103,12 +103,12 @@ bool HHeuristicHRLQ::compute_phase2_matching(std::shared_ptr<MatchedPairListType
 
                 // add h^0 to the matched partner list of u
                 auto h0_it = u_pref_list.find(h0);
-                (*M_tmp_)[u].add_partner(h0, h0_it->rank, 0);
+                add_partner(M_tmp_, u, h0, h0_it->rank, 0);
 
                 // add u to the matched partner list of h^0
                 auto& h0_pref_list = h0->get_preference_list();
                 auto u_it = h0_pref_list.find(u);
-                (*M_tmp_)[h0].add_partner(u, u_it->rank, 0);
+                add_partner(M_tmp_, h0, u, u_it->rank, 0);
             }
         }
     }

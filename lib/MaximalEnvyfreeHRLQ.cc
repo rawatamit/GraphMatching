@@ -6,7 +6,7 @@
 #include "Utils.h"
 
 MaximalEnvyfreeHRLQ::MaximalEnvyfreeHRLQ(std::shared_ptr<BipartiteGraph> G, bool A_proposing)
-    : MatchingAlgorithm(G, A_proposing)
+    : MatchingAlgorithm(std::move(G), A_proposing)
 {}
 
 void MaximalEnvyfreeHRLQ::matching_union(std::shared_ptr<MatchedPairListType> M1,
@@ -15,7 +15,7 @@ void MaximalEnvyfreeHRLQ::matching_union(std::shared_ptr<MatchedPairListType> M1
         auto& u = it.first;
 
         for (auto& v : it.second) {
-            (*M1)[u].add_partner(v.vertex, v.rank, 0);
+            add_partner(M1, u, v, 0);
         }
     }
 }

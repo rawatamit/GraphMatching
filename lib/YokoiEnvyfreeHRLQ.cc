@@ -10,7 +10,7 @@
 #include <cassert>
 
 YokoiEnvyfreeHRLQ::YokoiEnvyfreeHRLQ(std::shared_ptr<BipartiteGraph> G, bool A_proposing)
-    : MatchingAlgorithm(G, A_proposing)
+    : MatchingAlgorithm(std::move(G), A_proposing)
 {}
 
 std::shared_ptr<MatchingAlgorithm::MatchedPairListType> YokoiEnvyfreeHRLQ::compute_matching() {
@@ -38,7 +38,7 @@ std::shared_ptr<MatchingAlgorithm::MatchedPairListType> YokoiEnvyfreeHRLQ::compu
     return map_inverse(M);
 }
 
-std::shared_ptr<BipartiteGraph> YokoiEnvyfreeHRLQ::augment_graph() {
+std::shared_ptr<BipartiteGraph> YokoiEnvyfreeHRLQ::augment_graph() const {
     BipartiteGraph::ContainerType A, B;
     std::shared_ptr<BipartiteGraph> G = get_graph();
 

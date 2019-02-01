@@ -44,15 +44,15 @@ PartnerList get_partners(std::shared_ptr<MatchingAlgorithm::MatchedPairListType>
 }
 
 PartnerList::SizeType number_of_partners(std::shared_ptr<MatchingAlgorithm::MatchedPairListType> M, VertexPtr v) {
-    return get_partners(M, v).size();
+    return get_partners(std::move(M), std::move(v)).size();
 }
 
 bool has_partner(std::shared_ptr<MatchingAlgorithm::MatchedPairListType> M, VertexPtr v) {
-    return number_of_partners(M, v) > 0;
+    return number_of_partners(std::move(M), std::move(v)) > 0;
 }
 
 VertexPtr get_partner(std::shared_ptr<MatchingAlgorithm::MatchedPairListType> M, VertexPtr v) {
-    return get_partner(get_partners(M, v));
+    return get_partner(get_partners(std::move(M), std::move(v)));
 }
 
 VertexPtr get_partner(const PartnerList& partner_list) {
@@ -110,7 +110,7 @@ int get_dummy_level(const IdType& id) {
 }
 
 RankType compute_rank(VertexPtr u, const PreferenceList& pref_list, int level) {
-    auto index = pref_list.find_index(u);
+    auto index = pref_list.find_index(std::move(u));
     return (RankType) ((index + 1) + (level * pref_list.size()));
 }
 
@@ -120,43 +120,23 @@ void print_matching(std::shared_ptr<BipartiteGraph> G,
     std::stringstream stmp;
     std::set<VertexPtr> printed;
 
-    for (auto it : G->get_A_partition()) {
+    for (const auto& it : G->get_A_partition()) {
         auto u = it.second;
         auto M_u = M->find(u);
 
         if (M_u != M->end()) {
             auto& partners = M_u->second;
 
-            for (auto i = partners.cbegin(), e = partners.cend(); i != e; ++i) {
-                auto v = i->vertex;
+            for (const auto& i : partners) {
+                auto v = i.vertex;
                 printed.emplace(v);
 
                 stmp << u->get_id() << ','
                      << v->get_id() << ','
-                     << i->rank << '\n';
+                     << i.rank << '\n';
             }
         }
     }
-
-#if 0
-    for (auto it : G->get_B_partition()) {
-        auto u = it.second;
-        auto M_u = M.find(u);
-
-        if (M_u != M.end()) {
-            auto& partners = M_u->second;
-
-            for (auto pit = partners.cbegin(), pie = partners.cend(); pit != pie; ++pit) {
-                auto v = partners.get_vertex(pit);
-                printed.emplace(v);
-
-                stmp << u->get_id() << ','
-                     << v->get_id() << ','
-                     << partners.get_rank(pit) << '\n';
-            }
-        }
-    }
-#endif
 
     out << stmp.str();
 }

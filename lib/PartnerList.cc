@@ -42,15 +42,7 @@ void PartnerList::add_partner(VertexPtr partner, RankType rank, int level) {
 
 /// return details for the worst partner matched to this vertex
 PartnerList::ConstIterator PartnerList::find_least_preferred() const {
-    auto min_it = cbegin();
-
-    for (auto i = cbegin(), e = cend(); i != e; ++i) {
-        if (*i < *min_it) {
-            min_it = i;
-        }
-    }
-
-    return min_it;
+    return std::min_element(cbegin(), cend());
 }
 
 Partner PartnerList::get_least_preferred() const {

@@ -14,7 +14,7 @@ Vertex::Vertex(const IdType& id, unsigned lower_quota, unsigned upper_quota)
 {}
 
 Vertex::Vertex(const IdType& id, unsigned lower_quota, unsigned upper_quota, bool dummy)
-    : Vertex(id, id, lower_quota, upper_quota, false)
+    : Vertex(id, id, lower_quota, upper_quota, dummy)
 {}
 
 Vertex::Vertex(const IdType& id, const IdType& cloned_for_id,
@@ -50,14 +50,6 @@ PreferenceList& Vertex::get_preference_list() {
 
 PreferenceList const& Vertex::get_preference_list() const {
     return pref_list_;
-}
-
-bool operator<(const Vertex& a, const Vertex& b) {
-    return a.get_id() < b.get_id();
-}
-
-bool operator<(const VertexPtr& a, const VertexPtr& b) {
-    return a->get_id() < b->get_id();
 }
 
 /// print this vertex in the format v: p1, ..., pk

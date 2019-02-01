@@ -13,7 +13,9 @@ private:
     bool A_proposing_; // true if vertices from partition A propose, otherwise false
 
 protected:
-    std::shared_ptr<MatchedPairListType> map_inverse(std::shared_ptr<MatchedPairListType> M);
+    std::shared_ptr<MatchedPairListType> map_inverse(std::shared_ptr<MatchedPairListType> M) const;
+    void add_partner(std::shared_ptr<MatchedPairListType> M, VertexPtr u, const Partner& v, int level) const;
+    void add_partner(std::shared_ptr<MatchedPairListType> M, VertexPtr u, VertexPtr v, RankType rank, int level) const;
 
 public:
     explicit MatchingAlgorithm(std::shared_ptr<BipartiteGraph> G, bool A_proposing);

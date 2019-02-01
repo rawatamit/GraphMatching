@@ -6,7 +6,7 @@
 class YokoiEnvyfreeHRLQ : public MatchingAlgorithm {
 private:
     // augment graph to compute matching
-    std::shared_ptr<BipartiteGraph> augment_graph();
+    std::shared_ptr<BipartiteGraph> augment_graph() const;
 
 public:
     explicit YokoiEnvyfreeHRLQ(std::shared_ptr<BipartiteGraph> G, bool A_proposing=true);

@@ -40,7 +40,7 @@ PreferenceList::ConstIterator PreferenceList::find(VertexPtr v) const {
 }
 
 PreferenceList::SizeType PreferenceList::find_index(VertexPtr v) const {
-    return (SizeType) std::distance(cbegin(), find(v));
+    return (SizeType) std::distance(cbegin(), find(std::move(v)));
 }
 
 PrefListElement PreferenceList::at(SizeType index) const {
