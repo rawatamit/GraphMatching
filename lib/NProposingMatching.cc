@@ -69,14 +69,18 @@ std::shared_ptr<MatchingAlgorithm::MatchedPairListType> NProposingMatching::comp
         auto u = remove_and_update(free_list, bookkeep_data);
         auto& u_pref_list = u->get_preference_list();
 
-        // if u^l hasn't exhausted its preference list
-        if (! bookkeep_data[u].is_exhausted()) {
-            // highest ranked vertex to whom u not yet proposed
+        // if u^l can have a partner and hasn't exhausted its preference list
+        if (u->get_upper_quota() > 0 and not bookkeep_data[u].is_exhausted()) {
+            // highest ranked vertex to whom u has not yet proposed
             auto v = u_pref_list.at(bookkeep_data[u].begin).vertex;
             auto v_pref_list = v->get_preference_list();
 
-            // |M[v]| = upper_quota(v)
-            if (number_of_partners(M, v) == v->get_upper_quota()) {
+            // v cannot be matched to anyone
+            if (v->get_upper_quota() == 0 or v_pref_list.size() == 0) {
+                // do nothing
+                // also inconsistent graph maybe
+            } else if (number_of_partners(M, v) == v->get_upper_quota()) {
+                // |M[v]| = upper_quota(v)
                 auto v_worst_partner = M->at(v).get_least_preferred();
                 auto u_in_v_pref_list = v_pref_list.find(u);
                 auto possible_partner = Partner(u, u_in_v_pref_list->rank, bookkeep_data[u].level);
