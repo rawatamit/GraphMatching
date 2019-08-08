@@ -1,7 +1,6 @@
 #include "NProposingMatching.h"
 #include "Vertex.h"
 #include "Partner.h"
-#include "PartnerList.h"
 #include "Utils.h"
 #include <set>
 
@@ -20,7 +19,7 @@ VertexPtr NProposingMatching::remove_and_update(FreeListType& free_list,
 }
 
 void NProposingMatching::add_to_list(FreeListType& free_list, VertexPtr u) {
-    free_list.push(u);
+    free_list.push(std::move(u));
 }
 
 void NProposingMatching::add_to_list_and_update(NProposingMatching::FreeListType &free_list,
@@ -40,8 +39,7 @@ void NProposingMatching::add_matched_partners(std::shared_ptr<MatchedPairListTyp
     // invariant for non proposing vertices: rank = index + 1
     // v is always at level 0
     add_partner(M, u, v, (RankType) u_data.begin + 1, 0);
-
-    add_partner(M, v, u, compute_rank(u, v_pref_list, u_data.level), u_data.level);
+    add_partner(M, v, u, compute_rank(u, v_pref_list), u_data.level);
 }
 
 std::shared_ptr<MatchingAlgorithm::MatchedPairListType> NProposingMatching::compute_matching() {
@@ -50,7 +48,7 @@ std::shared_ptr<MatchingAlgorithm::MatchedPairListType> NProposingMatching::comp
     std::shared_ptr<BipartiteGraph> G = get_graph();
     auto M = std::make_shared<MatchingAlgorithm::MatchedPairListType>();
 
-    // choose the paritions from which the vertices will propose
+    // choose the partitions from which the vertices will propose
     const auto& proposing_partition = is_A_proposing() ? G->get_A_partition()
                                                        : G->get_B_partition();
 
@@ -77,21 +75,19 @@ std::shared_ptr<MatchingAlgorithm::MatchedPairListType> NProposingMatching::comp
 
             // v cannot be matched to anyone
             if (v->get_upper_quota() == 0 or v_pref_list.size() == 0) {
-                // do nothing
-                // also inconsistent graph maybe
+                // do nothing, also inconsistent graph maybe
             } else if (number_of_partners(M, v) == v->get_upper_quota()) {
                 // |M[v]| = upper_quota(v)
                 auto v_worst_partner = M->at(v).get_least_preferred();
-                auto u_in_v_pref_list = v_pref_list.find(u);
-                auto possible_partner = Partner(u, u_in_v_pref_list->rank, bookkeep_data[u].level);
+                auto possible_partner = Partner(u, compute_rank(u, v_pref_list), bookkeep_data[u].level);
 
                 if (v_worst_partner < possible_partner) {
-                    // add u and v to the matching
-                    add_matched_partners(M, u, v, bookkeep_data[u], v_pref_list);
-
-                    // remove v, v_worst_partner from M
+                    // remove M[v_worst_partner] from M[v], and M[v] from M[v_worst_partner]
                     M->at(v).remove_least_preferred();
                     M->at(v_worst_partner.vertex).remove(v);
+
+                    // add u and v to the matching
+                    add_matched_partners(M, u, v, bookkeep_data[u], v_pref_list);
 
                     // add v_worst_partner to free_list
                     add_to_list_and_update(free_list,

@@ -35,11 +35,11 @@ public:
     Iterator begin();
     Iterator end();
 
-    ConstIterator cbegin() const;
-    ConstIterator cend() const;
+    [[nodiscard]] ConstIterator cbegin() const;
+    [[nodiscard]] ConstIterator cend() const;
 
     /// size of the preference list
-    SizeType size() const;
+    [[nodiscard]] SizeType size() const;
 
     /// is the preference list empty
     bool empty();
@@ -48,13 +48,13 @@ public:
     void emplace_back(VertexPtr v);
 
     /// find the vertex in the container
-    ConstIterator find(VertexPtr v) const;
+    [[nodiscard]] ConstIterator find(VertexPtr v) const;
 
     /// find the index of the given vertex
-    SizeType find_index(VertexPtr v) const;
+    [[nodiscard]] SizeType find_index(VertexPtr v) const;
     
     /// get pref list element at given index
-    PrefListElement at(SizeType index) const;
+    [[nodiscard]] PrefListElement at(SizeType index) const;
 
     friend std::ostream& operator<<(std::ostream& out, PreferenceList& pl);
     friend std::ostream& operator<<(std::ostream& out, PreferenceList* pl);

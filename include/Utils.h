@@ -50,7 +50,7 @@ IdType get_dummy_id(const IdType& id, int k);
 int get_dummy_level(const IdType& id);
 
 // compute rank from vertex index and level
-RankType compute_rank(VertexPtr u, const PreferenceList& pref_list, int level);
+RankType compute_rank(VertexPtr u, const PreferenceList& pref_list);
 
 // print matching in a compatible format with other code as described here
 // a,b,index(pref_list^a(b))

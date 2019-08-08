@@ -1,4 +1,5 @@
 #include "Partner.h"
+#include "Vertex.h"
 
 bool operator<(const Partner& a, const Partner& b) {
     // if level of a is less than of b
@@ -13,4 +14,8 @@ bool operator<(const Partner& a, const Partner& b) {
         // a is less preferred
         return a.rank > b.rank;
     }
+}
+
+std::ostream& operator<<(std::ostream& out, const Partner& a) {
+    return out << '(' << "id: " << a.vertex->get_id() << ", rank: " << a.rank << ", level: " << a.level << ')';
 }

@@ -1,12 +1,10 @@
 #include "HHeuristicHRLQ.h"
 #include "StableMarriage.h"
-#include "Popular.h"
 #include "Vertex.h"
 #include "PartnerList.h"
 #include "TDefs.h"
 #include "Utils.h"
 #include <stack>
-#include <algorithm>
 #include <cassert>
 
 HHeuristicHRLQ::HHeuristicHRLQ(std::shared_ptr<BipartiteGraph> G, bool A_proposing)

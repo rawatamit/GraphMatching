@@ -95,6 +95,17 @@ TEST_CASE("PartnerList find_least_preferred", "[partner_list]") {
         partner_list.remove_least_preferred();
         REQUIRE(partner_list.get_least_preferred().vertex == v3);
     }
+
+    SECTION("add random") {
+        partner_list.add_partner(v3, 3, 2);
+        REQUIRE(partner_list.get_least_preferred().vertex == v3);
+
+        partner_list.add_partner(v1, 1, 0);
+        REQUIRE(partner_list.get_least_preferred().vertex == v1);
+
+        partner_list.add_partner(v2, 2, 1);
+        REQUIRE(partner_list.get_least_preferred().vertex == v1);
+    }
 }
 
 TEST_CASE("PartnerList remove_least_preferred", "[partner_list]") {

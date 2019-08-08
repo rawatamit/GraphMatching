@@ -10,10 +10,6 @@ TEST_CASE("Utils compute_rank", "[compute_rank]") {
     pref_list.emplace_back(v1);
     pref_list.emplace_back(v2);
 
-    REQUIRE(compute_rank(v1, pref_list, 0) == 1);
-    REQUIRE(compute_rank(v2, pref_list, 0) == 2);
-    REQUIRE(compute_rank(v1, pref_list, 1) == 3);
-    REQUIRE(compute_rank(v2, pref_list, 1) == 4);
-    REQUIRE(compute_rank(v1, pref_list, 2) == 5);
-    REQUIRE(compute_rank(v2, pref_list, 2) == 6);
+    REQUIRE(compute_rank(v1, pref_list) == 1);
+    REQUIRE(compute_rank(v2, pref_list) == 2);
 }

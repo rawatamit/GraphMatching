@@ -109,16 +109,15 @@ int get_dummy_level(const IdType& id) {
     return to_integer(id.substr(caret_pos+1, underscore_pos-caret_pos-1));
 }
 
-RankType compute_rank(VertexPtr u, const PreferenceList& pref_list, int level) {
+RankType compute_rank(VertexPtr u, const PreferenceList& pref_list) {
     auto index = pref_list.find_index(std::move(u));
-    return (RankType) ((index + 1) + (level * pref_list.size()));
+    return (RankType) ((index + 1) /*+ (level * pref_list.size())*/ );
 }
 
 void print_matching(std::shared_ptr<BipartiteGraph> G,
                     std::shared_ptr<MatchingAlgorithm::MatchedPairListType> M, std::ostream& out)
 {
     std::stringstream stmp;
-    std::set<VertexPtr> printed;
 
     for (const auto& it : G->get_A_partition()) {
         auto u = it.second;
@@ -129,7 +128,6 @@ void print_matching(std::shared_ptr<BipartiteGraph> G,
 
             for (const auto& i : partners) {
                 auto v = i.vertex;
-                printed.emplace(v);
 
                 stmp << u->get_id() << ','
                      << v->get_id() << ','

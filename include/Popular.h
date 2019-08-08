@@ -16,7 +16,7 @@ public:
 
     std::shared_ptr<MatchedPairListType> compute_matching() override {
         NProposingMatching npm (get_graph(), is_A_proposing(), 1);
-        return map_inverse(npm.compute_matching());
+        return npm.compute_matching();
     }
 };
 
@@ -32,7 +32,7 @@ public:
 
     std::shared_ptr<MatchedPairListType> compute_matching() override {
         NProposingMatching npm (get_graph(), is_A_proposing(), 10);//(int) get_graph()->get_A_partition().size() - 1);
-        return map_inverse(npm.compute_matching());
+        return npm.compute_matching();
     }
 };
 

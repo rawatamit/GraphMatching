@@ -15,6 +15,7 @@ struct Partner {
     // is this smaller that the other Partner
     // is this less preferred
     friend bool operator<(const Partner& a, const Partner& b);
+    friend std::ostream& operator<<(std::ostream& out, const Partner& a);
 };
 
 #endif //PARTNER_H

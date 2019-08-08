@@ -1,7 +1,6 @@
 #include "PartnerList.h"
 #include "Vertex.h"
 #include <algorithm>
-#include <sstream>
 
 PartnerList::~PartnerList() {
     partners_.clear();
