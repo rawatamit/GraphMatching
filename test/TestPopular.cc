@@ -173,3 +173,33 @@ TEST_CASE("MaxCardPopular diff_stable_diff_pop1 (residents proposing)", "[matchi
         REQUIRE(get_partner(M, b7) == a6);
     }
 }
+
+TEST_CASE("MaxCardPopular brandl_kavitha_2019_fig1 (residents proposing)", "[matching_resident]") {
+    auto G = read_graph(get_filepath(get_resources_dir(), "/brandl_kavitha_2019_fig1.txt"));
+    MaxCardPopular sm(G);
+    auto M = sm.compute_matching();
+
+    REQUIRE(matching_size(M) == 2);
+
+    auto u1 = get_vertex_by_id(G, "u1");
+    auto u2 = get_vertex_by_id(G, "u2");
+
+    auto u3 = get_vertex_by_id(G, "u3");
+    auto u4 = get_vertex_by_id(G, "u4");
+
+    SECTION("size of partner list") {
+        REQUIRE(number_of_partners(M, u1) == 1);
+        REQUIRE(number_of_partners(M, u2) == 1);
+
+        REQUIRE(number_of_partners(M, u3) == 1);
+        REQUIRE(number_of_partners(M, u4) == 1);
+    }
+
+    SECTION("actual partners") {
+        REQUIRE(get_partner(M, u1) == u4);
+        REQUIRE(get_partner(M, u2) == u3);
+
+        REQUIRE(get_partner(M, u3) == u2);
+        REQUIRE(get_partner(M, u4) == u1);
+    }
+}

@@ -25,7 +25,6 @@ void NProposingMatching::add_to_list(FreeListType& free_list, VertexPtr u) {
 void NProposingMatching::add_to_list_and_update(NProposingMatching::FreeListType &free_list,
                                                 VertexBookkeeping &u_data, VertexPtr u) {
     if (not u_data.in_free_list) {
-        u_data.begin += 1;
         u_data.in_free_list = true;
         add_to_list(free_list, std::move(u));
     }
@@ -44,72 +43,87 @@ void NProposingMatching::add_matched_partners(std::shared_ptr<MatchedPairListTyp
 
 std::shared_ptr<MatchingAlgorithm::MatchedPairListType> NProposingMatching::compute_matching() {
     FreeListType free_list;
-    std::map<VertexPtr, VertexBookkeeping> bookkeep_data;
-    std::shared_ptr<BipartiteGraph> G = get_graph();
-    auto M = std::make_shared<MatchingAlgorithm::MatchedPairListType>();
+  std::map<VertexPtr, VertexBookkeeping> bookkeep_data;
+  std::shared_ptr<BipartiteGraph> G = get_graph();
+  auto M = std::make_shared<MatchingAlgorithm::MatchedPairListType>();
+  
+  // choose the partitions from which the vertices will propose
+  const auto& proposing_partition = is_A_proposing() ? G->get_A_partition()
+                                                     : G->get_B_partition();
 
-    // choose the partitions from which the vertices will propose
-    const auto& proposing_partition = is_A_proposing() ? G->get_A_partition()
-                                                       : G->get_B_partition();
+  // set the level of every vertex in the proposing partition to 0
+  // mark all proposing vertices free (by pushing into the free_list)
+  // and vertices from the opposite partition implicitly free
+  for (auto &it : proposing_partition) {
+    auto v = it.second;
+    free_list.push(v);
+    int pref_list_size = v->get_preference_list().size();
+    int residual = v->get_upper_quota();
+    bookkeep_data[v] = VertexBookkeeping(0, pref_list_size, residual);
+  }
 
-    // set the level of every vertex in the proposing partition to 0
-    // mark all proposing vertices free (by pushing into the free_list)
-    // and vertices from the opposite partition implicitly free
-    for (auto& it : proposing_partition) {
-        auto v = it.second;
-        free_list.push(v);
-        bookkeep_data[v] = VertexBookkeeping(0, v->get_preference_list().size());
-    }
+  // there is at least one vertex in the free list
+  while (not free_list.empty()) {
+    // arbitrary vertex in free list
+    auto u = remove_and_update(free_list, bookkeep_data);
+    const auto &u_pref_list = u->get_preference_list();
+    auto &u_data = bookkeep_data[u];
 
-    // there is at least one vertex in the free list
-    while (not free_list.empty()) {
-        // arbitrary vertex in free list
-        auto u = remove_and_update(free_list, bookkeep_data);
-        auto& u_pref_list = u->get_preference_list();
+    // if u^l can have a partner and hasn't exhausted its preference list
+    while (u_data.residual > 0 and not u_data.is_exhausted()) {
+      // Highest ranked vertex to whom u has not yet proposed.
+      auto v = u_pref_list.at(u_data.begin).vertex;
+      u_data.begin += 1;
+      const auto &v_pref_list = v->get_preference_list();
 
-        // if u^l can have a partner and hasn't exhausted its preference list
-        if (u->get_upper_quota() > 0 and not bookkeep_data[u].is_exhausted()) {
-            // highest ranked vertex to whom u has not yet proposed
-            auto v = u_pref_list.at(bookkeep_data[u].begin).vertex;
-            auto v_pref_list = v->get_preference_list();
+      if (u_data.level > 0 and is_matched_to(M, v, u, u_data.level - 1)) {
+        // Remove u^(level-1) and v from the matching.
+        M->at(u).remove(v);
+        M->at(v).remove(u);
 
-            // v cannot be matched to anyone
-            if (v->get_upper_quota() == 0 or v_pref_list.size() == 0) {
-                // do nothing, also inconsistent graph maybe
-            } else if (number_of_partners(M, v) == v->get_upper_quota()) {
-                // |M[v]| = upper_quota(v)
-                auto v_worst_partner = M->at(v).get_least_preferred();
-                auto possible_partner = Partner(u, compute_rank(u, v_pref_list), bookkeep_data[u].level);
+        // Add u^level and v to the matching. Note that residual(u) doesn't
+        // change, as we are replacing one vertex with another.
+        add_matched_partners(M, u, v, u_data, v_pref_list);
+      } else if (number_of_partners(M, v) == v->get_upper_quota()) {
+        // |M[v]| >= upper_quota(v)
+        auto v_all_partners = get_partners(M, v);
+        auto v_worst_partner = v_all_partners.get_least_preferred();
+        auto possible_partner =
+            Partner(u, compute_rank(u, v_pref_list), u_data.level);
 
-                if (v_worst_partner < possible_partner) {
-                    // remove M[v_worst_partner] from M[v], and M[v] from M[v_worst_partner]
-                    M->at(v).remove_least_preferred();
-                    M->at(v_worst_partner.vertex).remove(v);
+        if (v_worst_partner < possible_partner) {
+          auto &v_worst_partner_data = bookkeep_data[v_worst_partner.vertex];
 
-                    // add u and v to the matching
-                    add_matched_partners(M, u, v, bookkeep_data[u], v_pref_list);
+          // Increase residual for v's worst partner.
+          v_worst_partner_data.residual += 1;
 
-                    // add v_worst_partner to free_list
-                    add_to_list_and_update(free_list,
-                                           bookkeep_data[v_worst_partner.vertex],
-                                           v_worst_partner.vertex);
-                }
-            } else {
-                // add u and v to the matching
-                add_matched_partners(M, u, v, bookkeep_data[u], v_pref_list);
-            }
+          // remove M[v_worst_partner] from M[v], and M[v] from
+          // M[v_worst_partner]
+          M->at(v).remove_least_preferred();
+          M->at(v_worst_partner.vertex).remove(v);
 
-            // add u to the free_list if it has residual capacity
-            if (u->get_upper_quota() > number_of_partners(M, u)) {
-                add_to_list_and_update(free_list, bookkeep_data[u], u);
-            }
-        } else if (bookkeep_data[u].level < max_level) {
-            bookkeep_data[u].level += 1;
-            bookkeep_data[u].begin = 0; // reset proposal index
-            bookkeep_data[u].in_free_list = true;
-            add_to_list(free_list, u);
+          // add u and v to the matching
+          u_data.residual -= 1;
+          add_matched_partners(M, u, v, u_data, v_pref_list);
+
+          // add v_worst_partner to free_list
+          add_to_list_and_update(free_list, v_worst_partner_data,
+                           v_worst_partner.vertex);
         }
+      } else {
+        u_data.residual -= 1;
+        add_matched_partners(M, u, v, u_data, v_pref_list);
+      }
     }
 
-    return M;
+    // Activate u^(level+1).
+    if (u_data.residual > 0 and u_data.level < max_level) {
+      u_data.level += 1;
+      u_data.begin = 0; // reset proposal index
+      u_data.in_free_list = true;
+      add_to_list(free_list, u);
+    }
+  }
+
+  return M;
 }

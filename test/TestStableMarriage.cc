@@ -171,3 +171,31 @@ TEST_CASE("StableMarriage diff_stable_diff_pop1 (residents proposing)", "[matchi
         REQUIRE(get_partner(M, b7) == a6);
     }
 }
+
+TEST_CASE("StableMarriage brandl_kavitha_2019_fig1 (residents proposing)", "[matching_resident]") {
+    auto G = read_graph(get_filepath(get_resources_dir(), "/brandl_kavitha_2019_fig1.txt"));
+    StableMarriage sm(G);
+    auto M = sm.compute_matching();
+
+    REQUIRE(matching_size(M) == 1);
+
+    auto u1 = get_vertex_by_id(G, "u1");
+    auto u2 = get_vertex_by_id(G, "u2");
+
+    auto u3 = get_vertex_by_id(G, "u3");
+    auto u4 = get_vertex_by_id(G, "u4");
+
+    SECTION("size of partner list") {
+        REQUIRE(number_of_partners(M, u1) == 1);
+        REQUIRE(number_of_partners(M, u2) == 0);
+
+        REQUIRE(number_of_partners(M, u3) == 1);
+        REQUIRE(number_of_partners(M, u4) == 0);
+    }
+
+    SECTION("actual partners") {
+        REQUIRE(get_partner(M, u1) == u3);
+
+        REQUIRE(get_partner(M, u3) == u1);
+    }
+}

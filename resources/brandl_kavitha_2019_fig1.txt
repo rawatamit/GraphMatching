@@ -1,0 +1,17 @@
+@PartitionA
+u1, u2 ;
+@End
+
+@PartitionB
+u3, u4 ;
+@End
+
+@PreferenceListsA
+u1 : u3, u4 ;
+u2 : u3 ;
+@End
+
+@PreferenceListsB
+u3 : u1, u2 ;
+u4 : u1 ;
+@End

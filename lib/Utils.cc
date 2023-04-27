@@ -73,6 +73,14 @@ int matching_size(std::shared_ptr<MatchingAlgorithm::MatchedPairListType> M) {
     return size / 2;
 }
 
+bool is_matched_to(std::shared_ptr<MatchingAlgorithm::MatchedPairListType> M,
+                   VertexPtr u, VertexPtr v, int level)
+{
+  PartnerList partners(get_partners(M, u));
+  auto partner_it(partners.find(v));
+  return (partner_it != partners.cend()) ? (partner_it->level == level) : false;
+}
+
 VertexPtr get_vertex_by_id(std::shared_ptr<BipartiteGraph> G, const IdType& id) {
     auto A_it = G->get_A_partition().find(id);
 

@@ -31,6 +31,9 @@ VertexPtr get_partner(const PartnerList& partner_list);
 // size of matching M
 int matching_size(std::shared_ptr<MatchingAlgorithm::MatchedPairListType> M);
 
+bool is_matched_to(std::shared_ptr<MatchingAlgorithm::MatchedPairListType> M,
+                   VertexPtr u, VertexPtr v, int level);
+
 // get vertex by id in graph G
 VertexPtr get_vertex_by_id(std::shared_ptr<BipartiteGraph> G, const IdType& id);
 
