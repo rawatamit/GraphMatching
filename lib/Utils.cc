@@ -44,23 +44,16 @@ PartnerList get_partners(std::shared_ptr<MatchingAlgorithm::MatchedPairListType>
 }
 
 PartnerList::SizeType number_of_partners(std::shared_ptr<MatchingAlgorithm::MatchedPairListType> M, VertexPtr v) {
-    return get_partners(std::move(M), std::move(v)).size();
+    return get_partners(M, v).size();
 }
 
 bool has_partner(std::shared_ptr<MatchingAlgorithm::MatchedPairListType> M, VertexPtr v) {
-    return number_of_partners(std::move(M), std::move(v)) > 0;
+    return number_of_partners(M, v) > 0;
 }
 
 VertexPtr get_partner(std::shared_ptr<MatchingAlgorithm::MatchedPairListType> M, VertexPtr v) {
-    return get_partner(get_partners(std::move(M), std::move(v)));
-}
-
-VertexPtr get_partner(const PartnerList& partner_list) {
-    if (partner_list.empty()) {
-        return nullptr;
-    } else {
-        return partner_list.get_least_preferred().vertex;
-    }
+    PartnerList partners = get_partners(M, v);
+    return partners.get_partner();
 }
 
 int matching_size(std::shared_ptr<MatchingAlgorithm::MatchedPairListType> M) {

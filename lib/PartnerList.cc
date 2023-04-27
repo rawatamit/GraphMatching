@@ -1,6 +1,7 @@
 #include "PartnerList.h"
 #include "Vertex.h"
 #include <algorithm>
+#include <cassert>
 
 PartnerList::~PartnerList() {
     partners_.clear();
@@ -37,6 +38,15 @@ PartnerList::ConstIterator PartnerList::find(VertexPtr v) const {
 /// add a vertex to the list of matched partners
 void PartnerList::add_partner(VertexPtr partner, RankType rank, int level) {
     partners_.emplace_back(partner, rank, level);
+}
+
+VertexPtr PartnerList::get_partner() const {
+    if (empty()) {
+        return nullptr;
+    } else {
+        assert(size() == 1);
+        return get_least_preferred().vertex;
+    }
 }
 
 /// return details for the worst partner matched to this vertex

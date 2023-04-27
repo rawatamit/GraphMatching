@@ -18,12 +18,13 @@ private:
 
     // remove arbitrary element from list of unmatched vertices
     // and update bookkeep data
-    static VertexPtr remove_and_update(FreeListType& free_list, std::map<VertexPtr, VertexBookkeeping>& bookkeep_data);
+    VertexPtr remove_from_free_list
+    (FreeListType& free_list, std::map<VertexPtr, VertexBookkeeping>& bookkeep_data);
 
-    static void add_to_list(FreeListType& free_list, VertexPtr u);
+    void add_to_free_list(FreeListType& free_list, VertexPtr u);
 
     // add vertex u to free list and update proposal index if required
-    static void add_to_list_and_update(FreeListType& free_list, VertexBookkeeping& u_data, VertexPtr u);
+    void add_to_free_list(FreeListType& free_list, VertexBookkeeping& u_data, VertexPtr u);
 
     // add (u, v) pair to M_
     void add_matched_partners(std::shared_ptr<MatchedPairListType> M,

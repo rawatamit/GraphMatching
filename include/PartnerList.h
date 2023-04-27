@@ -35,6 +35,9 @@ public:
     /// add a vertex to the list of matched partners
     void add_partner(VertexPtr partner, RankType rank, int level);
 
+    // Get the partner from this list. Must have 0 or 1 partners.
+    VertexPtr get_partner() const;
+
     ConstIterator find_least_preferred() const;
     /// return details for the worst partner matched to this vertex
     Partner get_least_preferred() const;

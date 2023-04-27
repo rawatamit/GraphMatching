@@ -25,9 +25,6 @@ bool has_partner(std::shared_ptr<MatchingAlgorithm::MatchedPairListType> M, Vert
 // get matched partner for v in M
 VertexPtr get_partner(std::shared_ptr<MatchingAlgorithm::MatchedPairListType> M, VertexPtr v);
 
-// get matched partner from partner list
-VertexPtr get_partner(const PartnerList& partner_list);
-
 // size of matching M
 int matching_size(std::shared_ptr<MatchingAlgorithm::MatchedPairListType> M);
 

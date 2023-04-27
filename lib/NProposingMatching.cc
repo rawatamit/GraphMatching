@@ -9,24 +9,23 @@ NProposingMatching::NProposingMatching(std::shared_ptr<BipartiteGraph> G,
     : MatchingAlgorithm(std::move(G), A_proposing), max_level(max_level)
 {}
 
-VertexPtr NProposingMatching::remove_and_update(FreeListType& free_list,
-                                                std::map<VertexPtr,
-                                                VertexBookkeeping>& bookkeep_data) {
+VertexPtr NProposingMatching::remove_from_free_list
+(FreeListType& free_list, std::map<VertexPtr, VertexBookkeeping>& bookkeep_data) {
     auto ret = free_list.top();
     free_list.pop(); // remove u from free_list
     bookkeep_data[ret].in_free_list = false;
     return ret;
 }
 
-void NProposingMatching::add_to_list(FreeListType& free_list, VertexPtr u) {
+void NProposingMatching::add_to_free_list(FreeListType& free_list, VertexPtr u) {
     free_list.push(std::move(u));
 }
 
-void NProposingMatching::add_to_list_and_update(NProposingMatching::FreeListType &free_list,
-                                                VertexBookkeeping &u_data, VertexPtr u) {
+void NProposingMatching::add_to_free_list(NProposingMatching::FreeListType &free_list,
+                                          VertexBookkeeping &u_data, VertexPtr u) {
     if (not u_data.in_free_list) {
         u_data.in_free_list = true;
-        add_to_list(free_list, std::move(u));
+        add_to_free_list(free_list, std::move(u));
     }
 }
 
@@ -65,7 +64,7 @@ std::shared_ptr<MatchingAlgorithm::MatchedPairListType> NProposingMatching::comp
   // there is at least one vertex in the free list
   while (not free_list.empty()) {
     // arbitrary vertex in free list
-    auto u = remove_and_update(free_list, bookkeep_data);
+    auto u = remove_from_free_list(free_list, bookkeep_data);
     const auto &u_pref_list = u->get_preference_list();
     auto &u_data = bookkeep_data[u];
 
@@ -107,7 +106,7 @@ std::shared_ptr<MatchingAlgorithm::MatchedPairListType> NProposingMatching::comp
           add_matched_partners(M, u, v, u_data, v_pref_list);
 
           // add v_worst_partner to free_list
-          add_to_list_and_update(free_list, v_worst_partner_data,
+          add_to_free_list(free_list, v_worst_partner_data,
                            v_worst_partner.vertex);
         }
       } else {
@@ -121,7 +120,7 @@ std::shared_ptr<MatchingAlgorithm::MatchedPairListType> NProposingMatching::comp
       u_data.level += 1;
       u_data.begin = 0; // reset proposal index
       u_data.in_free_list = true;
-      add_to_list(free_list, u);
+      add_to_free_list(free_list, u);
     }
   }
 
