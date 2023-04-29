@@ -1,7 +1,7 @@
-#include "catch.hpp"
-#include "Vertex.h"
-#include "PreferenceList.h"
+#include <Vertex.h>
+#include <PreferenceList.h>
 #include <memory>
+#include "TestDefs.h"
 
 TEST_CASE("PreferenceList empty", "[pref_list]") {
     PreferenceList pref_list;

@@ -1,7 +1,6 @@
-#include "catch.hpp"
-#include "StableMarriage.h"
-#include "GraphReader.h"
-#include "Utils.h"
+#include <StableMarriage.h>
+#include <GraphReader.h>
+#include <Utils.h>
 #include "TestDefs.h"
 
 TEST_CASE("StableMarriage example_paper", "[matching_stable]") {

@@ -1,7 +1,6 @@
-#include "catch.hpp"
-#include "Popular.h"
-#include "GraphReader.h"
-#include "Utils.h"
+#include <Popular.h>
+#include <GraphReader.h>
+#include <Utils.h>
 #include "TestDefs.h"
 
 TEST_CASE("MaxCardPopular example_paper", "[matching_max_card_popular]") {
