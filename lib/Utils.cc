@@ -75,7 +75,7 @@ int get_dummy_level(const IdType& id) {
 }
 
 RankType compute_rank(VertexPtr u, const PreferenceList& pref_list) {
-    auto index = pref_list.find_index(std::move(u));
+    auto index = pref_list.find_index(u);
     return (RankType) ((index + 1) /*+ (level * pref_list.size())*/ );
 }
 

@@ -4,7 +4,7 @@
 #include <set>
 
 MatchingAlgorithm::MatchingAlgorithm(std::shared_ptr<BipartiteGraph> G, bool A_proposing)
-    : G_(std::move(G)), A_proposing_(A_proposing)
+    : G_(G), A_proposing_(A_proposing)
 {}
 
 std::shared_ptr<BipartiteGraph> MatchingAlgorithm::get_graph() const {
@@ -76,3 +76,4 @@ Matching MatchingAlgorithm::map_inverse(const Matching& M) const {
 
     return M_;
 }
+

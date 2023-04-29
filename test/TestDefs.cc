@@ -13,3 +13,4 @@ std::string get_resources_dir() {
 std::string get_filepath(std::string dir, std::string filename) {
     return dir + filename;
 }
+

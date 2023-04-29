@@ -6,7 +6,7 @@
 
 NProposingMatching::NProposingMatching(std::shared_ptr<BipartiteGraph> G,
                                        bool A_proposing, int max_level)
-    : MatchingAlgorithm(std::move(G), A_proposing), max_level(max_level)
+    : MatchingAlgorithm(G, A_proposing), max_level(max_level)
 {}
 
 VertexPtr NProposingMatching::remove_from_free_list
@@ -18,14 +18,14 @@ VertexPtr NProposingMatching::remove_from_free_list
 }
 
 void NProposingMatching::add_to_free_list(FreeListType& free_list, VertexPtr u) {
-    free_list.push(std::move(u));
+    free_list.push(u);
 }
 
 void NProposingMatching::add_to_free_list(NProposingMatching::FreeListType &free_list,
                                           VertexBookkeeping &u_data, VertexPtr u) {
     if (not u_data.in_free_list) {
         u_data.in_free_list = true;
-        add_to_free_list(free_list, std::move(u));
+        add_to_free_list(free_list, u);
     }
 }
 
