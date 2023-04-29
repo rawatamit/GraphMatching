@@ -18,20 +18,20 @@ TEST_CASE("MaximalEnvyfreeHRLQ yokoi_and_max_envy", "[matching_yokoi]") {
         MaximalEnvyfreeHRLQ me(G, true);
         auto M = me.compute_matching();
 
-        REQUIRE(matching_size(M) == 2);
+        REQUIRE(M.size() == 2);
 
         SECTION("size of partner list") {
-            REQUIRE(number_of_partners(M, r1) == 1);
-            REQUIRE(number_of_partners(M, r2) == 1);
-            REQUIRE(number_of_partners(M, h2) == 1);
-            REQUIRE(number_of_partners(M, h3) == 1);
+            REQUIRE(M.number_of_partners(r1) == 1);
+            REQUIRE(M.number_of_partners(r2) == 1);
+            REQUIRE(M.number_of_partners(h2) == 1);
+            REQUIRE(M.number_of_partners(h3) == 1);
         }
 
         SECTION("actual partners") {
-            REQUIRE(get_partner(M, r1) == h2);
-            REQUIRE(get_partner(M, r2) == h3);
-            REQUIRE(get_partner(M, h2) == r1);
-            REQUIRE(get_partner(M, h3) == r2);
+            REQUIRE(M.get_partner(r1) == h2);
+            REQUIRE(M.get_partner(r2) == h3);
+            REQUIRE(M.get_partner(h2) == r1);
+            REQUIRE(M.get_partner(h3) == r2);
         }
     }
 }

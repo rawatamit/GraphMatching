@@ -38,42 +38,6 @@ int to_integer(const std::string& s) {
     return (int) std::strtol(s.c_str(), nullptr, 10);
 }
 
-PartnerList get_partners(std::shared_ptr<MatchingAlgorithm::MatchedPairListType> M, VertexPtr v) {
-    auto v_it = M->find(v);
-    return v_it == M->end() ? PartnerList() : v_it->second;
-}
-
-PartnerList::SizeType number_of_partners(std::shared_ptr<MatchingAlgorithm::MatchedPairListType> M, VertexPtr v) {
-    return get_partners(M, v).size();
-}
-
-bool has_partner(std::shared_ptr<MatchingAlgorithm::MatchedPairListType> M, VertexPtr v) {
-    return number_of_partners(M, v) > 0;
-}
-
-VertexPtr get_partner(std::shared_ptr<MatchingAlgorithm::MatchedPairListType> M, VertexPtr v) {
-    PartnerList partners = get_partners(M, v);
-    return partners.get_partner();
-}
-
-int matching_size(std::shared_ptr<MatchingAlgorithm::MatchedPairListType> M) {
-    int size = 0;
-
-    for (auto& it : *M) {
-        size += it.second.size();
-    }
-
-    return size / 2;
-}
-
-bool is_matched_to(std::shared_ptr<MatchingAlgorithm::MatchedPairListType> M,
-                   VertexPtr u, VertexPtr v, int level)
-{
-  PartnerList partners(get_partners(M, u));
-  auto partner_it(partners.find(v));
-  return (partner_it != partners.cend()) ? (partner_it->level == level) : false;
-}
-
 VertexPtr get_vertex_by_id(std::shared_ptr<BipartiteGraph> G, const IdType& id) {
     auto A_it = G->get_A_partition().find(id);
 
@@ -116,24 +80,20 @@ RankType compute_rank(VertexPtr u, const PreferenceList& pref_list) {
 }
 
 void print_matching(std::shared_ptr<BipartiteGraph> G,
-                    std::shared_ptr<MatchingAlgorithm::MatchedPairListType> M, std::ostream& out)
+                    const Matching& M, std::ostream& out)
 {
     std::stringstream stmp;
 
     for (const auto& it : G->get_A_partition()) {
         auto u = it.second;
-        auto M_u = M->find(u);
+        auto M_u = M.get_partners(u);
 
-        if (M_u != M->end()) {
-            auto& partners = M_u->second;
+        for (const auto& i : M_u) {
+            auto v = i.vertex;
 
-            for (const auto& i : partners) {
-                auto v = i.vertex;
-
-                stmp << u->get_id() << ','
-                     << v->get_id() << ','
-                     << i.rank << '\n';
-            }
+            stmp << u->get_id() << ','
+                  << v->get_id() << ','
+                  << i.rank << '\n';
         }
     }
 

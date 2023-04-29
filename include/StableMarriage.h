@@ -13,7 +13,7 @@ public:
 
     ~StableMarriage() override = default;
 
-    std::shared_ptr<MatchingAlgorithm::MatchedPairListType> compute_matching() override {
+    Matching compute_matching() override {
         NProposingMatching npm (get_graph(), is_A_proposing(), 0);
         return npm.compute_matching();
     }

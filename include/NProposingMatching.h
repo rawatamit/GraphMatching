@@ -27,7 +27,7 @@ private:
     void add_to_free_list(FreeListType& free_list, VertexBookkeeping& u_data, VertexPtr u);
 
     // add (u, v) pair to M_
-    void add_matched_partners(std::shared_ptr<MatchedPairListType> M,
+    void add_matched_partners(Matching& M,
                               VertexPtr u, VertexPtr v,
                               const VertexBookkeeping& u_data,
                               const PreferenceList& v_pref_list);
@@ -36,7 +36,7 @@ public:
     explicit NProposingMatching(std::shared_ptr<BipartiteGraph> G, bool A_proposing, int max_level);
     ~NProposingMatching() override = default;
 
-    std::shared_ptr<MatchedPairListType> compute_matching() override;
+    Matching compute_matching() override;
 };
 
 #endif

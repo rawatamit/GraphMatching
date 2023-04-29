@@ -10,10 +10,10 @@
 #include <cassert>
 
 YokoiEnvyfreeHRLQ::YokoiEnvyfreeHRLQ(std::shared_ptr<BipartiteGraph> G, bool A_proposing)
-    : MatchingAlgorithm(std::move(G), A_proposing)
+    : MatchingAlgorithm(G, A_proposing)
 {}
 
-std::shared_ptr<MatchingAlgorithm::MatchedPairListType> YokoiEnvyfreeHRLQ::compute_matching() {
+Matching YokoiEnvyfreeHRLQ::compute_matching() {
     std::shared_ptr<BipartiteGraph> G1 = augment_graph();
 
     // find a stable matching
@@ -29,8 +29,8 @@ std::shared_ptr<MatchingAlgorithm::MatchedPairListType> YokoiEnvyfreeHRLQ::compu
 
         // at least one hospital has |M_h| != l_h
         // therefore M_s is not feasible in G1
-        if (number_of_partners(M, v) != v->get_upper_quota()) {
-            return std::make_shared<MatchedPairListType>();
+        if (M.number_of_partners(v) != v->get_upper_quota()) {
+            return Matching();
         }
     }
 

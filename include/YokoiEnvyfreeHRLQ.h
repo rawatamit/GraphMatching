@@ -12,7 +12,7 @@ public:
     explicit YokoiEnvyfreeHRLQ(std::shared_ptr<BipartiteGraph> G, bool A_proposing=true);
     ~YokoiEnvyfreeHRLQ() override = default;
 
-    std::shared_ptr<MatchedPairListType> compute_matching() override;
+    Matching compute_matching() override;
 };
 
 #endif

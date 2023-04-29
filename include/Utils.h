@@ -13,24 +13,6 @@ const char* token_to_string(Token tok);
 // convert string s to an integer in base 10
 int to_integer(const std::string& s);
 
-// get partners for v in M
-PartnerList get_partners(std::shared_ptr<MatchingAlgorithm::MatchedPairListType> M, VertexPtr v);
-
-// # of partners for v in M
-PartnerList::SizeType number_of_partners(std::shared_ptr<MatchingAlgorithm::MatchedPairListType> M, VertexPtr v);
-
-// does v have at least one partner in M
-bool has_partner(std::shared_ptr<MatchingAlgorithm::MatchedPairListType> M, VertexPtr v);
-
-// get matched partner for v in M
-VertexPtr get_partner(std::shared_ptr<MatchingAlgorithm::MatchedPairListType> M, VertexPtr v);
-
-// size of matching M
-int matching_size(std::shared_ptr<MatchingAlgorithm::MatchedPairListType> M);
-
-bool is_matched_to(std::shared_ptr<MatchingAlgorithm::MatchedPairListType> M,
-                   VertexPtr u, VertexPtr v, int level);
-
 // get vertex by id in graph G
 VertexPtr get_vertex_by_id(std::shared_ptr<BipartiteGraph> G, const IdType& id);
 
@@ -55,6 +37,6 @@ RankType compute_rank(VertexPtr u, const PreferenceList& pref_list);
 // print matching in a compatible format with other code as described here
 // a,b,index(pref_list^a(b))
 void print_matching(std::shared_ptr<BipartiteGraph> G,
-                    std::shared_ptr<MatchingAlgorithm::MatchedPairListType> M, std::ostream& out);
+                    const Matching& M, std::ostream& out);
 
 #endif

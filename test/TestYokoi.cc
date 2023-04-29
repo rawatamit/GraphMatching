@@ -19,20 +19,20 @@ TEST_CASE("YokoiEnvyfreeHRLQ yokoi_diff_R_H", "[matching_yokoi]") {
 
         auto M = ye.compute_matching();
 
-        REQUIRE(matching_size(M) == 2);
+        REQUIRE(M.size() == 2);
 
         SECTION("size of partner list") {
-            REQUIRE(number_of_partners(M, r1) == 1);
-            REQUIRE(number_of_partners(M, r2) == 0);
-            REQUIRE(number_of_partners(M, r3) == 0);
-            REQUIRE(number_of_partners(M, r4) == 1);
+            REQUIRE(M.number_of_partners(r1) == 1);
+            REQUIRE(M.number_of_partners(r2) == 0);
+            REQUIRE(M.number_of_partners(r3) == 0);
+            REQUIRE(M.number_of_partners(r4) == 1);
         }
 
         SECTION("actual partners") {
-            REQUIRE(get_partner(M, r1) == h1);
-            REQUIRE(get_partner(M, r4) == h2);
-            REQUIRE(get_partner(M, h1) == r1);
-            REQUIRE(get_partner(M, h2) == r4);
+            REQUIRE(M.get_partner(r1) == h1);
+            REQUIRE(M.get_partner(r4) == h2);
+            REQUIRE(M.get_partner(h1) == r1);
+            REQUIRE(M.get_partner(h2) == r4);
         }
     }
 }
@@ -49,16 +49,16 @@ TEST_CASE("YokoiEnvyfreeHRLQ yokoi_and_max_envy", "[matching_yokoi]") {
         YokoiEnvyfreeHRLQ ye(G, true);
         auto M = ye.compute_matching();
 
-        REQUIRE(matching_size(M) == 1);
+        REQUIRE(M.size() == 1);
 
         SECTION("size of partner list") {
-            REQUIRE(number_of_partners(M, r1) == 1);
-            REQUIRE(number_of_partners(M, r2) == 0);
+            REQUIRE(M.number_of_partners(r1) == 1);
+            REQUIRE(M.number_of_partners(r2) == 0);
         }
 
         SECTION("actual partners") {
-            REQUIRE(get_partner(M, r1) == h2);
-            REQUIRE(get_partner(M, h2) == r1);
+            REQUIRE(M.get_partner(r1) == h2);
+            REQUIRE(M.get_partner(h2) == r1);
         }
     }
 }

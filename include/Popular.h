@@ -14,7 +14,7 @@ public:
 
     ~MaxCardPopular() override = default;
 
-    std::shared_ptr<MatchedPairListType> compute_matching() override {
+    Matching compute_matching() override {
         NProposingMatching npm (get_graph(), is_A_proposing(), 1);
         return npm.compute_matching();
     }
@@ -30,7 +30,7 @@ public:
 
     ~PopularAmongMaxCard() override = default;
 
-    std::shared_ptr<MatchedPairListType> compute_matching() override {
+    Matching compute_matching() override {
         NProposingMatching npm (get_graph(), is_A_proposing(), 10);//(int) get_graph()->get_A_partition().size() - 1);
         return npm.compute_matching();
     }

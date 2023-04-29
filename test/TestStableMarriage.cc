@@ -15,19 +15,19 @@ TEST_CASE("StableMarriage example_paper", "[matching_stable]") {
         StableMarriage sm(G);
         auto M = sm.compute_matching();
 
-        REQUIRE(matching_size(M) == 1);
+        REQUIRE(M.size() == 1);
 
         SECTION("size of partner list") {
-            REQUIRE(number_of_partners(M, a1) == 1);
-            REQUIRE(number_of_partners(M, b1) == 1);
+            REQUIRE(M.number_of_partners(a1) == 1);
+            REQUIRE(M.number_of_partners(b1) == 1);
 
-            REQUIRE(!has_partner(M, a2));
-            REQUIRE(!has_partner(M, b2));
+            REQUIRE(!M.has_partner(a2));
+            REQUIRE(!M.has_partner(b2));
         }
 
         SECTION("actual partners") {
-            REQUIRE(get_partner(M, a1) == b1);
-            REQUIRE(get_partner(M, b1) == a1);
+            REQUIRE(M.get_partner(a1) == b1);
+            REQUIRE(M.get_partner(b1) == a1);
         }
     }
 
@@ -35,19 +35,19 @@ TEST_CASE("StableMarriage example_paper", "[matching_stable]") {
         StableMarriage sm(G, false);
         auto M = sm.compute_matching();
 
-        REQUIRE(matching_size(M) == 1);
+        REQUIRE(M.size() == 1);
 
         SECTION("size of partner list") {
-            REQUIRE(number_of_partners(M, a1) == 1);
-            REQUIRE(number_of_partners(M, b1) == 1);
+            REQUIRE(M.number_of_partners(a1) == 1);
+            REQUIRE(M.number_of_partners(b1) == 1);
 
-            REQUIRE(!has_partner(M, a2));
-            REQUIRE(!has_partner(M, b2));
+            REQUIRE(!M.has_partner(a2));
+            REQUIRE(!M.has_partner(b2));
         }
 
         SECTION("actual partners") {
-            REQUIRE(get_partner(M, a1) == b1);
-            REQUIRE(get_partner(M, b1) == a1);
+            REQUIRE(M.get_partner(a1) == b1);
+            REQUIRE(M.get_partner(b1) == a1);
         }
     }
 }
@@ -65,24 +65,24 @@ TEST_CASE("StableMarriage 2pop_matchings", "[matching_stable]") {
         StableMarriage sm(G);
         auto M = sm.compute_matching();
 
-        REQUIRE(matching_size(M) == 3);
+        REQUIRE(M.size() == 3);
 
         SECTION("size of partner list") {
-            REQUIRE(number_of_partners(M, a1) == 1);
-            REQUIRE(number_of_partners(M, a2) == 1);
-            REQUIRE(number_of_partners(M, a3) == 1);
-            REQUIRE(number_of_partners(M, b1) == 1);
-            REQUIRE(number_of_partners(M, b2) == 1);
-            REQUIRE(number_of_partners(M, b3) == 1);
+            REQUIRE(M.number_of_partners(a1) == 1);
+            REQUIRE(M.number_of_partners(a2) == 1);
+            REQUIRE(M.number_of_partners(a3) == 1);
+            REQUIRE(M.number_of_partners(b1) == 1);
+            REQUIRE(M.number_of_partners(b2) == 1);
+            REQUIRE(M.number_of_partners(b3) == 1);
         }
 
         SECTION("actual partners") {
-            REQUIRE(get_partner(M, a1) == b2);
-            REQUIRE(get_partner(M, a2) == b1);
-            REQUIRE(get_partner(M, a3) == b3);
-            REQUIRE(get_partner(M, b1) == a2);
-            REQUIRE(get_partner(M, b2) == a1);
-            REQUIRE(get_partner(M, b3) == a3);
+            REQUIRE(M.get_partner(a1) == b2);
+            REQUIRE(M.get_partner(a2) == b1);
+            REQUIRE(M.get_partner(a3) == b3);
+            REQUIRE(M.get_partner(b1) == a2);
+            REQUIRE(M.get_partner(b2) == a1);
+            REQUIRE(M.get_partner(b3) == a3);
         }
     }
 
@@ -90,24 +90,24 @@ TEST_CASE("StableMarriage 2pop_matchings", "[matching_stable]") {
         StableMarriage sm(G, false);
         auto M = sm.compute_matching();
 
-        REQUIRE(matching_size(M) == 3);
+        REQUIRE(M.size() == 3);
 
         SECTION("size of partner list") {
-            REQUIRE(number_of_partners(M, a1) == 1);
-            REQUIRE(number_of_partners(M, a2) == 1);
-            REQUIRE(number_of_partners(M, a3) == 1);
-            REQUIRE(number_of_partners(M, b1) == 1);
-            REQUIRE(number_of_partners(M, b2) == 1);
-            REQUIRE(number_of_partners(M, b3) == 1);
+            REQUIRE(M.number_of_partners(a1) == 1);
+            REQUIRE(M.number_of_partners(a2) == 1);
+            REQUIRE(M.number_of_partners(a3) == 1);
+            REQUIRE(M.number_of_partners(b1) == 1);
+            REQUIRE(M.number_of_partners(b2) == 1);
+            REQUIRE(M.number_of_partners(b3) == 1);
         }
 
         SECTION("actual partners") {
-            REQUIRE(get_partner(M, a1) == b2);
-            REQUIRE(get_partner(M, a2) == b3);
-            REQUIRE(get_partner(M, a3) == b1);
-            REQUIRE(get_partner(M, b1) == a3);
-            REQUIRE(get_partner(M, b2) == a1);
-            REQUIRE(get_partner(M, b3) == a2);
+            REQUIRE(M.get_partner(a1) == b2);
+            REQUIRE(M.get_partner(a2) == b3);
+            REQUIRE(M.get_partner(a3) == b1);
+            REQUIRE(M.get_partner(b1) == a3);
+            REQUIRE(M.get_partner(b2) == a1);
+            REQUIRE(M.get_partner(b3) == a2);
         }
     }
 }
@@ -117,7 +117,7 @@ TEST_CASE("StableMarriage diff_stable_diff_pop1 (residents proposing)", "[matchi
     StableMarriage sm(G);
     auto M = sm.compute_matching();
 
-    REQUIRE(matching_size(M) == 7);
+    REQUIRE(M.size() == 7);
 
     auto a1 = get_vertex_by_id(G, "a1");
     auto a2 = get_vertex_by_id(G, "a2");
@@ -136,39 +136,39 @@ TEST_CASE("StableMarriage diff_stable_diff_pop1 (residents proposing)", "[matchi
     auto b7 = get_vertex_by_id(G, "b7");
 
     SECTION("size of partner list") {
-        REQUIRE(number_of_partners(M, a1) == 1);
-        REQUIRE(number_of_partners(M, a2) == 1);
-        REQUIRE(number_of_partners(M, a3) == 1);
-        REQUIRE(number_of_partners(M, a4) == 1);
-        REQUIRE(number_of_partners(M, a5) == 1);
-        REQUIRE(number_of_partners(M, a6) == 1);
-        REQUIRE(number_of_partners(M, a7) == 1);
+        REQUIRE(M.number_of_partners(a1) == 1);
+        REQUIRE(M.number_of_partners(a2) == 1);
+        REQUIRE(M.number_of_partners(a3) == 1);
+        REQUIRE(M.number_of_partners(a4) == 1);
+        REQUIRE(M.number_of_partners(a5) == 1);
+        REQUIRE(M.number_of_partners(a6) == 1);
+        REQUIRE(M.number_of_partners(a7) == 1);
 
-        REQUIRE(number_of_partners(M, b1) == 1);
-        REQUIRE(number_of_partners(M, b2) == 1);
-        REQUIRE(number_of_partners(M, b3) == 1);
-        REQUIRE(number_of_partners(M, b4) == 1);
-        REQUIRE(number_of_partners(M, b5) == 1);
-        REQUIRE(number_of_partners(M, b6) == 1);
-        REQUIRE(number_of_partners(M, b7) == 1);
+        REQUIRE(M.number_of_partners(b1) == 1);
+        REQUIRE(M.number_of_partners(b2) == 1);
+        REQUIRE(M.number_of_partners(b3) == 1);
+        REQUIRE(M.number_of_partners(b4) == 1);
+        REQUIRE(M.number_of_partners(b5) == 1);
+        REQUIRE(M.number_of_partners(b6) == 1);
+        REQUIRE(M.number_of_partners(b7) == 1);
     }
 
     SECTION("actual partners") {
-        REQUIRE(get_partner(M, a1) == b2);
-        REQUIRE(get_partner(M, a2) == b6);
-        REQUIRE(get_partner(M, a3) == b5);
-        REQUIRE(get_partner(M, a4) == b1);
-        REQUIRE(get_partner(M, a5) == b3);
-        REQUIRE(get_partner(M, a6) == b7);
-        REQUIRE(get_partner(M, a7) == b4);
+        REQUIRE(M.get_partner(a1) == b2);
+        REQUIRE(M.get_partner(a2) == b6);
+        REQUIRE(M.get_partner(a3) == b5);
+        REQUIRE(M.get_partner(a4) == b1);
+        REQUIRE(M.get_partner(a5) == b3);
+        REQUIRE(M.get_partner(a6) == b7);
+        REQUIRE(M.get_partner(a7) == b4);
 
-        REQUIRE(get_partner(M, b1) == a4);
-        REQUIRE(get_partner(M, b2) == a1);
-        REQUIRE(get_partner(M, b3) == a5);
-        REQUIRE(get_partner(M, b4) == a7);
-        REQUIRE(get_partner(M, b5) == a3);
-        REQUIRE(get_partner(M, b6) == a2);
-        REQUIRE(get_partner(M, b7) == a6);
+        REQUIRE(M.get_partner(b1) == a4);
+        REQUIRE(M.get_partner(b2) == a1);
+        REQUIRE(M.get_partner(b3) == a5);
+        REQUIRE(M.get_partner(b4) == a7);
+        REQUIRE(M.get_partner(b5) == a3);
+        REQUIRE(M.get_partner(b6) == a2);
+        REQUIRE(M.get_partner(b7) == a6);
     }
 }
 
@@ -177,7 +177,7 @@ TEST_CASE("StableMarriage brandl_kavitha_2019_fig1 (residents proposing)", "[mat
     StableMarriage sm(G);
     auto M = sm.compute_matching();
 
-    REQUIRE(matching_size(M) == 1);
+    REQUIRE(M.size() == 1);
 
     auto u1 = get_vertex_by_id(G, "u1");
     auto u2 = get_vertex_by_id(G, "u2");
@@ -186,16 +186,16 @@ TEST_CASE("StableMarriage brandl_kavitha_2019_fig1 (residents proposing)", "[mat
     auto u4 = get_vertex_by_id(G, "u4");
 
     SECTION("size of partner list") {
-        REQUIRE(number_of_partners(M, u1) == 1);
-        REQUIRE(number_of_partners(M, u2) == 0);
+        REQUIRE(M.number_of_partners(u1) == 1);
+        REQUIRE(M.number_of_partners(u2) == 0);
 
-        REQUIRE(number_of_partners(M, u3) == 1);
-        REQUIRE(number_of_partners(M, u4) == 0);
+        REQUIRE(M.number_of_partners(u3) == 1);
+        REQUIRE(M.number_of_partners(u4) == 0);
     }
 
     SECTION("actual partners") {
-        REQUIRE(get_partner(M, u1) == u3);
+        REQUIRE(M.get_partner(u1) == u3);
 
-        REQUIRE(get_partner(M, u3) == u1);
+        REQUIRE(M.get_partner(u3) == u1);
     }
 }

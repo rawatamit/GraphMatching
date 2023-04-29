@@ -9,25 +9,26 @@ MaximalEnvyfreeHRLQ::MaximalEnvyfreeHRLQ(std::shared_ptr<BipartiteGraph> G, bool
     : MatchingAlgorithm(std::move(G), A_proposing)
 {}
 
-void MaximalEnvyfreeHRLQ::matching_union(std::shared_ptr<MatchedPairListType> M1,
-                                         std::shared_ptr<MatchedPairListType> M2) {
-    for (auto& it : *M2) {
+void MaximalEnvyfreeHRLQ::matching_union(Matching& M1,
+                                         const Matching& M2) {
+    for (const auto& it : M2.get_matched_pairs()) {
         auto& u = it.first;
 
-        for (auto& v : it.second) {
-            add_partner(M1, u, v, 0);
+        for (auto it2 = it.second.cbegin(); it2 != it.second.cend(); ++it2) {
+            auto v = *it2;
+            M1.add_partner(u, v, 0);
         }
     }
 }
 
-std::shared_ptr<MatchingAlgorithm::MatchedPairListType> MaximalEnvyfreeHRLQ::compute_matching() {
+Matching MaximalEnvyfreeHRLQ::compute_matching() {
     YokoiEnvyfreeHRLQ y (get_graph(), is_A_proposing());
     auto M = y.compute_matching();
 
     // if there is no envy free matching in the graph
     // we cannot compute a maximal envy free matching
-    if (M->empty()) {
-        return std::make_shared<MatchedPairListType>();
+    if (M.empty()) {
+        return Matching();
     } else {
         auto G1 = augment_graph(M);
 
@@ -39,7 +40,7 @@ std::shared_ptr<MatchingAlgorithm::MatchedPairListType> MaximalEnvyfreeHRLQ::com
     }
 }
 
-std::shared_ptr<BipartiteGraph> MaximalEnvyfreeHRLQ::augment_graph(std::shared_ptr<MatchedPairListType> M) const {
+std::shared_ptr<BipartiteGraph> MaximalEnvyfreeHRLQ::augment_graph(const Matching& M) const {
     BipartiteGraph::ContainerType A, B;
     std::shared_ptr<BipartiteGraph> G = get_graph();
 
@@ -49,7 +50,7 @@ std::shared_ptr<BipartiteGraph> MaximalEnvyfreeHRLQ::augment_graph(std::shared_p
 
         // create a new vertex with quota (0, u_h - |M(h)|)
         auto u_id = v->get_id();
-        auto nmatched = number_of_partners(M, v);
+        auto nmatched = M.number_of_partners(v);
         auto u = std::make_shared<Vertex>(u_id, 0, v->get_upper_quota() - nmatched);
 
         auto& v_pref_list = v->get_preference_list();
@@ -59,10 +60,10 @@ std::shared_ptr<BipartiteGraph> MaximalEnvyfreeHRLQ::augment_graph(std::shared_p
         for (auto& i : v_pref_list) {
             auto r_old = i.vertex;
             auto& r_pref_list = r_old->get_preference_list();
-            auto rit = M->find(r_old);
+            auto r_matched = M.get_partners(r_old);
 
             // r_old is unmatched
-            if (rit == M->end()) {
+            if (r_matched.empty()) {
                 auto r_id = r_old->get_id();
 
                 // if not in the A partition
@@ -76,7 +77,7 @@ std::shared_ptr<BipartiteGraph> MaximalEnvyfreeHRLQ::augment_graph(std::shared_p
                 // add r to u's pref list
                 u_pref_list.emplace_back(A.find(r_id)->second);
             } else {
-                auto Mr = rit->second.get_least_preferred().vertex;// rit->second.get_vertex(rit->second.get_least_preferred());
+                auto Mr = r_matched.get_least_preferred().vertex;// rit->second.get_vertex(rit->second.get_least_preferred());
 
                 // v rank on r_old's preference list
                 auto v_rank = r_pref_list.find(v)->rank;
