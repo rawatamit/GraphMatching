@@ -16,7 +16,7 @@ std::string get_filepath(std::string dir, std::string filename) {
 }
 
 bool has_partners(std::shared_ptr<MatchingAlgorithm::MatchedPairListType> M, VertexPtr v, const std::vector<VertexPtr>& partners) {
-    auto M_v = get_partners(std::move(M), std::move(v));
+    auto M_v = get_partners(M, v);
 
     for (auto& it : M_v) {
         if (std::find(partners.cbegin(), partners.cend(), it.vertex) == partners.cend()) {

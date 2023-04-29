@@ -6,7 +6,7 @@
 #include "Utils.h"
 
 MaximalEnvyfreeHRLQ::MaximalEnvyfreeHRLQ(std::shared_ptr<BipartiteGraph> G, bool A_proposing)
-    : MatchingAlgorithm(std::move(G), A_proposing)
+    : MatchingAlgorithm(G, A_proposing)
 {}
 
 void MaximalEnvyfreeHRLQ::matching_union(std::shared_ptr<MatchedPairListType> M1,

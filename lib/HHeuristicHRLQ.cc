@@ -8,7 +8,7 @@
 #include <cassert>
 
 HHeuristicHRLQ::HHeuristicHRLQ(std::shared_ptr<BipartiteGraph> G, bool A_proposing)
-    : MatchingAlgorithm(std::move(G), A_proposing)
+    : MatchingAlgorithm(G, A_proposing)
 {}
 
 std::shared_ptr<MatchingAlgorithm::MatchedPairListType> HHeuristicHRLQ::compute_matching() {

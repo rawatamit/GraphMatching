@@ -4,7 +4,7 @@
 #include <set>
 
 MatchingAlgorithm::MatchingAlgorithm(std::shared_ptr<BipartiteGraph> G, bool A_proposing)
-    : G_(std::move(G)), A_proposing_(A_proposing)
+    : G_(G), A_proposing_(A_proposing)
 {}
 
 std::shared_ptr<BipartiteGraph> MatchingAlgorithm::get_graph() const {
@@ -91,5 +91,5 @@ void MatchingAlgorithm::add_partner(std::shared_ptr<MatchedPairListType> M,
 
 void MatchingAlgorithm::add_partner(std::shared_ptr<MatchedPairListType> M,
                                     VertexPtr u, VertexPtr v, RankType rank, int level) const {
-    (*M)[u].add_partner(std::move(v), rank, level);
+    (*M)[u].add_partner(v, rank, level);
 }
