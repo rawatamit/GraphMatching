@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <catch2/catch_all.hpp>
 #include <MatchingAlgorithm.h>
 
 std::string get_root_dir();

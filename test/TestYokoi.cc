@@ -1,8 +1,7 @@
-#include "catch.hpp"
-#include "Vertex.h"
-#include "YokoiEnvyfreeHRLQ.h"
-#include "GraphReader.h"
-#include "Utils.h"
+#include <Vertex.h>
+#include <YokoiEnvyfreeHRLQ.h>
+#include <GraphReader.h>
+#include <Utils.h>
 #include "TestDefs.h"
 
 TEST_CASE("YokoiEnvyfreeHRLQ yokoi_diff_R_H", "[matching_yokoi]") {
@@ -62,3 +61,4 @@ TEST_CASE("YokoiEnvyfreeHRLQ yokoi_and_max_envy", "[matching_yokoi]") {
         }
     }
 }
+

@@ -1,7 +1,7 @@
-#include "catch.hpp"
-#include "Vertex.h"
-#include "PartnerList.h"
+#include <Vertex.h>
+#include <PartnerList.h>
 #include <memory>
+#include "TestDefs.h"
 
 TEST_CASE("Partner <", "[partner]") {
     std::shared_ptr<Vertex> v1 = std::make_shared<Vertex>("v1");

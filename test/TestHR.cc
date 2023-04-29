@@ -1,7 +1,6 @@
-#include "catch.hpp"
-#include "StableMarriage.h"
-#include "Popular.h"
-#include "Utils.h"
+#include <StableMarriage.h>
+#include <Popular.h>
+#include <Utils.h>
 #include "TestDefs.h"
 
 TEST_CASE("StableMarriage hrlq_m6", "[matching_SM_HR]") {

@@ -1,6 +1,6 @@
-#include "catch.hpp"
-#include "Utils.h"
-#include "Vertex.h"
+#include <Utils.h>
+#include <Vertex.h>
+#include "TestDefs.h"
 
 TEST_CASE("Utils compute_rank", "[compute_rank]") {
     PreferenceList pref_list;

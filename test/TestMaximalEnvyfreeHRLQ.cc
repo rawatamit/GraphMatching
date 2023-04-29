@@ -1,9 +1,7 @@
+#include <Vertex.h>
 #include <MaximalEnvyfreeHRLQ.h>
-#include "catch.hpp"
-#include "Vertex.h"
-#include "MaximalEnvyfreeHRLQ.h"
-#include "GraphReader.h"
-#include "Utils.h"
+#include <GraphReader.h>
+#include <Utils.h>
 #include "TestDefs.h"
 
 TEST_CASE("MaximalEnvyfreeHRLQ yokoi_and_max_envy", "[matching_yokoi]") {

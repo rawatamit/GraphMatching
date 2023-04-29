@@ -1,8 +1,7 @@
-#include "catch.hpp"
-#include "GraphReader.h"
-#include "Utils.h"
-#include "TestDefs.h"
+#include <GraphReader.h>
+#include <Utils.h>
 #include <memory>
+#include "TestDefs.h"
 
 TEST_CASE("GraphReader missing_pref_partition_A", "[reader]") {
     std::string pathA(get_filepath(get_resources_dir(), "parser/missing_pref_partition_A.txt"));
