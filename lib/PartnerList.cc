@@ -15,19 +15,27 @@ PartnerList::SizeType PartnerList::size() const {
     return partners_.size();
 }
 
-PartnerList::ConstIterator PartnerList::cbegin() const {
+PartnerList::ConstIterator PartnerList::cbegin() const noexcept {
     return partners_.cbegin();
 }
 
-PartnerList::ConstIterator PartnerList::cend() const {
+PartnerList::ConstIterator PartnerList::cend() const noexcept {
     return partners_.cend();
 }
 
-PartnerList::Iterator PartnerList::begin() {
+PartnerList::Iterator PartnerList::begin() noexcept {
     return partners_.begin();
 }
 
-PartnerList::Iterator PartnerList::end() {
+PartnerList::Iterator PartnerList::end() noexcept {
+    return partners_.end();
+}
+
+PartnerList::ConstIterator PartnerList::begin() const noexcept {
+    return partners_.begin();
+}
+
+PartnerList::ConstIterator PartnerList::end() const noexcept {
     return partners_.end();
 }
 

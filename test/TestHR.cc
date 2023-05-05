@@ -76,6 +76,7 @@ TEST_CASE("MaxCardPopular hrlq_m6", "[matching_MP_HR]") {
         MaxCardPopular mp(G);
         auto M = mp.compute_matching();
 
+        REQUIRE(M.verify(G));
         REQUIRE(M.size() == 4);
 
         SECTION("size of partner list") {
@@ -102,6 +103,7 @@ TEST_CASE("MaxCardPopular hrlq_m6", "[matching_MP_HR]") {
         MaxCardPopular mp(G, false);
         auto M = mp.compute_matching();
 
+        REQUIRE(M.verify(G));
         REQUIRE(M.size() == 4);
 
         SECTION("size of partner list") {
@@ -143,6 +145,7 @@ TEST_CASE("MaxCardPopular P_mat_level_up", "[matching_MP_HR_level_up]") {
         MaxCardPopular mp(G);
         auto M = mp.compute_matching();
 
+        REQUIRE(M.verify(G));
         REQUIRE(M.size() == 6);
 
         SECTION("size of partner list") {
@@ -174,6 +177,7 @@ TEST_CASE("MaxCardPopular P_mat_level_up", "[matching_MP_HR_level_up]") {
         MaxCardPopular mp(G, false);
         auto M = mp.compute_matching();
 
+        REQUIRE(M.verify(G));
         REQUIRE(M.size() == 6);
 
         SECTION("size of partner list") {

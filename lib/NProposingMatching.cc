@@ -44,7 +44,7 @@ Matching NProposingMatching::compute_matching() {
     FreeListType free_list;
   std::map<VertexPtr, VertexBookkeeping> bookkeep_data;
   std::shared_ptr<BipartiteGraph> G = get_graph();
-  auto M = Matching();
+  auto M = Matching(is_A_proposing());
   
   // choose the partitions from which the vertices will propose
   const auto& proposing_partition = is_A_proposing() ? G->get_A_partition()
@@ -77,7 +77,7 @@ Matching NProposingMatching::compute_matching() {
 
       if (u_data.level > 0 and M.is_matched_to(v, u, u_data.level - 1)) {
         // Remove u^(level-1) and v from the matching.
-        M.remove_partners(u, v);
+        M.remove_partner(u, v);
 
         // Add u^level and v to the matching. Note that residual(u) doesn't
         // change, as we are replacing one vertex with another.
@@ -97,7 +97,7 @@ Matching NProposingMatching::compute_matching() {
 
           // remove M[v_worst_partner] from M[v], and M[v] from
           // M[v_worst_partner]
-          M.remove_partners(v, v_worst_partner.vertex);
+          M.remove_partner(v, v_worst_partner.vertex);
 
           // add u and v to the matching
           u_data.residual -= 1;

@@ -23,11 +23,14 @@ public:
     bool empty() const;
     SizeType size() const;
 
-    ConstIterator cbegin() const;
-    ConstIterator cend() const;
+    ConstIterator cbegin() const noexcept;
+    ConstIterator cend() const noexcept;
 
-    Iterator begin();
-    Iterator end();
+    Iterator begin() noexcept;
+    Iterator end() noexcept;
+
+    ConstIterator begin() const noexcept;
+    ConstIterator end() const noexcept;
 
     /// is this vertex in the list
     ConstIterator find(VertexPtr v) const;

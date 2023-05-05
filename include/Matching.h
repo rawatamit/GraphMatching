@@ -1,9 +1,12 @@
 #ifndef MATCHING_H
 #define MATCHING_H
 
+#include "BipartiteGraph.h"
 #include "PartnerList.h"
 #include "TDefs.h"
 #include <map>
+#include <memory>
+#include <set>
 #include <vector>
 
 class Matching {
@@ -11,16 +14,16 @@ public:
   typedef std::map<VertexPtr, PartnerList> MatchedPairListType;
 
 public:
-  Matching() {}
+  Matching(bool isAProposing = true) : _isAProposing(isAProposing) {}
   virtual ~Matching() {}
 
   void add_partner(VertexPtr u, const Partner &v, int level);
   void add_partner(VertexPtr u, VertexPtr v, RankType rank, int level);
 
-  void remove_partners(VertexPtr u, VertexPtr v);
+  void remove_partner(VertexPtr u, VertexPtr v);
 
   // get partners for v in M
-  const PartnerList& get_partners(VertexPtr v) const;
+  const PartnerList &get_partners(VertexPtr v) const;
 
   // # of partners for v in M
   PartnerList::SizeType number_of_partners(VertexPtr v) const;
@@ -29,12 +32,15 @@ public:
   bool has_partner(VertexPtr v) const;
 
   // Does v have these partners.
-  bool has_partners(VertexPtr v, const std::vector<VertexPtr>& partners) const;
+  bool has_partners(VertexPtr v, const std::vector<VertexPtr> &partners) const;
 
   // get matched partner for v in M
   VertexPtr get_partner(VertexPtr v) const;
 
-  // Is u matched to v^level
+  // Is u matched to v?
+  bool is_matched_to(VertexPtr u, VertexPtr v) const;
+
+  // Is u matched to v^level?
   bool is_matched_to(VertexPtr u, VertexPtr v, int level) const;
 
   // size of matching M
@@ -42,12 +48,35 @@ public:
 
   bool empty() const;
 
-  const MatchedPairListType& get_matched_pairs() const;
+  const MatchedPairListType &get_matched_pairs() const;
+
+  // Use dual certificate to verify that this matching is popular.
+  bool verify(std::shared_ptr<BipartiteGraph> G) const;
+
+private:
+  typedef std::pair<VertexPtr, int> VertexCopy;
+
+  void generate_M_star(const BipartiteGraph::ContainerType &A_partition,
+                       const BipartiteGraph::ContainerType &B_partition,
+                       std::map<VertexCopy, VertexCopy> &M_star,
+                       std::set<VertexCopy> &A_0, std::set<VertexCopy> &A_1,
+                       std::set<VertexCopy> &B_0,
+                       std::set<VertexCopy> &B_1) const;
+
+  void decompose_into_sets(std::shared_ptr<BipartiteGraph> G,
+                           std::set<VertexPtr> &A_0, std::set<VertexPtr> &A_1,
+                           std::set<VertexPtr> &B_0, std::set<VertexPtr> &B_1,
+                           std::map<VertexPtr, int> &nlevel1) const;
 
 private:
   MatchedPairListType _matchedPairs;
   // When a vertex has no matched partners, an empty partner list is returned.
   PartnerList _emptyPartnerList;
+
+  // FIXME: dual certificate verificate is only valid for popular matchings.
+  // This verification should be either moved to MatchingAlgorithm class or
+  // into a different abstraction. This variable should be removed as well.
+  bool _isAProposing;
 };
 
 #endif // MATCHING_H

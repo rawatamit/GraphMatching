@@ -14,6 +14,7 @@ TEST_CASE("MaxCardPopular example_paper", "[matching_max_card_popular]") {
         MaxCardPopular mp(G);
         auto M = mp.compute_matching();
 
+        REQUIRE(M.verify(G));
         REQUIRE(M.size() == 2);
 
         SECTION("size of partner list") {
@@ -35,6 +36,7 @@ TEST_CASE("MaxCardPopular example_paper", "[matching_max_card_popular]") {
         MaxCardPopular mp(G, false);
         auto M = mp.compute_matching();
 
+        REQUIRE(M.verify(G));
         REQUIRE(M.size() == 2);
 
         SECTION("size of partner list") {
@@ -66,6 +68,7 @@ TEST_CASE("MaxCardPopular 2pop_matchings", "[matching_max_card_popular]") {
         MaxCardPopular mp(G);
         auto M = mp.compute_matching();
 
+        REQUIRE(M.verify(G));
         REQUIRE(M.size() == 3);
 
         SECTION("size of partner list") {
@@ -91,6 +94,7 @@ TEST_CASE("MaxCardPopular 2pop_matchings", "[matching_max_card_popular]") {
         MaxCardPopular mp(G, false);
         auto M = mp.compute_matching();
 
+        REQUIRE(M.verify(G));
         REQUIRE(M.size() == 3);
 
         SECTION("size of partner list") {
@@ -118,6 +122,7 @@ TEST_CASE("MaxCardPopular diff_stable_diff_pop1 (residents proposing)", "[matchi
     MaxCardPopular sm(G);
     auto M = sm.compute_matching();
 
+    REQUIRE(M.verify(G));
     REQUIRE(M.size() == 7);
 
     auto a1 = get_vertex_by_id(G, "a1");
@@ -178,6 +183,7 @@ TEST_CASE("MaxCardPopular brandl_kavitha_2019_fig1 (residents proposing)", "[mat
     MaxCardPopular sm(G);
     auto M = sm.compute_matching();
 
+    REQUIRE(M.verify(G));
     REQUIRE(M.size() == 2);
 
     auto u1 = get_vertex_by_id(G, "u1");
@@ -202,3 +208,41 @@ TEST_CASE("MaxCardPopular brandl_kavitha_2019_fig1 (residents proposing)", "[mat
         REQUIRE(M.get_partner(u4) == u1);
     }
 }
+
+TEST_CASE("MaxCardPopular many_many_promotion (residents proposing)", "[matching_resident]") {
+    auto G = read_graph(get_filepath(get_resources_dir(), "/many_many_promotion.txt"));
+    MaxCardPopular sm(G);
+    auto M = sm.compute_matching();
+
+    REQUIRE(M.verify(G));
+    REQUIRE(M.size() == 3);
+
+    auto a1 = get_vertex_by_id(G, "a1");
+    auto a2 = get_vertex_by_id(G, "a2");
+    auto a3 = get_vertex_by_id(G, "a3");
+
+    auto b1 = get_vertex_by_id(G, "b1");
+    auto b2 = get_vertex_by_id(G, "b2");
+    auto b3 = get_vertex_by_id(G, "b3");
+
+    SECTION("size of partner list") {
+        REQUIRE(M.number_of_partners(a1) == 1);
+        REQUIRE(M.number_of_partners(a2) == 1);
+        REQUIRE(M.number_of_partners(a3) == 1);
+
+        REQUIRE(M.number_of_partners(b1) == 1);
+        REQUIRE(M.number_of_partners(b2) == 1);
+        REQUIRE(M.number_of_partners(b3) == 1);
+    }
+
+    SECTION("actual partners") {
+        REQUIRE(M.get_partner(a1) == b1);
+        REQUIRE(M.get_partner(a2) == b2);
+        REQUIRE(M.get_partner(a3) == b3);
+
+        REQUIRE(M.get_partner(b1) == a1);
+        REQUIRE(M.get_partner(b2) == a2);
+        REQUIRE(M.get_partner(b3) == a3);
+    }
+}
+
