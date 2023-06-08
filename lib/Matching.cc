@@ -290,8 +290,11 @@ bool Matching::verify(std::shared_ptr<BipartiteGraph> G) const {
     auto a = a_copy.first;
     auto b = b_copy.first;
 
-    // Edge (a, b) is present in M. This means (a_i, b_j) is present in M'.
-    if (is_matched_to(a, b)) {
+    // a_i is matched to self in M*. a_i is unmatched in M'.
+    if (a_copy == b_copy) {
+      unmatched += 1;
+    } else {
+      // Edge (a, b) is present in M. This means (a_i, b_j) is present in M'.
       // An edge (a_i, b_j) \in M* has weight 0.
       auto wt = edge_weight(a_copy, b_copy, M_star);
       if (wt != 0) {
@@ -317,10 +320,6 @@ bool Matching::verify(std::shared_ptr<BipartiteGraph> G) const {
       if (!is_correct_decomposition) {
         return false;
       }
-    } else if (a == b) {
-      // a_i is matched to self in M*. a_i is unmatched in M'.
-      assert(a_copy == b_copy);
-      unmatched += 1;
     }
   }
 
