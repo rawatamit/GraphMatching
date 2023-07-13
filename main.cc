@@ -11,7 +11,8 @@
 #include <unistd.h>
 
 template<typename T>
-void compute_matching(bool A_proposing, const char* input_file, const char* output_file) {
+bool compute_matching(bool A_proposing, const char* input_file,
+                      const char* output_file, bool verify=false) {
     // setup input/output stream as std::cin/std::cout by default
     // if a file is specified use it to read/write
 
@@ -32,11 +33,24 @@ void compute_matching(bool A_proposing, const char* input_file, const char* outp
     std::shared_ptr<BipartiteGraph> G = GraphReader(std::cin).read_graph();
     T alg(G, A_proposing);
     auto M = alg.compute_matching();
-    print_matching(G, M, std::cout);
+    bool ret = true;
+
+    if (verify)
+    {
+        ret = M.verify(G);
+    }
+
+    // Only print matching if it is verified to be correct.
+    if (ret)
+    {
+        print_matching(G, M, std::cout);
+    }
 
     // restore buffers
     std::cin.rdbuf(cin_buf);
     std::cout.rdbuf(cout_buf);
+
+    return ret;
 }
 
 int main(int argc, char* argv[]) {
@@ -81,17 +95,18 @@ int main(int argc, char* argv[]) {
         }
     }
 
+    bool status = true;
     if (compute_stable) {
-        compute_matching<StableMarriage>(A_proposing, input_file, output_file);
+        status = compute_matching<StableMarriage>(A_proposing, input_file, output_file);
     } else if (compute_popular) {
-        compute_matching<MaxCardPopular>(A_proposing, input_file, output_file);
+        status = compute_matching<MaxCardPopular>(A_proposing, input_file, output_file, true);
     } else if (compute_max_card) {
-        compute_matching<PopularAmongMaxCard>(A_proposing, input_file, output_file);
+        status = compute_matching<PopularAmongMaxCard>(A_proposing, input_file, output_file);
     } else if (compute_yhrlq) {
-        compute_matching<YokoiEnvyfreeHRLQ>(A_proposing, input_file, output_file);
+        status = compute_matching<YokoiEnvyfreeHRLQ>(A_proposing, input_file, output_file);
     } else if (compute_ehrlq) {
-        compute_matching<MaximalEnvyfreeHRLQ>(A_proposing, input_file, output_file);
+        status = compute_matching<MaximalEnvyfreeHRLQ>(A_proposing, input_file, output_file);
     }
 
-    return 0;
+    return status ? 0 : 1;
 }

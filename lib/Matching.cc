@@ -293,6 +293,12 @@ bool Matching::verify(std::shared_ptr<BipartiteGraph> G) const {
     // a_i is matched to self in M*. a_i is unmatched in M'.
     if (a_copy == b_copy) {
       unmatched += 1;
+
+      // Edge weight for an unmatched vertex in original graph is 0.
+      auto wt = edge_weight(a_copy, b_copy, M_star);
+      if (wt != 0) {
+        return false;
+      }
     } else {
       // Edge (a, b) is present in M. This means (a_i, b_j) is present in M'.
       // An edge (a_i, b_j) \in M* has weight 0.
@@ -307,17 +313,17 @@ bool Matching::verify(std::shared_ptr<BipartiteGraph> G) const {
       // combinations of A' and B' to verify that we have a correct
       // decomposition of this edge.
 
-      bool is_correct_decomposition = false;
-      is_correct_decomposition |=
+      bool is_correct_partition = false;
+      is_correct_partition |=
           (A_0.find(a_copy) != A_0.end() and B_0.find(b_copy) != B_0.end());
-      is_correct_decomposition |=
+      is_correct_partition |=
           (A_1.find(a_copy) != A_1.end() and B_1.find(b_copy) != B_1.end());
-      is_correct_decomposition |=
+      is_correct_partition |=
           (A_0.find(b_copy) != A_0.end() and B_0.find(a_copy) != B_0.end());
-      is_correct_decomposition |=
+      is_correct_partition |=
           (A_1.find(b_copy) != A_1.end() and B_1.find(a_copy) != B_1.end());
 
-      if (!is_correct_decomposition) {
+      if (!is_correct_partition) {
         return false;
       }
     }
