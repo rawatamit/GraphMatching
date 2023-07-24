@@ -16,6 +16,7 @@ private:
     unsigned upper_quota_;           // maximum number of partners to this vertex
     bool dummy_;                // is this a dummy vertex
     PreferenceList pref_list_;  // preference list according to priority
+    PreferenceList pref_list_lq_;  // preference list containing LQ vertices
 
 public:
     explicit Vertex(const IdType& id);
@@ -34,6 +35,9 @@ public:
 
     PreferenceList& get_preference_list();
     const PreferenceList& get_preference_list() const;
+
+    PreferenceList& get_preference_list_lq();
+    const PreferenceList& get_preference_list_lq() const;
 };
 
 /// print this vertex in the format v: p1, ..., pk

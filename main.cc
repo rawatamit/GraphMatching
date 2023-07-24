@@ -60,6 +60,7 @@ int main(int argc, char* argv[]) {
     bool compute_max_card = false;
     bool compute_yhrlq = false;
     bool compute_ehrlq = false;
+    bool compute_popular_lq = false;
     bool A_proposing = true;
     const char* input_file = nullptr;
     const char* output_file = nullptr;
@@ -71,7 +72,7 @@ int main(int argc, char* argv[]) {
     // -r and -h compute the resident and hopsital heuristic for an HRLQ instance
     // -i is the path to the input graph, -o is the path where the matching
     // computed should be stored
-    while ((c = getopt(argc, argv, "ABspmyei:o:")) != -1) {
+    while ((c = getopt(argc, argv, "ABspmyeli:o:")) != -1) {
         switch (c) {
             case 'A': A_proposing = true; break;
             case 'B': A_proposing = false; break;
@@ -80,6 +81,7 @@ int main(int argc, char* argv[]) {
             case 'm': compute_max_card = true; break;
             case 'y': compute_yhrlq = true; break;
             case 'e': compute_ehrlq = true; break;
+            case 'l': compute_popular_lq = true; break;
             case 'i': input_file = optarg; break;
             case 'o': output_file = optarg; break;
             case '?':
@@ -106,6 +108,8 @@ int main(int argc, char* argv[]) {
         status = compute_matching<YokoiEnvyfreeHRLQ>(A_proposing, input_file, output_file);
     } else if (compute_ehrlq) {
         status = compute_matching<MaximalEnvyfreeHRLQ>(A_proposing, input_file, output_file);
+    } else if (compute_popular_lq) {
+        status = compute_matching<MaxCardPopularLQ>(A_proposing, input_file, output_file);
     }
 
     return status ? 0 : 1;

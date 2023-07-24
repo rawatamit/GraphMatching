@@ -52,6 +52,14 @@ PreferenceList const& Vertex::get_preference_list() const {
     return pref_list_;
 }
 
+PreferenceList& Vertex::get_preference_list_lq() {
+    return pref_list_lq_;
+}
+
+PreferenceList const& Vertex::get_preference_list_lq() const {
+    return pref_list_lq_;
+}
+
 /// print this vertex in the format v: p1, ..., pk
 std::ostream& operator<<(std::ostream& out, VertexPtr v) {
     std::stringstream stmp;

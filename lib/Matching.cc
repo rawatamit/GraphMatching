@@ -5,6 +5,7 @@
 #include "Vertex.h"
 #include <algorithm>
 #include <cassert>
+#include <sstream>
 
 void Matching::add_partner(VertexPtr u, const Partner &v, int level) {
   _matchedPairs[u].add_partner(v.vertex, v.rank, level);
@@ -66,6 +67,23 @@ bool Matching::is_matched_to(VertexPtr u, VertexPtr v, int level) const {
   return (partner_it != partners.cend()) ? (partner_it->level == level) : false;
 }
 
+bool Matching::is_matched_lt(VertexPtr u, int level) const {
+  const auto &partners = get_partners(u);
+  for (const auto& v : partners) {
+    if (v.level < level) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool Matching::is_matched_lt(VertexPtr u, VertexPtr v, int level) const {
+  const auto &partners = get_partners(u);
+  const auto &partner_it = partners.find(v);
+  // If partner is present, check level matched to this partner is equal.
+  return (partner_it != partners.cend()) ? (partner_it->level < level) : false;
+}
+
 int Matching::size() const {
   int size = 0;
   for (const auto &it : _matchedPairs) {
@@ -78,6 +96,20 @@ bool Matching::empty() const { return size() == 0; }
 
 const Matching::MatchedPairListType &Matching::get_matched_pairs() const {
   return _matchedPairs;
+}
+
+std::ostream& operator<<(std::ostream& out, const Matching& M) {
+  std::stringstream stmp;
+  stmp << '{';
+
+  for (const auto& [u, partners] : M._matchedPairs) {
+    for (const auto& partner : partners) {
+      stmp << '(' << u->get_id() << ',' << partner.vertex->get_id() << ')';
+    }
+  }
+
+  stmp << '}';
+  return out << stmp.str();
 }
 
 void Matching::generate_M_star(const BipartiteGraph::ContainerType &A_partition,

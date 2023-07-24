@@ -8,6 +8,7 @@
 #include <memory>
 #include <set>
 #include <vector>
+#include <ostream>
 
 class Matching {
 public:
@@ -43,6 +44,12 @@ public:
   // Is u matched to v^level?
   bool is_matched_to(VertexPtr u, VertexPtr v, int level) const;
 
+  // Is u matched to any vertex at < level?
+  bool is_matched_lt(VertexPtr u, int level) const;
+
+  // Is u matched to v^x where x < level?
+  bool is_matched_lt(VertexPtr u, VertexPtr v, int level) const;
+
   // size of matching M
   int size() const;
 
@@ -52,6 +59,8 @@ public:
 
   // Use dual certificate to verify that this matching is popular.
   bool verify(std::shared_ptr<BipartiteGraph> G) const;
+
+  friend std::ostream& operator<<(std::ostream& out, const Matching& M);
 
 private:
   typedef std::pair<VertexPtr, int> VertexCopy;

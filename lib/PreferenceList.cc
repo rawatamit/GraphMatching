@@ -47,11 +47,11 @@ PrefListElement PreferenceList::at(SizeType index) const {
     return pref_list_.at(index);
 }
 
-std::ostream& operator<<(std::ostream& out, PreferenceList& pl) {
+std::ostream& operator<<(std::ostream& out, const PreferenceList& pl) {
     return out << &pl;
 }
 
-std::ostream& operator<<(std::ostream& out, PreferenceList* pl) {
+std::ostream& operator<<(std::ostream& out, const PreferenceList* pl) {
     std::stringstream stmp;
 
     for (auto i = pl->cbegin(), e = pl->cend(); i != e; ++i) {

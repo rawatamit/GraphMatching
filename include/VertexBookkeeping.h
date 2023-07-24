@@ -11,6 +11,11 @@ struct VertexBookkeeping {
     PreferenceList::SizeType begin;
     PreferenceList::SizeType end;
 
+    // [begin, end)
+    // begin_lq is proposal index for PrefLQ
+    PreferenceList::SizeType begin_lq;
+    PreferenceList::SizeType end_lq;
+
     // current level of the vertex
     int level;
 
@@ -22,17 +27,31 @@ struct VertexBookkeeping {
 
 public:
     VertexBookkeeping()
-            : VertexBookkeeping(0, 0)
+            : VertexBookkeeping(0, 0, 0)
     {}
 
     VertexBookkeeping(PreferenceList::SizeType begin, PreferenceList::SizeType end,
+                      int residual)
+            : VertexBookkeeping(begin, end, 0, 0, residual)
+    {}
+
+    VertexBookkeeping(PreferenceList::SizeType begin,
+                      PreferenceList::SizeType end,
+                      PreferenceList::SizeType begin_lq,
+                      PreferenceList::SizeType end_lq,
                       int residual = 0)
-            : begin(begin), end(end), level(0), in_free_list(false),
+            : begin(begin), end(end),
+              begin_lq(begin_lq), end_lq(end_lq),
+              level(0), in_free_list(false),
               residual(residual)
     {}
 
-    bool is_exhausted() {
+    bool is_exhausted() const {
         return begin >= end;
+    }
+
+    bool is_exhausted_lq() const {
+        return begin_lq >= end_lq;
     }
 };
 

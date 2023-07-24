@@ -180,11 +180,20 @@ void GraphReader::read_preference_lists(BipartiteGraph::ContainerType& A, Bipart
         match(TOK_COLON); // skip the colon
 
         // read and store the preference list
-        PreferenceList& pref_list = A[a]->get_preference_list();
+        auto& a_vertex = A[a];
+        PreferenceList& pref_list = a_vertex->get_preference_list();
+        PreferenceList& pref_list_lq = a_vertex->get_preference_list_lq();
         while (curtok_ != TOK_SEMICOLON) {
             std::string b = lexer_->get_lexeme();
             match(TOK_STRING);
-            pref_list.emplace_back(B[b]);
+            const auto& b_vertex = B[b];
+            pref_list.emplace_back(b_vertex);
+
+            // Store critical vertices in two preference lists.
+            if (b_vertex->get_lower_quota() > 0)
+            {
+              pref_list_lq.emplace_back(b_vertex);
+            }
 
             // if there are more vertices, they must
             // be delimited using commas

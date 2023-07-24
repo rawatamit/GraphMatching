@@ -56,8 +56,8 @@ public:
     /// get pref list element at given index
     [[nodiscard]] PrefListElement at(SizeType index) const;
 
-    friend std::ostream& operator<<(std::ostream& out, PreferenceList& pl);
-    friend std::ostream& operator<<(std::ostream& out, PreferenceList* pl);
+    friend std::ostream& operator<<(std::ostream& out, const PreferenceList& pl);
+    friend std::ostream& operator<<(std::ostream& out, const PreferenceList* pl);
 };
 
 #endif

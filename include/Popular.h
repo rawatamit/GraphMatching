@@ -36,4 +36,28 @@ public:
     }
 };
 
+/// max-card popular matching in an many-many LQ instance
+class MaxCardPopularLQ : public MatchingAlgorithm {
+private:
+    void decide_accept_reject(
+        VertexPtr u, int cap_u,
+        VertexPtr v, int cap_v,
+        VertexBookkeeping& u_data,
+        const PreferenceList& v_pref_list, FreeListType& free_list,
+        std::map<VertexPtr, VertexBookkeeping>& bookkeep_data,
+        Matching& M);
+
+public:
+    explicit MaxCardPopularLQ(std::shared_ptr<BipartiteGraph> G,
+                              bool A_proposing=true)
+        : MatchingAlgorithm(G, A_proposing)
+    {}
+
+    ~MaxCardPopularLQ() override = default;
+
+    // Compute HR2LQ max-cardinality popular matching from set of critical
+    // matchings.
+    Matching compute_matching() override;
+};
+
 #endif
