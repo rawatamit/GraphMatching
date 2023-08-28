@@ -68,14 +68,8 @@ private:
   void generate_M_star(const BipartiteGraph::ContainerType &A_partition,
                        const BipartiteGraph::ContainerType &B_partition,
                        std::map<VertexCopy, VertexCopy> &M_star,
-                       std::set<VertexCopy> &A_0, std::set<VertexCopy> &A_1,
-                       std::set<VertexCopy> &B_0,
-                       std::set<VertexCopy> &B_1) const;
-
-  void decompose_into_sets(std::shared_ptr<BipartiteGraph> G,
-                           std::set<VertexPtr> &A_0, std::set<VertexPtr> &A_1,
-                           std::set<VertexPtr> &B_0, std::set<VertexPtr> &B_1,
-                           std::map<VertexPtr, int> &nlevel1) const;
+                       std::map<int, std::set<VertexCopy>> &A_levels,
+                       std::map<int, std::set<VertexCopy>> &B_levels) const;
 
 private:
   MatchedPairListType _matchedPairs;

@@ -2,26 +2,28 @@
 #include <sstream>
 
 Vertex::Vertex(const IdType& id)
-    : Vertex(id, id, 0, 1, false)
+    : Vertex(id, id, 0, 1, false, false)
 {}
 
 Vertex::Vertex(const IdType& id, unsigned upper_quota)
-    : Vertex(id, id, 0, upper_quota, false)
+    : Vertex(id, id, 0, upper_quota, false, false)
 {}
 
 Vertex::Vertex(const IdType& id, unsigned lower_quota, unsigned upper_quota)
-    : Vertex(id, id, lower_quota, upper_quota, false)
+    : Vertex(id, id, lower_quota, upper_quota, false, false)
 {}
 
-Vertex::Vertex(const IdType& id, unsigned lower_quota, unsigned upper_quota, bool dummy)
-    : Vertex(id, id, lower_quota, upper_quota, dummy)
+Vertex::Vertex(const IdType& id, unsigned lower_quota, unsigned upper_quota,
+               bool dummy, bool last_resort)
+    : Vertex(id, id, lower_quota, upper_quota, dummy, last_resort)
 {}
 
 Vertex::Vertex(const IdType& id, const IdType& cloned_for_id,
-               unsigned lower_quota, unsigned upper_quota, bool dummy)
+               unsigned lower_quota, unsigned upper_quota, bool dummy,
+               bool last_resort)
     : id_(id), cloned_for_id_(cloned_for_id),
       lower_quota_(lower_quota), upper_quota_(upper_quota),
-      dummy_(dummy)
+      dummy_(dummy), last_resort_(last_resort)
 {}
 
 IdType const& Vertex::get_id() const {
@@ -42,6 +44,10 @@ unsigned Vertex::get_upper_quota() const {
 
 bool Vertex::is_dummy() const {
     return dummy_;
+}
+
+bool Vertex::is_last_resort() const {
+    return last_resort_;
 }
 
 PreferenceList& Vertex::get_preference_list() {

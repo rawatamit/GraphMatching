@@ -115,10 +115,8 @@ std::ostream& operator<<(std::ostream& out, const Matching& M) {
 void Matching::generate_M_star(const BipartiteGraph::ContainerType &A_partition,
                                const BipartiteGraph::ContainerType &B_partition,
                                std::map<VertexCopy, VertexCopy> &M_star,
-                               std::set<VertexCopy> &A_0,
-                               std::set<VertexCopy> &A_1,
-                               std::set<VertexCopy> &B_0,
-                               std::set<VertexCopy> &B_1) const {
+                               std::map<int, std::set<VertexCopy>> &A_levels,
+                               std::map<int, std::set<VertexCopy>> &B_levels) const {
   // Store mapping from vertex to next available copy.
   std::map<VertexPtr, int> nextAvailableCopy;
 
@@ -145,11 +143,11 @@ void Matching::generate_M_star(const BipartiteGraph::ContainerType &A_partition,
       // vertex a in M, these copies are in A'_1 x B'_1, otherwise they are in
       // A'_0 x B'_0.
       if (partner.level == 0) {
-        A_0.insert(a_copy);
-        B_0.insert(b_copy);
+        A_levels[0].insert(a_copy);
+        B_levels[0].insert(b_copy);
       } else {
-        A_1.insert(a_copy);
-        B_1.insert(b_copy);
+        A_levels[1].insert(a_copy);
+        B_levels[1].insert(b_copy);
       }
     }
   }
@@ -162,7 +160,7 @@ void Matching::generate_M_star(const BipartiteGraph::ContainerType &A_partition,
       auto a_copy{std::make_pair(a, i)};
 
       // Add unmatched copy to A'_1, and set M*[a_i] = a_i.
-      A_1.insert(a_copy);
+      A_levels[1].insert(a_copy);
       M_star[a_copy] = a_copy;
     }
   }
@@ -175,7 +173,7 @@ void Matching::generate_M_star(const BipartiteGraph::ContainerType &A_partition,
       auto b_copy{std::make_pair(b, i)};
 
       // Add unmatched copy to B'_0, and set M*[b_i] = b_i.
-      B_0.insert(b_copy);
+      B_levels[0].insert(b_copy);
       M_star[b_copy] = b_copy;
     }
   }
@@ -252,12 +250,12 @@ bool Matching::verify(std::shared_ptr<BipartiteGraph> G) const {
   // numbered copy of the original vertex, and a vertex u \in (A U B) will have
   // cap(u) copies in (A' U B'). M^* is a map between vertices in A' and B'.
   // Only M* is computed, M' can be deduced from M* if needed.
-  std::set<VertexCopy> A_0, A_1;
-  std::set<VertexCopy> B_0, B_1;
+  std::map<int, std::set<VertexCopy>> A_levels;
+  std::map<int, std::set<VertexCopy>> B_levels;
   M_star_type M_star;
 
   // Compute M* alongwith decomposition of (A' U B').
-  generate_M_star(A_partition, B_partition, M_star, A_0, A_1, B_0, B_1);
+  generate_M_star(A_partition, B_partition, M_star, A_levels, B_levels);
 
   // We don't generate the complete graph G'_M. The edges in G'_M can be
   // carefully iterated over using M* and original graph G. If an edge is
@@ -291,12 +289,13 @@ bool Matching::verify(std::shared_ptr<BipartiteGraph> G) const {
           auto wt = edge_weight(a_copy, b_copy, M_star);
 
           // A'_0 x B'_1 edge, weight can be one of {-2, 0, +2}.
-          if (A_0.find(a_copy) != A_0.end() and B_1.find(b_copy) != B_1.end()) {
+          if ((A_levels[0].find(a_copy) != A_levels[0].end()) and
+              (B_levels[1].find(b_copy) != B_levels[1].end())) {
             if (wt != -2 and wt != 0 and wt != +2) {
               return false;
             }
-          } else if (A_1.find(a_copy) != A_1.end() and
-                     B_0.find(b_copy) != B_0.end()) {
+          } else if ((A_levels[1].find(a_copy) != A_levels[1].end()) and
+                     (B_levels[0].find(b_copy) != B_levels[0].end())) {
             // A'_1 x B'_0 edge, weight can only be -2.
             if (wt != -2) {
               return false;
@@ -347,13 +346,17 @@ bool Matching::verify(std::shared_ptr<BipartiteGraph> G) const {
 
       bool is_correct_partition = false;
       is_correct_partition |=
-          (A_0.find(a_copy) != A_0.end() and B_0.find(b_copy) != B_0.end());
+          ((A_levels[0].find(a_copy) != A_levels[0].end()) and
+           (B_levels[0].find(b_copy) != B_levels[0].end()));
       is_correct_partition |=
-          (A_1.find(a_copy) != A_1.end() and B_1.find(b_copy) != B_1.end());
+          ((A_levels[1].find(a_copy) != A_levels[1].end()) and
+           (B_levels[1].find(b_copy) != B_levels[1].end()));
       is_correct_partition |=
-          (A_0.find(b_copy) != A_0.end() and B_0.find(a_copy) != B_0.end());
+          ((A_levels[0].find(b_copy) != A_levels[0].end()) and
+           (B_levels[0].find(a_copy) != B_levels[0].end()));
       is_correct_partition |=
-          (A_1.find(b_copy) != A_1.end() and B_1.find(a_copy) != B_1.end());
+          ((A_levels[1].find(b_copy) != A_levels[1].end()) and
+           (B_levels[1].find(a_copy) != B_levels[1].end()));
 
       if (!is_correct_partition) {
         return false;
@@ -367,7 +370,8 @@ bool Matching::verify(std::shared_ptr<BipartiteGraph> G) const {
   // unmatched vertices have value 0. If we add the size of A'_1 and B'_0 to
   // dual sum we will also count dual variables for umatched vertices, hence
   // dual sum is incremented by unmatched vertices.
-  auto total_dual_sum = (int)A_0.size() + (int)B_1.size() - (int)B_0.size() -
-                        (int)A_1.size() + unmatched;
+  auto total_dual_sum = (int)A_levels[0].size() + (int)B_levels[1].size() -
+                        (int)B_levels[0].size() - (int)A_levels[1].size() +
+                        unmatched;
   return total_dual_sum == 0;
 }
