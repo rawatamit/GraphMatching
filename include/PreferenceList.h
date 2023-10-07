@@ -5,6 +5,7 @@
 #include <memory>
 #include <ostream>
 #include <string>
+#include <unordered_map>
 #include <vector>
 #include "TDefs.h"
 
@@ -27,6 +28,8 @@ public:
 private:
     RankType cur_rank_;        // the current unused rank
     ContainerType pref_list_;  // strictly ordered preference list
+    std::unordered_map<RankType, std::vector<PrefListElement>> tie_map_; //map to store when a particular rank has ties 
+    std::unordered_map<RankType, bool> is_tied_;
 
 public:
     PreferenceList();
@@ -55,6 +58,17 @@ public:
     
     /// get pref list element at given index
     [[nodiscard]] PrefListElement at(SizeType index) const;
+
+    //set the ties at the given rank 
+    void set_ties(RankType rank, PreferenceList p); 
+
+    //get the tied elements at the given rank 
+    [[nodiscard]] std::vector<PrefListElement> get_ties(RankType rank) const; 
+
+    //find if the particular rank is tied 
+    bool isTied(RankType rank) const;
+
+    void printList();
 
     friend std::ostream& operator<<(std::ostream& out, const PreferenceList& pl);
     friend std::ostream& operator<<(std::ostream& out, const PreferenceList* pl);

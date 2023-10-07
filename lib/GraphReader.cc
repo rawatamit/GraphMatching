@@ -4,6 +4,8 @@
 #include "Utils.h"
 #include <cstdlib>
 #include <stdexcept>
+#include <iostream>  //remove
+#include <sstream> //remove
 
 /// Lexer class defined here
 
@@ -163,12 +165,11 @@ void GraphReader::read_partition(BipartiteGraph::ContainerType& vmap) {
     match(TOK_AT);
     match(TOK_END);
 }
-
 /// @PreferenceLists (A|B)
 /// preference lists
 /// @End
 /// preference lists for a vertex are given in this format
-/// v: a, b, c ;
+/// v: a, (b, c), d ;
 /// we read the preference lists for vertices in partition A
 /// and lookup the other side in partition B
 void GraphReader::read_preference_lists(BipartiteGraph::ContainerType& A, BipartiteGraph::ContainerType& B) {
@@ -176,41 +177,68 @@ void GraphReader::read_preference_lists(BipartiteGraph::ContainerType& A, Bipart
     while (curtok_ != TOK_AT) {
         // read the vertex for which the preference list is given
         std::string a = lexer_->get_lexeme();
-        match(TOK_STRING);
+        match(TOK_STRING); //consume the string because you have already stored it in a 
         match(TOK_COLON); // skip the colon
 
         // read and store the preference list
         auto& a_vertex = A[a];
         PreferenceList& pref_list = a_vertex->get_preference_list();
         PreferenceList& pref_list_lq = a_vertex->get_preference_list_lq();
+        int currank_ = 0;
         while (curtok_ != TOK_SEMICOLON) {
-            std::string b = lexer_->get_lexeme();
-            match(TOK_STRING);
-            const auto& b_vertex = B[b];
-            pref_list.emplace_back(b_vertex);
-
-            // Store critical vertices in two preference lists.
-            if (b_vertex->get_lower_quota() > 0)
-            {
-              pref_list_lq.emplace_back(b_vertex);
+            if (curtok_ == TOK_LEFT_BRACE) { //this means that ties are present 
+                match(TOK_LEFT_BRACE);
+                PreferenceList tied_list = PreferenceList();
+                while(curtok_ != TOK_RIGHT_BRACE){
+                    //store it as a preference list and set tie_map_[i] = preference list 
+                    std::string b = lexer_->get_lexeme();
+                    match(TOK_STRING);
+                    const auto& b_vertex = B[b];
+                    tied_list.emplace_back(b_vertex);
+                    // Store critical vertices in two preference lists.
+                    if (b_vertex->get_lower_quota() > 0)
+                    {
+                        pref_list_lq.emplace_back(b_vertex);
+                    }
+                    // if there are more vertices, they must
+                    // be delimited using commas
+                    if (curtok_ != TOK_RIGHT_BRACE) {
+                        match(TOK_COMMA);
+                    }
+                }
+                match(TOK_RIGHT_BRACE);
+                pref_list.set_ties(currank_, tied_list);
+                pref_list.emplace_back(nullptr);
             }
+            else{
+                std::string b = lexer_->get_lexeme();
+                match(TOK_STRING);
+                const auto& b_vertex = B[b];
+                pref_list.emplace_back(b_vertex); //add b to the end of preference list 
 
+                // Store critical vertices in two preference lists.
+                if (b_vertex->get_lower_quota() > 0)
+                {
+                    pref_list_lq.emplace_back(b_vertex);
+                }
+            }
             // if there are more vertices, they must
             // be delimited using commas
             if (curtok_ != TOK_SEMICOLON) {
                 match(TOK_COMMA);
             }
+            currank_++;
         }
-
         // preference list should be delimited by a semicolon
         match(TOK_SEMICOLON);
+        std::cout << a << ": ";
+        pref_list.printList();
     }
-
+    
     // directive should be properly terminated
     match(TOK_AT);
     match(TOK_END);
 }
-
 void GraphReader::handle_partition(BipartiteGraph::ContainerType& A, BipartiteGraph::ContainerType& B) {
     if (curtok_ == TOK_PARTITION_A) {
         match(TOK_PARTITION_A);
@@ -237,7 +265,6 @@ void GraphReader::handle_preference_lists(BipartiteGraph::ContainerType& A, Bipa
 
 std::shared_ptr<BipartiteGraph> GraphReader::read_graph() {
     BipartiteGraph::ContainerType A, B;
-
     // read the partitions
     match(TOK_AT);
     Token partition = curtok_;

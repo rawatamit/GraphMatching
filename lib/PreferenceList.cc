@@ -2,6 +2,7 @@
 #include "Vertex.h"
 #include <algorithm>
 #include <sstream>
+#include <iostream>
 
 PreferenceList::PreferenceList()
     : cur_rank_(0)
@@ -45,6 +46,40 @@ PreferenceList::SizeType PreferenceList::find_index(VertexPtr v) const {
 
 PrefListElement PreferenceList::at(SizeType index) const {
     return pref_list_.at(index);
+}
+
+void PreferenceList::set_ties(RankType rank, PreferenceList p){
+    SizeType size = p.size();
+    cur_rank_++;
+    is_tied_[rank] = true;
+    for(SizeType i=0; i<size; i++){
+        tie_map_[rank].emplace_back(rank, p.at(i).vertex); //the rank for the preference list element is index 
+    }
+}
+
+PreferenceList::ContainerType PreferenceList::get_ties(RankType rank) const {
+    return tie_map_.at(rank);
+}
+
+bool PreferenceList::isTied(RankType rank) const {
+    return is_tied_.at(rank);
+}
+
+void PreferenceList::printList(){
+    for (auto i = this->cbegin(), e = this->cend(); i != e; ++i) {
+        if(i->vertex != nullptr){
+            std::cout << i->vertex->get_id() << " ";
+        }
+        else{
+            int index = i-this->cbegin();
+            std::cout << "( ";
+            for(auto j: get_ties(index)){
+                std::cout << j.vertex->get_id() << " ";
+            }
+            std::cout << ")";
+        }
+    }
+    std::cout << std::endl;
 }
 
 std::ostream& operator<<(std::ostream& out, const PreferenceList& pl) {
