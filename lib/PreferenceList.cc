@@ -2,7 +2,6 @@
 #include "Vertex.h"
 #include <algorithm>
 #include <sstream>
-#include <iostream>
 
 PreferenceList::PreferenceList()
     : cur_rank_(0)
@@ -48,38 +47,19 @@ PrefListElement PreferenceList::at(SizeType index) const {
     return pref_list_.at(index);
 }
 
-void PreferenceList::set_ties(RankType rank, PreferenceList p){
-    SizeType size = p.size();
-    cur_rank_++;
-    is_tied_[rank] = true;
-    for(SizeType i=0; i<size; i++){
-        tie_map_[rank].emplace_back(rank, p.at(i).vertex); //the rank for the preference list element is index 
+void PreferenceList::set_tie(RankType rank, VertexPtr v) {
+    if(ties_.find(rank) == ties_.end()) {
+        ++cur_rank_;
     }
+    ties_[rank].emplace_back(rank, v);
 }
 
-PreferenceList::ContainerType PreferenceList::get_ties(RankType rank) const {
-    return tie_map_.at(rank);
+const std::vector<PrefListElement>& PreferenceList::get_ties(RankType rank) const {
+    return ties_.at(rank);
 }
 
 bool PreferenceList::isTied(RankType rank) const {
-    return is_tied_.at(rank);
-}
-
-void PreferenceList::printList(){
-    for (auto i = this->cbegin(), e = this->cend(); i != e; ++i) {
-        if(i->vertex != nullptr){
-            std::cout << i->vertex->get_id() << " ";
-        }
-        else{
-            int index = i-this->cbegin();
-            std::cout << "( ";
-            for(auto j: get_ties(index)){
-                std::cout << j.vertex->get_id() << " ";
-            }
-            std::cout << ")";
-        }
-    }
-    std::cout << std::endl;
+    return (ties_.find(rank) != ties_.end());
 }
 
 std::ostream& operator<<(std::ostream& out, const PreferenceList& pl) {
@@ -90,10 +70,22 @@ std::ostream& operator<<(std::ostream& out, const PreferenceList* pl) {
     std::stringstream stmp;
 
     for (auto i = pl->cbegin(), e = pl->cend(); i != e; ++i) {
-        stmp << i->vertex->get_id();
-
+        if(i->vertex != nullptr){
+            stmp << i->vertex->get_id();
+        }
+        else{
+            int index = i-pl->cbegin();
+            stmp << "(";
+            for(auto j = pl->get_ties(index).begin(), end = pl->get_ties(index).end(); j != end; ++j) {
+                stmp << j->vertex->get_id();
+                if(j+1 != end) {
+                    stmp << ", ";
+                }
+            }
+            stmp << ")";
+        }
         if (i+1 == e) {
-           stmp << ';';
+            stmp << ';';
         } else {
             stmp << ", ";
         }
