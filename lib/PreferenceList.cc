@@ -70,15 +70,15 @@ std::ostream& operator<<(std::ostream& out, const PreferenceList* pl) {
     std::stringstream stmp;
 
     for (auto i = pl->cbegin(), e = pl->cend(); i != e; ++i) {
-        if(i->vertex != nullptr){
+        if (i->vertex != nullptr) {
             stmp << i->vertex->get_id();
-        }
-        else{
-            int index = i-pl->cbegin();
+        } else {
+            auto index = i-pl->cbegin();
             stmp << "(";
-            for(auto j = pl->get_ties(index).begin(), end = pl->get_ties(index).end(); j != end; ++j) {
+            auto tied_list = pl->get_ties(index);
+            for(auto j = tied_list.begin(), end = tied_list.end(); j != end; ++j) {
                 stmp << j->vertex->get_id();
-                if(j+1 != end) {
+                if (std::distance(j, end) > 1) {
                     stmp << ", ";
                 }
             }

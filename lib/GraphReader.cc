@@ -210,7 +210,7 @@ void GraphReader::read_preference_lists(BipartiteGraph::ContainerType& A, Bipart
                 match(TOK_STRING);
                 const auto& b_vertex = B[b];
                 // add b to the end of preference list
-                pref_list.emplace_back(b_vertex);  
+                pref_list.emplace_back(b_vertex);
                 // Store critical vertices in two preference lists.
                 if (b_vertex->get_lower_quota() > 0) {
                     pref_list_lq.emplace_back(b_vertex);
