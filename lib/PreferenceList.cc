@@ -73,12 +73,12 @@ std::ostream& operator<<(std::ostream& out, const PreferenceList* pl) {
         if (i->vertex != nullptr) {
             stmp << i->vertex->get_id();
         } else {
-            auto index = i-pl->cbegin();
+            auto index = std::distance(i, pl->cbegin());
             stmp << "(";
             auto tied_list = pl->get_ties(index);
             for(auto j = tied_list.begin(), end = tied_list.end(); j != end; ++j) {
                 stmp << j->vertex->get_id();
-                if (std::distance(j, end) > 1) {
+                if ((j+1) != end) {
                     stmp << ", ";
                 }
             }
