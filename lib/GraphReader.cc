@@ -168,7 +168,8 @@ void GraphReader::read_partition(BipartiteGraph::ContainerType& vmap) {
 /// preference lists
 /// @End
 /// preference lists for a vertex are given in this format
-/// v: a, b, c ;
+/// v: a, (b, c), d ;
+/// here (b, c) indicates that there is a tie for rank 2 between b and c  
 /// we read the preference lists for vertices in partition A
 /// and lookup the other side in partition B
 void GraphReader::read_preference_lists(BipartiteGraph::ContainerType& A, BipartiteGraph::ContainerType& B) {
@@ -176,30 +177,51 @@ void GraphReader::read_preference_lists(BipartiteGraph::ContainerType& A, Bipart
     while (curtok_ != TOK_AT) {
         // read the vertex for which the preference list is given
         std::string a = lexer_->get_lexeme();
-        match(TOK_STRING);
+        match(TOK_STRING); // consume string token because copy is saved in a
         match(TOK_COLON); // skip the colon
 
         // read and store the preference list
         auto& a_vertex = A[a];
         PreferenceList& pref_list = a_vertex->get_preference_list();
         PreferenceList& pref_list_lq = a_vertex->get_preference_list_lq();
+        int currank = 0;
         while (curtok_ != TOK_SEMICOLON) {
-            std::string b = lexer_->get_lexeme();
-            match(TOK_STRING);
-            const auto& b_vertex = B[b];
-            pref_list.emplace_back(b_vertex);
-
-            // Store critical vertices in two preference lists.
-            if (b_vertex->get_lower_quota() > 0)
-            {
-              pref_list_lq.emplace_back(b_vertex);
+            if (curtok_ == TOK_LEFT_BRACE) { // this means that ties are present 
+                match(TOK_LEFT_BRACE);
+                while(curtok_ != TOK_RIGHT_BRACE) {
+                    std::string b = lexer_->get_lexeme();
+                    match(TOK_STRING);
+                    const auto& b_vertex = B[b];
+                    pref_list.set_tie(currank, b_vertex);
+                    // Store critical vertices in two preference lists.
+                    if (b_vertex->get_lower_quota() > 0) {
+                        pref_list_lq.emplace_back(b_vertex);
+                    }
+                    // if there are more vertices, they must
+                    // be delimited using commas
+                    if (curtok_ != TOK_RIGHT_BRACE) {
+                        match(TOK_COMMA);
+                    }
+                }
+                match(TOK_RIGHT_BRACE);
+                pref_list.emplace_back(nullptr);
+            } else {
+                std::string b = lexer_->get_lexeme();
+                match(TOK_STRING);
+                const auto& b_vertex = B[b];
+                // add b to the end of preference list
+                pref_list.emplace_back(b_vertex);
+                // Store critical vertices in two preference lists.
+                if (b_vertex->get_lower_quota() > 0) {
+                    pref_list_lq.emplace_back(b_vertex);
+                }
             }
-
             // if there are more vertices, they must
             // be delimited using commas
             if (curtok_ != TOK_SEMICOLON) {
                 match(TOK_COMMA);
             }
+            ++currank;
         }
 
         // preference list should be delimited by a semicolon

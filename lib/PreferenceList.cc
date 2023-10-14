@@ -47,6 +47,21 @@ PrefListElement PreferenceList::at(SizeType index) const {
     return pref_list_.at(index);
 }
 
+void PreferenceList::set_tie(RankType rank, VertexPtr v) {
+    if(ties_.find(rank) == ties_.end()) {
+        ++cur_rank_;
+    }
+    ties_[rank].emplace_back(rank, v);
+}
+
+const std::vector<PrefListElement>& PreferenceList::get_ties(RankType rank) const {
+    return ties_.at(rank);
+}
+
+bool PreferenceList::isTied(RankType rank) const {
+    return (ties_.find(rank) != ties_.end());
+}
+
 std::ostream& operator<<(std::ostream& out, const PreferenceList& pl) {
     return out << &pl;
 }
@@ -55,10 +70,22 @@ std::ostream& operator<<(std::ostream& out, const PreferenceList* pl) {
     std::stringstream stmp;
 
     for (auto i = pl->cbegin(), e = pl->cend(); i != e; ++i) {
-        stmp << i->vertex->get_id();
-
+        if (i->vertex != nullptr) {
+            stmp << i->vertex->get_id();
+        } else {
+            auto index = std::distance(i, pl->cbegin());
+            stmp << "(";
+            auto tied_list = pl->get_ties(index);
+            for(auto j = tied_list.begin(), end = tied_list.end(); j != end; ++j) {
+                stmp << j->vertex->get_id();
+                if ((j+1) != end) {
+                    stmp << ", ";
+                }
+            }
+            stmp << ")";
+        }
         if (i+1 == e) {
-           stmp << ';';
+            stmp << ';';
         } else {
             stmp << ", ";
         }
