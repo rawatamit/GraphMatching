@@ -67,7 +67,7 @@ public:
     const std::vector<PrefListElement>& get_ties(RankType rank) const;
 
     // find if the particular rank is tied 
-    bool isTied(RankType rank) const;
+    bool is_tied(RankType rank) const;
 
     friend std::ostream& operator<<(std::ostream& out, const PreferenceList& pl);
     friend std::ostream& operator<<(std::ostream& out, const PreferenceList* pl);

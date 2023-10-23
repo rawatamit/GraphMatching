@@ -40,7 +40,22 @@ PreferenceList::ConstIterator PreferenceList::find(VertexPtr v) const {
 }
 
 PreferenceList::SizeType PreferenceList::find_index(VertexPtr v) const {
-    return (SizeType) std::distance(cbegin(), find(v));
+    for (auto i = cbegin(); i != cend(); ++i) {
+        if (i->vertex != nullptr) {
+            if (i->vertex == v) {
+                return (SizeType) std::distance(cbegin(), i);
+            } 
+        } else {
+            auto index = std::distance(cbegin(), i);
+            auto tied_list = get_ties((RankType) index);
+            for (auto j = tied_list.begin(), end = tied_list.end(); j != end; ++j) {
+                if (j->vertex == v) {
+                    return (SizeType) index;
+                }
+            }
+        }
+    }
+    return (SizeType) std::distance(cbegin(), cend());
 }
 
 PrefListElement PreferenceList::at(SizeType index) const {
@@ -58,7 +73,7 @@ const std::vector<PrefListElement>& PreferenceList::get_ties(RankType rank) cons
     return ties_.at(rank);
 }
 
-bool PreferenceList::isTied(RankType rank) const {
+bool PreferenceList::is_tied(RankType rank) const {
     return (ties_.find(rank) != ties_.end());
 }
 
