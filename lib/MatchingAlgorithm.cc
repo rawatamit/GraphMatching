@@ -131,7 +131,7 @@ Matching NProposingMatching::compute_matching() {
     free_list.push(v);
     int pref_list_size = v->get_preference_list().size();
     int residual = v->get_upper_quota();
-    bookkeep_data[v] = VertexBookkeeping(0, pref_list_size, 0, residual);
+    bookkeep_data[v] = VertexBookkeeping(0, pref_list_size, residual);
   }
 
   // there is at least one vertex in the free list
@@ -421,7 +421,8 @@ Matching NProposingTiesMatching::compute_matching() {
       // Highest ranked vertex to whom u has not yet proposed.
       VertexPtr v;
       if (u_pref_list.is_tied(u_data.begin)) {
-        v = u_pref_list.get_ties(u_data.begin)[u_data.tied_index].vertex;
+        auto ties = u_pref_list.get_ties(u_data.begin);
+        v = ties[u_data.tied_index].vertex;
       } else {
         v = u_pref_list.at(u_data.begin).vertex;
       }
@@ -476,7 +477,7 @@ Matching NProposingTiesMatching::compute_matching() {
     }
 
     // Activate u^(level+1).
-    if (u_data.residual > 0 and u_data.level < max_level) { // max_level = 0
+    if (u_data.residual > 0 and u_data.level < max_level_) {
       u_data.level += 1;
       u_data.begin = 0; // reset proposal index
       u_data.tied_index = 0;

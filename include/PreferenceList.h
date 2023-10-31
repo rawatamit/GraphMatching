@@ -30,7 +30,7 @@ private:
     ContainerType pref_list_;  // strictly ordered preference list
     // The following map is required to store the tied vertices at a particular rank 
     // Whenever a rank is tied, it is added to it with the rank as key and the tied vertices as the value
-    std::unordered_map<RankType, std::vector<PrefListElement>> ties_;  
+    std::unordered_map<RankType, std::vector<PrefListElement>> ties_;
 
 public:
     PreferenceList();

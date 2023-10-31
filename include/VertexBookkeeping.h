@@ -36,6 +36,10 @@ public:
             : VertexBookkeeping(begin, end, tied_index, 0, 0, residual)
     {}
 
+    VertexBookkeeping(PreferenceList::SizeType begin, PreferenceList::SizeType end, int residual)
+            : VertexBookkeeping(begin, end, 0, 0, 0, residual)
+    {}
+    
     VertexBookkeeping(PreferenceList::SizeType begin,
                       PreferenceList::SizeType end,
                       PreferenceList::SizeType tied_index,
