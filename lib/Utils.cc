@@ -91,9 +91,11 @@ void print_matching(std::shared_ptr<BipartiteGraph> G,
         for (const auto& i : M_u) {
             auto v = i.vertex;
 
+            auto u_pref_list = u->get_preference_list();
+            auto rank = compute_rank(v, u_pref_list);
             stmp << u->get_id() << ','
                   << v->get_id() << ','
-                  << i.rank << '\n';
+                  << rank << '\n';
         }
     }
 

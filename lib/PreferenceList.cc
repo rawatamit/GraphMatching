@@ -44,7 +44,7 @@ PreferenceList::SizeType PreferenceList::find_index(VertexPtr v) const {
         if (i->vertex != nullptr) {
             if (i->vertex == v) {
                 return (SizeType) std::distance(cbegin(), i);
-            } 
+            }
         } else {
             auto index = std::distance(cbegin(), i);
             auto tied_list = get_ties((RankType) index);
