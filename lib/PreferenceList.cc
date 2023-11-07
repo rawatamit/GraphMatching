@@ -41,11 +41,16 @@ PreferenceList::ConstIterator PreferenceList::find(VertexPtr v) const {
 
 PreferenceList::SizeType PreferenceList::find_index(VertexPtr v) const {
     for (auto i = cbegin(); i != cend(); ++i) {
+        // check whether the particular rank is tied
         if (i->vertex != nullptr) {
+            // if rank is not tied, 
+            // compare it to the vertex v
             if (i->vertex == v) {
                 return (SizeType) std::distance(cbegin(), i);
             }
         } else {
+            // if the rank is tied, 
+            // search the tied list for v
             auto index = std::distance(cbegin(), i);
             auto tied_list = get_ties((RankType) index);
             for (auto j = tied_list.begin(), end = tied_list.end(); j != end; ++j) {

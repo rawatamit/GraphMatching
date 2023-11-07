@@ -87,11 +87,11 @@ void print_matching(std::shared_ptr<BipartiteGraph> G,
     for (const auto& it : G->get_A_partition()) {
         auto u = it.second;
         auto M_u = M.get_partners(u);
+        auto u_pref_list = u->get_preference_list();
 
         for (const auto& i : M_u) {
             auto v = i.vertex;
 
-            auto u_pref_list = u->get_preference_list();
             auto rank = compute_rank(v, u_pref_list);
             stmp << u->get_id() << ','
                   << v->get_id() << ','
