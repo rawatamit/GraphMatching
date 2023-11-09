@@ -1,11 +1,13 @@
 #include "MatchingAlgorithm.h"
 #include "NProposingMatching.h"
 #include "NProposingTiesMatching.h"
+#include "CriticalRSM.h"
 #include "Popular.h"
 #include "Partner.h"
 #include "Utils.h"
 #include "Vertex.h"
 #include "PartnerList.h"
+#include <iterator>
 #include <set>
 
 MatchingAlgorithm::MatchingAlgorithm(std::shared_ptr<BipartiteGraph> G, bool A_proposing)
@@ -487,5 +489,143 @@ Matching NProposingTiesMatching::compute_matching() {
   }
 
   return M;
+}
+
+VertexPtr CriticalRSM::favourite_neighbour(VertexPtr u, const PreferenceList& u_pref_list, VertexBookkeeping &u_data, const Matching& M) {
+  // k is the best rank at which some
+  // unproposed or marked neighbours of u exist
+  // u_data.begin gives the highest rank at which an unproposed vertex exists
+  auto k = u_data.begin;
+  // check if a marked neighbour of u exists at a rank <= k
+  bool flag = false;
+  for (int i = 0; i <= k; i++) {
+    if (!u_pref_list.is_tied(i)) {  // if the ith rank is not tied
+      auto v = (u_pref_list.at(i)).vertex;
+      if (u_data.marked[v]) {
+        k = i;
+        break;
+      }
+    } else {
+      auto tied_list_i = u_pref_list.get_ties(i);
+      for (auto j: tied_list_i) {
+        auto v = j.vertex;
+        if (!M.has_partner(v)) {
+          k = i;
+          flag = true;
+          break;
+        }
+      }
+      if(flag) break;
+    }
+  }
+
+  // Case 1: there exists at least one unmatched neighbour of a at the kth rank 
+  // and b has the lowest index among all such unmatched neighbours
+  if (!u_pref_list.is_tied(k)) {  // case 1.1: kth rank is not tied
+    auto v = (u_pref_list.at(k)).vertex;
+    if (!M.has_partner(v)) {
+      return v;
+    }
+  } else {                        // case 1.2: kth rank is tied
+    auto tied_list_k = u_pref_list.get_ties(k);
+    for (auto i: tied_list_k){
+      auto v = i.vertex;
+      if (!M.has_partner(v)) {
+        return v;
+      }
+    }
+  }
+
+  // Case 2: all the kth-ranked neighbours of u are matched and v is 
+  // the lowest index among all such neighbours which are unproposed by u
+  if (!u_pref_list.is_tied(k)) {  // case 1.1: kth rank is not tied
+    auto v = (u_pref_list.at(k)).vertex;
+    if (k >= u_data.begin){
+      return v;
+    }
+  } else {                        // case 1.2: kth rank is tied
+    auto tied_list_k = u_pref_list.get_ties(k);
+    int d = 0;
+    for (auto i: tied_list_k){
+      auto v = i.vertex;
+      if (k == u_data.begin && d >= u_data.tied_index) {
+        return v;
+      }
+      d += 1;
+    }
+  }
+
+  // Case 3: all the kth-ranked neighbours are already proposed by u and 
+  // v has the lowest index among all the vertices which are marked by u
+  if (!u_pref_list.is_tied(k)) {  // case 1.1: kth rank is not tied
+    auto v = (u_pref_list.at(k)).vertex;
+    if (u_data.marked[v]) {
+      return v;
+    }
+  } else {                        // case 1.2: kth rank is tied
+    auto tied_list_k = u_pref_list.get_ties(k);
+    for (auto i: tied_list_k) {
+      auto v = i.vertex;
+      if (u_data.marked[v]) {
+        return v;
+      }
+    }
+  }
+
+  return nullptr;
+}
+
+void CriticalRSM::ties_propose(FreeListType& free_list, VertexPtr a, PreferenceList& a_pref_list, std::map<VertexPtr, VertexBookkeeping>& bookkeep_data, Matching M, int t) {
+  auto a_data = bookkeep_data[a];
+  auto b = favourite_neighbour(a, a_pref_list, a_data, M);
+  auto k = compute_rank(b, a_pref_list);
+  if (a_data.marked[b]) {
+    a_data.marked.erase(b);
+  }
+  auto b_pref_list = b->get_preference_list();
+  if (!M.has_partner(b)) {
+    add_matched_partners(M, a, b, a_data, b_pref_list);
+    bool check = false;
+    if (a_pref_list.is_tied(k)) {
+      auto tied_list = a_pref_list.get_ties(k);
+      for (auto i: tied_list) {
+        if (!M.has_partner(i.vertex)) {
+          check = true;
+        }
+      }
+    }
+    if (check) M.add_uncertain_proposal(a, b, a_data.level);
+  } else if (M.check_uncertain_proposal(b)) {
+    auto aj = M.get_partner(b);
+    M.remove_partner(aj, b);
+    auto aj_data = bookkeep_data[aj];
+    aj_data.marked[b] = true;
+    add_to_free_list(free_list, aj);
+  } else {
+    auto aj = M.get_partner(b);
+    auto aj_data = bookkeep_data[aj];
+    auto y = aj_data.level;
+    auto star = aj_data.star;
+
+    if (a_data.level == t) {
+      if (y < t || ((y == t || (y == t && star)) && compute_rank(a, b_pref_list) > compute_rank(aj, b_pref_list))) {
+        M.remove_partner(aj, b);
+        add_matched_partners(M, a, b, a_data, b_pref_list);
+        add_to_free_list(free_list, aj);
+      } else {
+        add_to_free_list(free_list, a);
+      }
+    }
+
+    if (a_data.level == t && a_data.star) {
+      if (y < t || (y == t && compute_rank(a, b_pref_list) >= compute_rank(aj, b_pref_list)) || (y == t && star && compute_rank(a, b_pref_list) > compute_rank(aj, b_pref_list))) {
+        M.remove_partner(aj, b);
+        add_matched_partners(M, a, b, a_data, b_pref_list);
+        add_to_free_list(free_list, aj);
+      } else {
+        add_to_free_list(free_list, a);
+      }
+    }
+  }
 }
 

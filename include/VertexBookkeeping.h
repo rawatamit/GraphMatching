@@ -26,6 +26,11 @@ struct VertexBookkeeping {
     // Residual capacity of this vertex
     int residual;
 
+    // map to store the marked vertices
+    std::map<VertexPtr, bool> marked;
+
+    bool star;
+
 public:
     VertexBookkeeping()
             : VertexBookkeeping(0, 0, 0, 0)
