@@ -594,7 +594,7 @@ void CriticalRSM::ties_propose(FreeListType& free_list, VertexPtr a, PreferenceL
         }
       }
     }
-    if (check) M.add_uncertain_proposal(a, b, a_data.level);
+    if (check) M.set_uncertain_proposal(a, b, a_data.level);
   } else if (M.check_uncertain_proposal(b)) {
     auto aj = M.get_partner(b);
     M.remove_partner(aj, b);

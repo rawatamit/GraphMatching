@@ -20,7 +20,7 @@ public:
 
   void add_partner(VertexPtr u, const Partner &v, int level);
   void add_partner(VertexPtr u, VertexPtr v, RankType rank, int level);
-  void add_uncertain_proposal(VertexPtr u, VertexPtr v, int level);
+  void set_uncertain_proposal(VertexPtr u, VertexPtr v, int level);
 
   void remove_partner(VertexPtr u, VertexPtr v);
 
@@ -37,7 +37,7 @@ public:
   bool has_partners(VertexPtr v, const std::vector<VertexPtr> &partners) const;
 
   // Is b a part of an uncertain proposal
-  bool check_uncertain_proposal(VertexPtr b);
+  bool check_uncertain_proposal(VertexPtr b) const;
 
   // get matched partner for v in M
   VertexPtr get_partner(VertexPtr v) const;
