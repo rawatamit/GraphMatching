@@ -13,6 +13,7 @@
 class Matching {
 public:
   typedef std::map<VertexPtr, PartnerList> MatchedPairListType;
+  std::map<VertexPtr, std::vector<Partner>> uncertain_proposals;
 
 public:
   Matching(bool isAProposing = true) : _isAProposing(isAProposing) {}
@@ -20,7 +21,7 @@ public:
 
   void add_partner(VertexPtr u, const Partner &v, int level);
   void add_partner(VertexPtr u, VertexPtr v, RankType rank, int level);
-  void set_uncertain_proposal(VertexPtr u, VertexPtr v, int level);
+  void set_uncertain_proposal(VertexPtr u, VertexPtr v, RankType rank, int level);
 
   void remove_partner(VertexPtr u, VertexPtr v);
 

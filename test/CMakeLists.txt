@@ -16,6 +16,6 @@ list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/contrib)
 add_executable(testrunner
                TestDefs.cc TestRunner.cc
                TestPreferenceList.cc TestPartnerList.cc TestUtils.cc
-               TestStableMarriage.cc TestPopular.cc TestHR.cc TestYokoi.cc TestMaximalEnvyfreeHRLQ.cc TestParser.cc TestWeakStable.cc)
+               TestStableMarriage.cc TestPopular.cc TestHR.cc TestYokoi.cc TestMaximalEnvyfreeHRLQ.cc TestParser.cc TestWeakStable.cc TestFavouriteNeighbour.cc TestPrefers.cc)
 
 target_link_libraries(testrunner PRIVATE graph Catch2::Catch2WithMain)

@@ -496,6 +496,7 @@ VertexPtr CriticalRSM::favourite_neighbour(VertexPtr u, const PreferenceList& u_
   // unproposed or marked neighbours of u exist
   // u_data.begin gives the highest rank at which an unproposed vertex exists
   auto k = u_data.begin;
+
   // check if a marked neighbour of u exists at a rank <= k
   bool flag = false;
   for (int i = 0; i <= k; i++) {
@@ -509,7 +510,7 @@ VertexPtr CriticalRSM::favourite_neighbour(VertexPtr u, const PreferenceList& u_
       auto tied_list_i = u_pref_list.get_ties(i);
       for (auto j: tied_list_i) {
         auto v = j.vertex;
-        if (!M.has_partner(v)) {
+        if (u_data.marked[v]) {
           k = i;
           flag = true;
           break;
@@ -540,13 +541,13 @@ VertexPtr CriticalRSM::favourite_neighbour(VertexPtr u, const PreferenceList& u_
   // the lowest index among all such neighbours which are unproposed by u
   if (!u_pref_list.is_tied(k)) {  // case 1.1: kth rank is not tied
     auto v = (u_pref_list.at(k)).vertex;
-    if (k >= u_data.begin){
+    if (k >= u_data.begin) {
       return v;
     }
   } else {                        // case 1.2: kth rank is tied
     auto tied_list_k = u_pref_list.get_ties(k);
     int d = 0;
-    for (auto i: tied_list_k){
+    for (auto i: tied_list_k) {
       auto v = i.vertex;
       if (k == u_data.begin && d >= u_data.tied_index) {
         return v;
@@ -575,6 +576,25 @@ VertexPtr CriticalRSM::favourite_neighbour(VertexPtr u, const PreferenceList& u_
   return nullptr;
 }
 
+// Does b prefer a1 over a2?
+int CriticalRSM::prefers(VertexPtr b, VertexPtr a1, VertexPtr a2) { 
+  // Return 0 if rank of a1 < rank of a2
+  // Return 1 if rank of a1 is = rank of a2
+  // Return 2 if rank a1 > rank a2
+  PreferenceList b_pref_list = b->get_preference_list();
+  auto a1_rank = compute_rank(a1, b_pref_list);
+  auto a2_rank = compute_rank(a2, b_pref_list);
+  if(a1_rank < a2_rank) {
+    return 0;
+  }
+  else if(a1_rank == a2_rank) {
+    return 1;
+  }
+  else {
+    return 2;
+  }
+}
+
 void CriticalRSM::ties_propose(FreeListType& free_list, VertexPtr a, PreferenceList& a_pref_list, std::map<VertexPtr, VertexBookkeeping>& bookkeep_data, Matching M, int t) {
   auto a_data = bookkeep_data[a];
   auto b = favourite_neighbour(a, a_pref_list, a_data, M);
@@ -594,7 +614,7 @@ void CriticalRSM::ties_propose(FreeListType& free_list, VertexPtr a, PreferenceL
         }
       }
     }
-    if (check) M.set_uncertain_proposal(a, b, a_data.level);
+    if (check) M.set_uncertain_proposal(a, b, compute_rank(a, b_pref_list), a_data.level);
   } else if (M.check_uncertain_proposal(b)) {
     auto aj = M.get_partner(b);
     M.remove_partner(aj, b);
@@ -606,9 +626,10 @@ void CriticalRSM::ties_propose(FreeListType& free_list, VertexPtr a, PreferenceL
     auto aj_data = bookkeep_data[aj];
     auto y = aj_data.level;
     auto star = aj_data.star;
+    int preference = prefers(b, a, aj);
 
     if (a_data.level == t) {
-      if (y < t || ((y == t || (y == t && star)) && compute_rank(a, b_pref_list) > compute_rank(aj, b_pref_list))) {
+      if (y < t || ((y == t || (y == t && star)) && preference == 2)) {
         M.remove_partner(aj, b);
         add_matched_partners(M, a, b, a_data, b_pref_list);
         add_to_free_list(free_list, aj);
@@ -618,7 +639,7 @@ void CriticalRSM::ties_propose(FreeListType& free_list, VertexPtr a, PreferenceL
     }
 
     if (a_data.level == t && a_data.star) {
-      if (y < t || (y == t && compute_rank(a, b_pref_list) >= compute_rank(aj, b_pref_list)) || (y == t && star && compute_rank(a, b_pref_list) > compute_rank(aj, b_pref_list))) {
+      if (y < t || (y == t && (preference == 1 || preference == 2)) || (y == t && star && preference == 2)) {
         M.remove_partner(aj, b);
         add_matched_partners(M, a, b, a_data, b_pref_list);
         add_to_free_list(free_list, aj);

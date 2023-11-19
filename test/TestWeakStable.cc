@@ -3,7 +3,7 @@
 #include <Utils.h>
 #include "TestDefs.h"
 
-TEST_CASE("Critical RSM with no ties/critical vertices", "") {
+TEST_CASE("Critical RSM with no ties/critical vertices", "[matching_critical_rsm]") {
     auto G = read_graph(get_filepath(get_resources_dir(), "/weak_stable.txt"));
     auto a1 = get_vertex_by_id(G, "a1");
     auto a2 = get_vertex_by_id(G, "a2");

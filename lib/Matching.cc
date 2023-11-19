@@ -15,8 +15,8 @@ void Matching::add_partner(VertexPtr u, VertexPtr v, RankType rank, int level) {
   _matchedPairs[u].add_partner(v, rank, level);
 }
 
-void Matching::set_uncertain_proposal(VertexPtr u, VertexPtr v, int level) {
-
+void Matching::set_uncertain_proposal(VertexPtr u, VertexPtr v, RankType rank, int level) {
+  uncertain_proposals[v].push_back(Partner(u, rank, level));
 }
 
 void Matching::remove_partner(VertexPtr u, VertexPtr v) {
@@ -52,7 +52,7 @@ bool Matching::has_partners(VertexPtr v,
 }
 
 bool Matching::check_uncertain_proposal(VertexPtr b) const {
-  return false;
+  return (uncertain_proposals.find(b) != uncertain_proposals.end());
 }
 
 VertexPtr Matching::get_partner(VertexPtr v) const {

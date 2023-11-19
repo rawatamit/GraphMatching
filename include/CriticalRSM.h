@@ -13,9 +13,10 @@
 // 2. b is matched and a′ = M(b) is critical
 class CriticalRSM : public MatchingAlgorithm {
 private:
-    VertexPtr favourite_neighbour(VertexPtr u, const PreferenceList& u_pref_list, VertexBookkeeping &u_data, const Matching& M);
     void ties_propose(FreeListType& free_list, VertexPtr a, PreferenceList& a_pref_list, std::map<VertexPtr, VertexBookkeeping>& bookkeep_data, Matching M, int t);
 public:
+    int prefers(VertexPtr b, VertexPtr a1, VertexPtr a2);
+    VertexPtr favourite_neighbour(VertexPtr u, const PreferenceList& u_pref_list, VertexBookkeeping &u_data, const Matching& M);
     explicit CriticalRSM(std::shared_ptr<BipartiteGraph> G,
                             bool A_proposing=true)
     : MatchingAlgorithm(G, A_proposing)
