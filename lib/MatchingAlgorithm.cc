@@ -576,25 +576,6 @@ VertexPtr CriticalRSM::favourite_neighbour(VertexPtr u, const PreferenceList& u_
   return nullptr;
 }
 
-// Does b prefer a1 over a2?
-int CriticalRSM::prefers(VertexPtr b, VertexPtr a1, VertexPtr a2) { 
-  // Return 0 if rank of a1 < rank of a2
-  // Return 1 if rank of a1 is = rank of a2
-  // Return 2 if rank a1 > rank a2
-  PreferenceList b_pref_list = b->get_preference_list();
-  auto a1_rank = compute_rank(a1, b_pref_list);
-  auto a2_rank = compute_rank(a2, b_pref_list);
-  if(a1_rank < a2_rank) {
-    return 0;
-  }
-  else if(a1_rank == a2_rank) {
-    return 1;
-  }
-  else {
-    return 2;
-  }
-}
-
 void CriticalRSM::ties_propose(FreeListType& free_list, VertexPtr a, PreferenceList& a_pref_list, std::map<VertexPtr, VertexBookkeeping>& bookkeep_data, Matching M, int t) {
   auto a_data = bookkeep_data[a];
   auto b = favourite_neighbour(a, a_pref_list, a_data, M);
@@ -626,10 +607,11 @@ void CriticalRSM::ties_propose(FreeListType& free_list, VertexPtr a, PreferenceL
     auto aj_data = bookkeep_data[aj];
     auto y = aj_data.level;
     auto star = aj_data.star;
-    int preference = prefers(b, a, aj);
+    auto pref_list_b = b->get_preference_list();
+    auto preference = pref_list_b.prefers(a, aj);
 
     if (a_data.level == t) {
-      if (y < t || ((y == t || (y == t && star)) && preference == 2)) {
+      if (y < t || ((y == t || (y == t && star)) && preference == cBetter)) {
         M.remove_partner(aj, b);
         add_matched_partners(M, a, b, a_data, b_pref_list);
         add_to_free_list(free_list, aj);
@@ -639,7 +621,7 @@ void CriticalRSM::ties_propose(FreeListType& free_list, VertexPtr a, PreferenceL
     }
 
     if (a_data.level == t && a_data.star) {
-      if (y < t || (y == t && (preference == 1 || preference == 2)) || (y == t && star && preference == 2)) {
+      if (y < t || (y == t && (preference == cEqual|| preference == cBetter)) || (y == t && star && preference == cBetter)) {
         M.remove_partner(aj, b);
         add_matched_partners(M, a, b, a_data, b_pref_list);
         add_to_free_list(free_list, aj);

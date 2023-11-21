@@ -9,6 +9,8 @@
 #include <vector>
 #include "TDefs.h"
 
+enum PreferenceOrderT { cEqual=0, cBetter, cWorse };
+
 struct PrefListElement {
     RankType rank;
     VertexPtr vertex;
@@ -68,6 +70,8 @@ public:
 
     // find if the particular rank is tied 
     bool is_tied(RankType rank) const;
+
+    PreferenceOrderT prefers(VertexPtr a1, VertexPtr a2);
 
     friend std::ostream& operator<<(std::ostream& out, const PreferenceList& pl);
     friend std::ostream& operator<<(std::ostream& out, const PreferenceList* pl);

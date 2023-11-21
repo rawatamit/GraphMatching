@@ -82,6 +82,24 @@ bool PreferenceList::is_tied(RankType rank) const {
     return (ties_.find(rank) != ties_.end());
 }
 
+// Does b prefer a1 over a2?
+PreferenceOrderT PreferenceList::prefers(VertexPtr a1, VertexPtr a2) { 
+  // Return 0 if rank of a1 = rank of a2
+  // Return 1 if rank of a1 < rank of a2
+  // Return 2 o.w.
+  auto a1_rank = (RankType)find_index(a1);
+  auto a2_rank = (RankType)find_index(a2);
+  if(a1_rank < a2_rank) {
+    return cBetter;
+  }
+  else if(a1_rank == a2_rank) {
+    return cEqual;
+  }
+  else {
+    return cWorse;
+  }
+}
+
 std::ostream& operator<<(std::ostream& out, const PreferenceList& pl) {
     return out << &pl;
 }
