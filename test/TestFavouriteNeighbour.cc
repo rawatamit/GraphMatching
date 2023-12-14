@@ -19,7 +19,8 @@ TEST_CASE("FavouriteNeighbour strict preference list", "[matching_critical_rsm]"
     VertexBookkeeping a1_data = VertexBookkeeping(0, 3, 0, 0);
 
     auto M = Matching();
-    auto G = read_graph(get_filepath(get_resources_dir(), "/weak_stable.txt")); // required only for critical RSM constructor, doesn't affect output of the function
+    // required only for critical RSM constructor, doesn't affect output of the function
+    auto G = read_graph(get_filepath(get_resources_dir(), "/weak_stable.txt"));
     CriticalRSM rsm(G);
 
     SECTION("strict preference list") {
@@ -35,9 +36,11 @@ TEST_CASE("FavouriteNeighbour tied preference list", "[matching_critical_rsm]") 
     std::shared_ptr<Vertex> b2 = std::make_shared<Vertex>("b2");
     std::shared_ptr<Vertex> b3 = std::make_shared<Vertex>("b3");
     std::shared_ptr<Vertex> b4 = std::make_shared<Vertex>("b4");
-    std::shared_ptr<Vertex> dummy = std::make_shared<Vertex>("d"); // dummy partner for all matched vertices
+    // dummy partner for all matched vertices
+    std::shared_ptr<Vertex> dummy = std::make_shared<Vertex>("d");
 
-    auto G = read_graph(get_filepath(get_resources_dir(), "/weak_stable.txt")); // required only for critical RSM constructor, doesn't affect output of the function
+    // required only for critical RSM constructor, doesn't affect output of the function
+    auto G = read_graph(get_filepath(get_resources_dir(), "/weak_stable.txt"));
     CriticalRSM rsm(G);
 
     SECTION("Case 1") {

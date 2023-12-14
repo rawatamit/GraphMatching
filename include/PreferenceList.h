@@ -9,7 +9,11 @@
 #include <vector>
 #include "TDefs.h"
 
-enum PreferenceOrderT { cEqual=0, cBetter, cWorse };
+enum PreferenceOrderT { 
+    cEqual=0,
+    cBetter,
+    cWorse
+};
 
 struct PrefListElement {
     RankType rank;

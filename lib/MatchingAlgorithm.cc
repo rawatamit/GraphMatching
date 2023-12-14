@@ -611,7 +611,9 @@ void CriticalRSM::ties_propose(FreeListType& free_list, VertexPtr a, PreferenceL
     auto preference = pref_list_b.prefers(a, aj);
 
     if (a_data.level == t) {
-      if (y < t || ((y == t || (y == t && star)) && preference == cBetter)) {
+      bool isBetter = (preference == cBetter);
+      bool tStar = (y == t) && star;
+      if (y < t || (((y == t) || tStar) && isBetter)) {
         M.remove_partner(aj, b);
         add_matched_partners(M, a, b, a_data, b_pref_list);
         add_to_free_list(free_list, aj);
@@ -621,7 +623,10 @@ void CriticalRSM::ties_propose(FreeListType& free_list, VertexPtr a, PreferenceL
     }
 
     if (a_data.level == t && a_data.star) {
-      if (y < t || (y == t && (preference == cEqual|| preference == cBetter)) || (y == t && star && preference == cBetter)) {
+      bool isBetter = (preference == cBetter);
+      bool isBetterOrEqual = isBetter || (preference == cEqual);
+      bool tStar = (y == t) && star;
+      if (y < t || (y == t && isBetterOrEqual) || (tStar && isBetter)) {
         M.remove_partner(aj, b);
         add_matched_partners(M, a, b, a_data, b_pref_list);
         add_to_free_list(free_list, aj);

@@ -29,6 +29,7 @@ struct VertexBookkeeping {
     // map to store the marked vertices
     std::map<VertexPtr, bool> marked;
 
+    // boolean which denotes the star status of a level
     bool star;
 
 public:
