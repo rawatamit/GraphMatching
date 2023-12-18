@@ -10,6 +10,7 @@ struct VertexBookkeeping {
     // begin is also the proposal index
     PreferenceList::SizeType begin;
     PreferenceList::SizeType end;
+    PreferenceList::SizeType tied_index;
 
     // [begin, end)
     // begin_lq is proposal index for PrefLQ
@@ -25,22 +26,33 @@ struct VertexBookkeeping {
     // Residual capacity of this vertex
     int residual;
 
+    // map to store the marked vertices
+    std::map<VertexPtr, bool> marked;
+
+    // boolean which denotes the star status of a level
+    bool star;
+
 public:
     VertexBookkeeping()
-            : VertexBookkeeping(0, 0, 0)
+            : VertexBookkeeping(0, 0, 0, 0)
     {}
 
-    VertexBookkeeping(PreferenceList::SizeType begin, PreferenceList::SizeType end,
+    VertexBookkeeping(PreferenceList::SizeType begin, PreferenceList::SizeType end, PreferenceList::SizeType tied_index,
                       int residual)
-            : VertexBookkeeping(begin, end, 0, 0, residual)
+            : VertexBookkeeping(begin, end, tied_index, 0, 0, residual)
     {}
 
+    VertexBookkeeping(PreferenceList::SizeType begin, PreferenceList::SizeType end, int residual)
+            : VertexBookkeeping(begin, end, 0, 0, 0, residual)
+    {}
+    
     VertexBookkeeping(PreferenceList::SizeType begin,
                       PreferenceList::SizeType end,
+                      PreferenceList::SizeType tied_index,
                       PreferenceList::SizeType begin_lq,
                       PreferenceList::SizeType end_lq,
                       int residual = 0)
-            : begin(begin), end(end),
+            : begin(begin), end(end), tied_index(tied_index),
               begin_lq(begin_lq), end_lq(end_lq),
               level(0), in_free_list(false),
               residual(residual)

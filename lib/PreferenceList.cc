@@ -40,7 +40,27 @@ PreferenceList::ConstIterator PreferenceList::find(VertexPtr v) const {
 }
 
 PreferenceList::SizeType PreferenceList::find_index(VertexPtr v) const {
-    return (SizeType) std::distance(cbegin(), find(v));
+    for (auto i = cbegin(); i != cend(); ++i) {
+        // check whether the particular rank is tied
+        if (i->vertex != nullptr) {
+            // if rank is not tied, 
+            // compare it to the vertex v
+            if (i->vertex == v) {
+                return (SizeType) std::distance(cbegin(), i);
+            }
+        } else {
+            // if the rank is tied, 
+            // search the tied list for v
+            auto index = std::distance(cbegin(), i);
+            auto tied_list = get_ties((RankType) index);
+            for (auto j = tied_list.begin(), end = tied_list.end(); j != end; ++j) {
+                if (j->vertex == v) {
+                    return (SizeType) index;
+                }
+            }
+        }
+    }
+    return (SizeType) std::distance(cbegin(), cend());
 }
 
 PrefListElement PreferenceList::at(SizeType index) const {
@@ -58,8 +78,24 @@ const std::vector<PrefListElement>& PreferenceList::get_ties(RankType rank) cons
     return ties_.at(rank);
 }
 
-bool PreferenceList::isTied(RankType rank) const {
+bool PreferenceList::is_tied(RankType rank) const {
     return (ties_.find(rank) != ties_.end());
+}
+
+// Return an enum value which denotes the preference of a2 over a1
+// in the preference list
+PreferenceOrderT PreferenceList::prefers(VertexPtr a1, VertexPtr a2) { 
+  auto a1_rank = (RankType)find_index(a1);
+  auto a2_rank = (RankType)find_index(a2);
+  if(a1_rank < a2_rank) {
+    return cBetter;
+  }
+  else if(a1_rank == a2_rank) {
+    return cEqual;
+  }
+  else {
+    return cWorse;
+  }
 }
 
 std::ostream& operator<<(std::ostream& out, const PreferenceList& pl) {

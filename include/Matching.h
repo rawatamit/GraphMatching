@@ -13,6 +13,7 @@
 class Matching {
 public:
   typedef std::map<VertexPtr, PartnerList> MatchedPairListType;
+  std::map<VertexPtr, std::vector<Partner>> uncertain_proposals;
 
 public:
   Matching(bool isAProposing = true) : _isAProposing(isAProposing) {}
@@ -20,6 +21,7 @@ public:
 
   void add_partner(VertexPtr u, const Partner &v, int level);
   void add_partner(VertexPtr u, VertexPtr v, RankType rank, int level);
+  void set_uncertain_proposal(VertexPtr u, VertexPtr v, RankType rank, int level);
 
   void remove_partner(VertexPtr u, VertexPtr v);
 
@@ -34,6 +36,9 @@ public:
 
   // Does v have these partners.
   bool has_partners(VertexPtr v, const std::vector<VertexPtr> &partners) const;
+
+  // Is b a part of an uncertain proposal
+  bool check_uncertain_proposal(VertexPtr b) const;
 
   // get matched partner for v in M
   VertexPtr get_partner(VertexPtr v) const;
