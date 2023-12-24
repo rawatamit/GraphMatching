@@ -1,11 +1,13 @@
 #include "MatchingAlgorithm.h"
 #include "NProposingMatching.h"
 #include "NProposingTiesMatching.h"
+#include "CriticalRSM.h"
 #include "Popular.h"
 #include "Partner.h"
 #include "Utils.h"
 #include "Vertex.h"
 #include "PartnerList.h"
+#include <iterator>
 #include <set>
 
 MatchingAlgorithm::MatchingAlgorithm(std::shared_ptr<BipartiteGraph> G, bool A_proposing)
@@ -421,7 +423,8 @@ Matching NProposingTiesMatching::compute_matching() {
       // Highest ranked vertex to whom u has not yet proposed.
       VertexPtr v;
       if (u_pref_list.is_tied(u_data.begin)) {
-        v = u_pref_list.get_ties(u_data.begin)[u_data.tied_index].vertex;
+        auto ties = u_pref_list.get_ties(u_data.begin);
+        v = ties[u_data.tied_index].vertex;
       } else {
         v = u_pref_list.at(u_data.begin).vertex;
       }
@@ -476,7 +479,7 @@ Matching NProposingTiesMatching::compute_matching() {
     }
 
     // Activate u^(level+1).
-    if (u_data.residual > 0 and u_data.level < max_level) { // max_level = 0
+    if (u_data.residual > 0 and u_data.level < max_level_) {
       u_data.level += 1;
       u_data.begin = 0; // reset proposal index
       u_data.tied_index = 0;

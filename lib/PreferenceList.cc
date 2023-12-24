@@ -82,6 +82,8 @@ bool PreferenceList::is_tied(RankType rank) const {
     return (ties_.find(rank) != ties_.end());
 }
 
+// Return an enum value which denotes the preference of a2 over a1
+// in the preference list
 PreferenceOrderT PreferenceList::prefers(VertexPtr a1, VertexPtr a2) { 
   auto a1_rank = (RankType)find_index(a1);
   auto a2_rank = (RankType)find_index(a2);
