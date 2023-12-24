@@ -487,4 +487,3 @@ Matching NProposingTiesMatching::compute_matching() {
 
   return M;
 }
-

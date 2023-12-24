@@ -26,6 +26,12 @@ struct VertexBookkeeping {
     // Residual capacity of this vertex
     int residual;
 
+    // map to store the marked vertices
+    std::map<VertexPtr, bool> marked;
+
+    // boolean which denotes the star status of a level
+    bool star;
+
 public:
     VertexBookkeeping()
             : VertexBookkeeping(0, 0, 0, 0)
@@ -36,6 +42,10 @@ public:
             : VertexBookkeeping(begin, end, tied_index, 0, 0, residual)
     {}
 
+    VertexBookkeeping(PreferenceList::SizeType begin, PreferenceList::SizeType end, int residual)
+            : VertexBookkeeping(begin, end, 0, 0, 0, residual)
+    {}
+    
     VertexBookkeeping(PreferenceList::SizeType begin,
                       PreferenceList::SizeType end,
                       PreferenceList::SizeType tied_index,

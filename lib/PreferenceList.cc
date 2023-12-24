@@ -41,11 +41,16 @@ PreferenceList::ConstIterator PreferenceList::find(VertexPtr v) const {
 
 PreferenceList::SizeType PreferenceList::find_index(VertexPtr v) const {
     for (auto i = cbegin(); i != cend(); ++i) {
+        // check whether the particular rank is tied
         if (i->vertex != nullptr) {
+            // if rank is not tied, 
+            // compare it to the vertex v
             if (i->vertex == v) {
                 return (SizeType) std::distance(cbegin(), i);
-            } 
+            }
         } else {
+            // if the rank is tied, 
+            // search the tied list for v
             auto index = std::distance(cbegin(), i);
             auto tied_list = get_ties((RankType) index);
             for (auto j = tied_list.begin(), end = tied_list.end(); j != end; ++j) {
@@ -75,6 +80,47 @@ const std::vector<PrefListElement>& PreferenceList::get_ties(RankType rank) cons
 
 bool PreferenceList::is_tied(RankType rank) const {
     return (ties_.find(rank) != ties_.end());
+}
+
+PreferenceOrderT PreferenceList::prefers(VertexPtr a1, VertexPtr a2) { 
+  auto a1_rank = (RankType)find_index(a1);
+  auto a2_rank = (RankType)find_index(a2);
+  if(a1_rank < a2_rank) {
+    return cBetter;
+  }
+  else if(a1_rank == a2_rank) {
+    return cEqual;
+  }
+  else {
+    return cWorse;
+  }
+}
+
+PreferenceList PreferenceList::get_prefS() const {
+    PreferenceList prefS;
+    for (auto i = this->cbegin(), e = this->cend(); i != e; ++i) {
+        if (i->vertex != nullptr) {
+            prefS.emplace_back(i->vertex);
+        } else {
+            auto index = std::distance(i, this->cbegin());
+            auto tied_list = this->get_ties(index);
+            for(auto j = tied_list.begin(), end = tied_list.end(); j != end; ++j) {
+                prefS.emplace_back(j->vertex);
+            }
+        }
+    }
+    return prefS;
+}
+
+PreferenceList PreferenceList::get_prefSC() const {
+    PreferenceList prefSC;
+    PreferenceList prefS = this->get_prefS();
+    for (auto i = prefS.cbegin(), e = prefS.cend(); i != e; ++i) {
+        if (i->vertex->get_lower_quota() > 0) {
+            prefSC.emplace_back(i->vertex);
+        }
+    }
+    return prefSC;
 }
 
 std::ostream& operator<<(std::ostream& out, const PreferenceList& pl) {

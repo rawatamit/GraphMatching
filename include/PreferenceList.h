@@ -9,6 +9,12 @@
 #include <vector>
 #include "TDefs.h"
 
+enum PreferenceOrderT { 
+    cEqual=0,
+    cBetter,
+    cWorse
+};
+
 struct PrefListElement {
     RankType rank;
     VertexPtr vertex;
@@ -30,7 +36,7 @@ private:
     ContainerType pref_list_;  // strictly ordered preference list
     // The following map is required to store the tied vertices at a particular rank 
     // Whenever a rank is tied, it is added to it with the rank as key and the tied vertices as the value
-    std::unordered_map<RankType, std::vector<PrefListElement>> ties_;   
+    std::unordered_map<RankType, std::vector<PrefListElement>> ties_;
 
 public:
     PreferenceList();
@@ -68,6 +74,18 @@ public:
 
     // find if the particular rank is tied 
     bool is_tied(RankType rank) const;
+
+    // return an enum value which denotes the preference of a2 over a1
+    PreferenceOrderT prefers(VertexPtr a1, VertexPtr a2);
+
+    // get PrefS, which is a strict preference list obtained by breaking ties
+    // in actual preference list in such a way that the vertices in ties are ordered 
+    // by increasing order of their indices.
+    PreferenceList get_prefS() const;
+
+    // get PrefSC, which is the strict list obtained from PrefS(a) by
+    //  omitting all the non-critical vertices
+    PreferenceList get_prefSC() const;
 
     friend std::ostream& operator<<(std::ostream& out, const PreferenceList& pl);
     friend std::ostream& operator<<(std::ostream& out, const PreferenceList* pl);
