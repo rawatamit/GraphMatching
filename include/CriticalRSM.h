@@ -2,7 +2,6 @@
 #define CRITICAL_RSM_H
 
 #include "MatchingAlgorithm.h"
-#include <queue>
 
 // Critical relaxed stable matching is critical as well as relaxed stable
 // A matching M is critical if there is no other matching that matches 
