@@ -3,14 +3,13 @@
 #include "VertexBookkeeping.h"
 #include "Utils.h"
 #include "Vertex.h"
-#include <queue>
 
 CriticalRSM::CriticalRSM(std::shared_ptr<BipartiteGraph> G, bool A_proposing)
     : MatchingAlgorithm(G, A_proposing)
 {}
 
 Matching CriticalRSM::compute_matching() {
-  std::queue<VertexPtr> q;
+  FreeListType free_list;
   std::map<VertexPtr, VertexBookkeeping> bookkeep_data;
   std::shared_ptr<BipartiteGraph> G = get_graph();
   auto M = Matching(is_A_proposing());
@@ -43,18 +42,22 @@ Matching CriticalRSM::compute_matching() {
     auto vertex_data{VertexBookkeeping(0, pref_list_size,
                                        0, pref_list_lq_size)};
     bookkeep_data[v] = vertex_data;
-    q.push(v);
+    free_list.push(v);
   }
 
   // Make prefSC and prefS for each vertex
   std::unordered_map<VertexPtr, PreferenceList> prefS;
   std::unordered_map<VertexPtr, PreferenceList> prefSC;
+  std::unordered_map<VertexPtr, RankType> prefS_proposal_index;
+  std::unordered_map<VertexPtr, RankType> prefSC_proposal_index;
   
   for (auto &it: proposing_partition) {
     auto a = it.second;
     auto pref_list_a = a->get_preference_list();
     prefS[a] = pref_list_a.get_prefS();
     prefSC[a] = pref_list_a.get_prefSC();
+    prefS_proposal_index[a] = 0;
+    prefSC_proposal_index[a] = 0;
   }
 
   for (auto &it: non_proposing_partition) {
@@ -62,54 +65,66 @@ Matching CriticalRSM::compute_matching() {
     auto pref_list_b = b->get_preference_list();
     prefS[b] = pref_list_b.get_prefS();
     prefSC[b] = pref_list_b.get_prefSC();
+    prefS_proposal_index[b] = 0;
+    prefSC_proposal_index[b] = 0;
   }
 
-  while(!q.empty()) {
-    auto u = q.front();
-    q.pop();
+  while (not free_list.empty()) {
+    auto u = remove_from_free_list(free_list, bookkeep_data);
     const auto &u_pref_list = u->get_preference_list();
     auto &u_data = bookkeep_data[u];
     auto l = u_data.level;
     bool star = u_data.star;
     if (l < t) {
       // if u^l has not exhausted PrefSC(u) then CriticalPropose(u^l, PrefSC(u),M,Q)
-      if (u_data.begin < prefSC[u].size()) {
-        critical_propose(q, u, prefSC[u], bookkeep_data, M);
+      if (prefSC_proposal_index[u] < prefSC[u].size()) {
+        critical_propose(free_list, u, prefSC[u], bookkeep_data, M);
+        prefSC_proposal_index[u] += 1;
       }
       else {
         u_data.level += 1;
         u_data.begin = 0;
-        q.push(u);
+        prefS_proposal_index[u] = 0;
+        prefSC_proposal_index[u] = 0;
+        add_to_free_list(free_list, u);
       }
     } else if (l == t) {
       // if there exists a b' that is marked or unproposed by a^l
       if ((u_data.marked.size() > 0) || (!u_data.is_exhausted())) {
-        ties_propose(q, u, u_pref_list, bookkeep_data, M, t);
+        ties_propose(free_list, u, u_pref_list, bookkeep_data, M, t);
+        if (!u_data.is_exhausted()) {
+          u_data.begin += 1;
+        }
       } else {
         if (l == t && !star) {
           u_data.star = true;
-          q.push(u);
+          add_to_free_list(free_list, u);
         } else {
           bool is_critical = (u->get_lower_quota() > 0);
           if (((l == t) && star) && is_critical) {
             u_data.level = t + 1;
             u_data.begin = 0;
-            q.push(u);
+            prefS_proposal_index[u] = 0;
+            prefSC_proposal_index[u] = 0;
+            add_to_free_list(free_list, u);
           }
         }
       }
     } else {
       // u is critical
       // if u^l has not exhausted PrefS(u) then CriticalPropose(u^l, PrefSC(u),M,Q)
-      if (u_data.begin < prefS[u].size()) {
-        critical_propose(q, u, prefS[u], bookkeep_data, M);
+      if (prefS_proposal_index[u] < prefS[u].size()) {
+        critical_propose(free_list, u, prefS[u], bookkeep_data, M);
+        prefS_proposal_index[u] += 1;
       }
       else {
         bool is_critical = (u->get_lower_quota() > 0);
         if (l < (s + t) && is_critical) {
           u_data.level += 1;
           u_data.begin = 0;
-          q.push(u);
+          prefS_proposal_index[u] = 0;
+          prefSC_proposal_index[u] = 0;
+          add_to_free_list(free_list, u);
         }
       }
     }
@@ -117,7 +132,7 @@ Matching CriticalRSM::compute_matching() {
   return M;
 }
 
-void CriticalRSM::critical_propose(std::queue<VertexPtr>& q, VertexPtr a, const PreferenceList& a_pref_list_s, std::map<VertexPtr, VertexBookkeeping>& bookkeep_data, Matching& M) {
+void CriticalRSM::critical_propose(FreeListType& free_list, VertexPtr a, const PreferenceList& a_pref_list_s, std::map<VertexPtr, VertexBookkeeping>& bookkeep_data, Matching& M) {
   auto a_data = bookkeep_data[a];
   // b is the most preferred unproposed vertex by a^l in preference_list_a_s
   // a_pref_list_s is always strict 
@@ -134,15 +149,14 @@ void CriticalRSM::critical_propose(std::queue<VertexPtr>& q, VertexPtr a, const 
     if((l > y) || ((l == y) && b_pref_list.prefers(a, aj))) {
       M.remove_partner(aj, b);
       add_matched_partners(M, a, b, a_data, b_pref_list);
-      q.push(aj);
+      add_to_free_list(free_list, aj);
     } else {
-      q.push(a);
+      add_to_free_list(free_list, a);
     }
   }
-  bookkeep_data[a].begin += 1;
 }
 
-void CriticalRSM::ties_propose(std::queue<VertexPtr>& q, VertexPtr a, const PreferenceList& a_pref_list, std::map<VertexPtr, VertexBookkeeping>& bookkeep_data, Matching& M, const int t) {
+void CriticalRSM::ties_propose(FreeListType& free_list, VertexPtr a, const PreferenceList& a_pref_list, std::map<VertexPtr, VertexBookkeeping>& bookkeep_data, Matching& M, const int t) {
   auto a_data = bookkeep_data[a];
   auto b = favourite_neighbour(a, a_pref_list, a_data, M);
   auto k = compute_rank(b, a_pref_list) - 1;
@@ -170,7 +184,7 @@ void CriticalRSM::ties_propose(std::queue<VertexPtr>& q, VertexPtr a, const Pref
     auto aj_data = bookkeep_data[aj];
     aj_data.marked[b] = true;
     add_matched_partners(M, a, b, a_data, b_pref_list);
-    q.push(aj);
+    add_to_free_list(free_list, aj);
   } else {
     auto aj = M.get_partner(b);
     auto aj_data = bookkeep_data[aj];
@@ -185,9 +199,9 @@ void CriticalRSM::ties_propose(std::queue<VertexPtr>& q, VertexPtr a, const Pref
       if (y < t || (((y == t) || tStar) && isBetter)) {
         M.remove_partner(aj, b);
         add_matched_partners(M, a, b, a_data, b_pref_list);
-        q.push(aj);
+        add_to_free_list(free_list, aj);
       } else {
-        q.push(a);
+        add_to_free_list(free_list, a);
       }
     }
 
@@ -198,9 +212,9 @@ void CriticalRSM::ties_propose(std::queue<VertexPtr>& q, VertexPtr a, const Pref
       if (y < t || (y == t && isBetterOrEqual) || (tStar && isBetter)) {
         M.remove_partner(aj, b);
         add_matched_partners(M, a, b, a_data, b_pref_list);
-        q.push(aj);
+        add_to_free_list(free_list, aj);
       } else {
-        q.push(a);
+        add_to_free_list(free_list, a);
       }
     }
   }

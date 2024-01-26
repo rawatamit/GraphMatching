@@ -68,7 +68,7 @@ PrefListElement PreferenceList::at(SizeType index) const {
 }
 
 void PreferenceList::set_tie(RankType rank, VertexPtr v) {
-    if(ties_.find(rank) == ties_.end()) {
+    if (ties_.find(rank) == ties_.end()) {
         ++cur_rank_;
     }
     ties_[rank].emplace_back(rank, v);
@@ -87,13 +87,11 @@ bool PreferenceList::is_tied(RankType rank) const {
 PreferenceOrderT PreferenceList::prefers(VertexPtr a1, VertexPtr a2) { 
   auto a1_rank = (RankType)find_index(a1);
   auto a2_rank = (RankType)find_index(a2);
-  if(a1_rank < a2_rank) {
+  if (a1_rank < a2_rank) {
     return cBetter;
-  }
-  else if(a1_rank == a2_rank) {
+  } else if (a1_rank == a2_rank) {
     return cEqual;
-  }
-  else {
+  } else {
     return cWorse;
   }
 }
