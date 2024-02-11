@@ -75,7 +75,17 @@ public:
     // find if the particular rank is tied 
     bool is_tied(RankType rank) const;
 
+    // return an enum value which denotes the preference of a2 over a1
     PreferenceOrderT prefers(VertexPtr a1, VertexPtr a2);
+
+    // get PrefS, which is a strict preference list obtained by breaking ties
+    // in actual preference list in such a way that the vertices in ties are ordered 
+    // by increasing order of their indices.
+    PreferenceList get_prefS() const;
+
+    // get PrefSC, which is the strict list obtained from PrefS(a) by
+    //  omitting all the non-critical vertices
+    PreferenceList get_prefSC() const;
 
     friend std::ostream& operator<<(std::ostream& out, const PreferenceList& pl);
     friend std::ostream& operator<<(std::ostream& out, const PreferenceList* pl);
