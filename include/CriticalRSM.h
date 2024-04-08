@@ -14,6 +14,7 @@ class CriticalRSM : public MatchingAlgorithm {
 private:
     void ties_propose(FreeListType& free_list, VertexPtr a, const PreferenceList& a_pref_list, std::map<VertexPtr, VertexBookkeeping>& bookkeep_data, Matching& M, const int t);
     void critical_propose(FreeListType& free_list, VertexPtr a, const PreferenceList& a_pref_list, std::map<VertexPtr, VertexBookkeeping>& bookkeep_data, Matching& M);
+    bool CriticalRSM::verify_if_rsm(Matching& M);
 
 public:
     VertexPtr favourite_neighbour(VertexPtr u, const PreferenceList& u_pref_list, VertexBookkeeping &u_data, const Matching& M);

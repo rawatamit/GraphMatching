@@ -3,6 +3,7 @@
 #include "VertexBookkeeping.h"
 #include "Utils.h"
 #include "Vertex.h"
+#include <iostream>
 
 CriticalRSM::CriticalRSM(std::shared_ptr<BipartiteGraph> G, bool A_proposing)
     : MatchingAlgorithm(G, A_proposing)
@@ -129,6 +130,11 @@ Matching CriticalRSM::compute_matching() {
       }
     }
   }
+  bool check = verify_if_rsm(M);
+  if (!check) {
+    std::cout << "Error in generating a critical RSM\n";
+  }
+
   return M;
 }
 
@@ -303,4 +309,49 @@ VertexPtr CriticalRSM::favourite_neighbour(VertexPtr u, const PreferenceList& u_
   }
 
   return nullptr;
+}
+
+bool CriticalRSM::verify_if_rsm(Matching& M) {
+  std::shared_ptr<BipartiteGraph> G = get_graph();
+  // choose the partitions from which the vertices will propose
+  const auto& proposing_partition = is_A_proposing() ? G->get_A_partition()
+                                                     : G->get_B_partition();
+
+  // check every edge
+  for (auto &it: proposing_partition) {
+    auto a = it.second;
+    auto pref_list_a = a->get_preference_list();
+    auto prefS = pref_list_a.get_prefS();
+    // check if a is matched
+    bool matched = M.has_partner(a);
+    VertexPtr a_partner = nullptr;
+    if (matched) {
+      a_partner = M.get_partner(a);
+    }
+    for (auto b: prefS) {
+      auto pref_list_b = b.vertex->get_preference_list();
+      // check if a-b is a blocking edge
+      matched = M.has_partner(b.vertex);
+      VertexPtr b_partner = nullptr;
+      if (matched) {
+        b_partner = M.get_partner(b.vertex);
+      }
+      if (a_partner == b.vertex) {
+        continue;
+      } else {
+        bool blocking_a = ((a_partner == nullptr) || (compute_rank(b.vertex, pref_list_a) < compute_rank(a_partner, pref_list_a)));
+        bool blocking_b = ((b_partner == nullptr) || (compute_rank(a, pref_list_b) < compute_rank(b_partner, pref_list_b)));
+        if (blocking_a && blocking_b) {
+          if (a_partner != nullptr && a_partner->get_lower_quota() == 1) {
+            continue;
+          }
+          if (b_partner != nullptr && b_partner->get_lower_quota() == 1) {
+            continue;
+          }
+          return false;
+        }
+      }
+    }
+  }
+  return true;
 }
