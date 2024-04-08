@@ -343,9 +343,11 @@ bool CriticalRSM::verify_if_rsm(Matching& M) {
         bool blocking_b = ((b_partner == nullptr) || (compute_rank(a, pref_list_b) < compute_rank(b_partner, pref_list_b)));
         if (blocking_a && blocking_b) {
           if (a_partner != nullptr && a_partner->get_lower_quota() == 1) {
+            std::cout << a_partner->get_id() << "-" << b_partner->get_id() << "is a blocking edge" << std::endl;
             continue;
           }
           if (b_partner != nullptr && b_partner->get_lower_quota() == 1) {
+            std::cout << a_partner->get_id() << "-" << b_partner->get_id() << "is a blocking edge" << std::endl;
             continue;
           }
           return false;
