@@ -72,6 +72,7 @@ Matching CriticalRSM::compute_matching() {
 
   while (not free_list.empty()) {
     auto u = remove_from_free_list(free_list, bookkeep_data);
+    
     const auto &u_pref_list = u->get_preference_list();
     auto &u_data = bookkeep_data[u];
     auto l = u_data.level;
@@ -134,7 +135,6 @@ Matching CriticalRSM::compute_matching() {
   if (!check) {
     std::cout << "Error in generating a critical RSM\n";
   }
-
   return M;
 }
 
@@ -152,7 +152,7 @@ void CriticalRSM::critical_propose(FreeListType& free_list, VertexPtr a, const P
     auto aj = M.get_partner(b);
     auto aj_data = bookkeep_data[aj];
     auto y =  aj_data.level;
-    if((l > y) || ((l == y) && b_pref_list.prefers(a, aj))) {
+    if ((l > y) || ((l == y) && b_pref_list.prefers(a, aj))) {
       M.remove_partner(aj, b);
       add_matched_partners(M, a, b, a_data, b_pref_list);
       add_to_free_list(free_list, aj);
@@ -191,15 +191,14 @@ void CriticalRSM::ties_propose(FreeListType& free_list, VertexPtr a, const Prefe
     aj_data.marked[b] = true;
     add_matched_partners(M, a, b, a_data, b_pref_list);
     add_to_free_list(free_list, aj);
-  } else {
+  } else if (!M.check_uncertain_proposal(b)){
     auto aj = M.get_partner(b);
     auto aj_data = bookkeep_data[aj];
     auto y = aj_data.level;
     auto star = aj_data.star;
     auto pref_list_b = b->get_preference_list();
     auto preference = pref_list_b.prefers(a, aj);
-
-    if (a_data.level == t) {
+    if (a_data.level == t && !a_data.star) {
       bool isBetter = (preference == cBetter);
       bool tStar = (y == t) && star;
       if (y < t || (((y == t) || tStar) && isBetter)) {
@@ -216,7 +215,7 @@ void CriticalRSM::ties_propose(FreeListType& free_list, VertexPtr a, const Prefe
       bool isBetterOrEqual = isBetter || (preference == cEqual);
       bool tStar = (y == t) && star;
       if (y < t || (y == t && isBetterOrEqual) || (tStar && isBetter)) {
-        M.remove_partner(aj, b);
+        M.remove_partner(b, aj);
         add_matched_partners(M, a, b, a_data, b_pref_list);
         add_to_free_list(free_list, aj);
       } else {
@@ -316,10 +315,12 @@ bool CriticalRSM::verify_if_rsm(Matching& M) {
   // choose the partitions from which the vertices will propose
   const auto& proposing_partition = is_A_proposing() ? G->get_A_partition()
                                                      : G->get_B_partition();
-
+  
   // check every edge
   for (auto &it: proposing_partition) {
+    
     auto a = it.second;
+    
     auto pref_list_a = a->get_preference_list();
     auto prefS = pref_list_a.get_prefS();
     // check if a is matched
@@ -342,15 +343,12 @@ bool CriticalRSM::verify_if_rsm(Matching& M) {
         bool blocking_a = ((a_partner == nullptr) || (compute_rank(b.vertex, pref_list_a) < compute_rank(a_partner, pref_list_a)));
         bool blocking_b = ((b_partner == nullptr) || (compute_rank(a, pref_list_b) < compute_rank(b_partner, pref_list_b)));
         if (blocking_a && blocking_b) {
-          if (a_partner != nullptr && a_partner->get_lower_quota() == 1) {
-            std::cout << a_partner->get_id() << "-" << b_partner->get_id() << "is a blocking edge" << std::endl;
-            continue;
+          bool s1 = (a_partner != nullptr) && (a_partner->get_lower_quota() == 1);
+          bool s2 = (b_partner != nullptr) && (b_partner->get_lower_quota() == 1);
+          if (!s1 && !s2) {
+            std::cout << a->get_id() << " - " << b.vertex->get_id() << " is a blocking edge." << std::endl;
+            return false;
           }
-          if (b_partner != nullptr && b_partner->get_lower_quota() == 1) {
-            std::cout << a_partner->get_id() << "-" << b_partner->get_id() << "is a blocking edge" << std::endl;
-            continue;
-          }
-          return false;
         }
       }
     }
