@@ -79,6 +79,18 @@ RankType compute_rank(VertexPtr u, const PreferenceList& pref_list) {
     return (RankType) ((index + 1) /*+ (level * pref_list.size())*/ );
 }
 
+bool is_blocking(VertexPtr a, VertexPtr b, const Matching& M) {
+    auto pref_list_a = a->get_preference_list();
+    auto pref_list_b = b->get_preference_list();
+    bool matched = M.has_partner(a);
+    VertexPtr a_partner = (matched) ? M.get_partner(a) : nullptr;
+    matched = M.has_partner(b);
+      VertexPtr b_partner = (matched) ? M.get_partner(b) : nullptr;
+    bool blocking_a = ((a_partner == nullptr) || (compute_rank(b, pref_list_a) < compute_rank(a_partner, pref_list_a)));
+    bool blocking_b = ((b_partner == nullptr) || (compute_rank(a, pref_list_b) < compute_rank(b_partner, pref_list_b)));
+    return (blocking_a && blocking_b);
+}
+
 void print_matching(std::shared_ptr<BipartiteGraph> G,
                     const Matching& M, std::ostream& out)
 {

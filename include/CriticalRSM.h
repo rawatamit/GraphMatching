@@ -17,7 +17,8 @@ private:
 
 public:
     VertexPtr favourite_neighbour(VertexPtr u, const PreferenceList& u_pref_list, VertexBookkeeping &u_data, const Matching& M);
-    bool verify_if_rsm(Matching& M);
+    bool is_rsm(Matching& M);
+    std::vector<std::pair<VertexPtr, VertexPtr>> blocking_pairs(Matching& M);
     explicit CriticalRSM(std::shared_ptr<BipartiteGraph> G, bool A_proposing=true);
     ~CriticalRSM() override = default;
 

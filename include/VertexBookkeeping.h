@@ -56,7 +56,7 @@ public:
       begin_lq(begin_lq), end_lq(end_lq),
       level(0), in_free_list(false),
       residual(residual),
-      star(false)  // Initialize 'star' to false explicitly
+      star(false)
 {}
 
     bool is_exhausted() const {

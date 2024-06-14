@@ -34,6 +34,9 @@ int get_dummy_level(const IdType& id);
 // compute rank from vertex index and level
 RankType compute_rank(VertexPtr u, const PreferenceList& pref_list);
 
+// checks if a-b is a blocking pair
+bool is_blocking(VertexPtr a, VertexPtr b, const Matching& M);
+
 // print matching in a compatible format with other code as described here
 // a,b,index(pref_list^a(b))
 void print_matching(std::shared_ptr<BipartiteGraph> G,
