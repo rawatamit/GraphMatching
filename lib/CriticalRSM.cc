@@ -129,6 +129,10 @@ Matching CriticalRSM::compute_matching() {
       }
     }
   }
+  bool check = is_rsm(M);
+  if (!check) {
+    M = Matching();
+  }
   return M;
 }
 
@@ -146,7 +150,7 @@ void CriticalRSM::critical_propose(FreeListType& free_list, VertexPtr a, const P
     auto aj = M.get_partner(b);
     auto aj_data = bookkeep_data[aj];
     auto y =  aj_data.level;
-    if((l > y) || ((l == y) && b_pref_list.prefers(a, aj))) {
+    if ((l > y) || ((l == y) && b_pref_list.prefers(a, aj))) {
       M.remove_partner(aj, b);
       add_matched_partners(M, a, b, a_data, b_pref_list);
       add_to_free_list(free_list, aj);
@@ -185,15 +189,14 @@ void CriticalRSM::ties_propose(FreeListType& free_list, VertexPtr a, const Prefe
     aj_data.marked[b] = true;
     add_matched_partners(M, a, b, a_data, b_pref_list);
     add_to_free_list(free_list, aj);
-  } else {
+  } else if (!M.check_uncertain_proposal(b)) {
     auto aj = M.get_partner(b);
     auto aj_data = bookkeep_data[aj];
     auto y = aj_data.level;
     auto star = aj_data.star;
     auto pref_list_b = b->get_preference_list();
     auto preference = pref_list_b.prefers(a, aj);
-
-    if (a_data.level == t) {
+    if ((a_data.level == t) && !a_data.star) {
       bool isBetter = (preference == cBetter);
       bool tStar = (y == t) && star;
       if (y < t || (((y == t) || tStar) && isBetter)) {
@@ -210,7 +213,7 @@ void CriticalRSM::ties_propose(FreeListType& free_list, VertexPtr a, const Prefe
       bool isBetterOrEqual = isBetter || (preference == cEqual);
       bool tStar = (y == t) && star;
       if (y < t || (y == t && isBetterOrEqual) || (tStar && isBetter)) {
-        M.remove_partner(aj, b);
+        M.remove_partner(b, aj);
         add_matched_partners(M, a, b, a_data, b_pref_list);
         add_to_free_list(free_list, aj);
       } else {
@@ -303,4 +306,46 @@ VertexPtr CriticalRSM::favourite_neighbour(VertexPtr u, const PreferenceList& u_
   }
 
   return nullptr;
+}
+
+std::vector<std::pair<VertexPtr, VertexPtr>> CriticalRSM::blocking_pairs(Matching& M) {
+  std::shared_ptr<BipartiteGraph> G = get_graph();
+  // choose the partitions from which the vertices will propose
+  const auto& proposing_partition = is_A_proposing() ? G->get_A_partition()
+                                                     : G->get_B_partition();
+  
+  std::vector<std::pair<VertexPtr, VertexPtr>> bps;
+  // check every edge
+  for (auto &it: proposing_partition) {
+    auto a = it.second;
+    auto pref_list_a = a->get_preference_list();
+    auto prefS = pref_list_a.get_prefS();
+    // check if a is matched
+    bool matched = M.has_partner(a);
+    VertexPtr a_partner = (matched) ? M.get_partner(a) : nullptr;
+    for (auto b: prefS) {
+      auto pref_list_b = b.vertex->get_preference_list();
+      // check if a-b is a blocking edge
+      matched = M.has_partner(b.vertex);
+      VertexPtr b_partner = (matched) ? M.get_partner(b.vertex) : nullptr;
+      if (a_partner == b.vertex) {
+        continue;
+      } else {
+        if (is_blocking(a, b.vertex, M)) {
+          bool s1 = (a_partner != nullptr) && (a_partner->get_lower_quota() == 1);
+          bool s2 = (b_partner != nullptr) && (b_partner->get_lower_quota() == 1);
+          if (!s1 && !s2) {
+            bps.push_back({a, b.vertex});
+          }
+        }
+      }
+    }
+  }
+  return bps;
+}
+
+// Given a matching M, returns whether a matching is rsm or not 
+bool CriticalRSM::is_rsm(Matching& M) {
+  std::vector<std::pair<VertexPtr, VertexPtr>> bps = blocking_pairs(M);
+  return ((bps.size()) ? false : true);
 }

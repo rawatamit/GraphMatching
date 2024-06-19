@@ -47,16 +47,17 @@ public:
     {}
     
     VertexBookkeeping(PreferenceList::SizeType begin,
-                      PreferenceList::SizeType end,
-                      PreferenceList::SizeType tied_index,
-                      PreferenceList::SizeType begin_lq,
-                      PreferenceList::SizeType end_lq,
-                      int residual = 0)
-            : begin(begin), end(end), tied_index(tied_index),
-              begin_lq(begin_lq), end_lq(end_lq),
-              level(0), in_free_list(false),
-              residual(residual)
-    {}
+                  PreferenceList::SizeType end,
+                  PreferenceList::SizeType tied_index,
+                  PreferenceList::SizeType begin_lq,
+                  PreferenceList::SizeType end_lq,
+                  int residual = 0)
+    : begin(begin), end(end), tied_index(tied_index),
+      begin_lq(begin_lq), end_lq(end_lq),
+      level(0), in_free_list(false),
+      residual(residual),
+      star(false)
+{}
 
     bool is_exhausted() const {
         return begin >= end;
