@@ -3,3 +3,4 @@ cmake-build-debug/*
 .vscode/*
 .idea/*
 .kdev4/*
+.cache/*
